@@ -1,24 +1,130 @@
 // swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import CompilerPluginSupport
 import PackageDescription
+
+func macroTargets(
+    name: String,
+    dependencies: [Target.Dependency] = [],
+    testDependencies: [Target.Dependency] = []
+) -> [Target] {
+    [
+        .target(
+            name: name,
+            dependencies: dependencies + [
+                .target(name: "\(name)Macros")
+            ]
+        ),
+        .macro(
+            name: "\(name)Macros",
+            dependencies: [
+                .product(
+                    name: "PrincipleMacros",
+                    package: "PrincipleMacros"
+                ),
+                .product(
+                    name: "SwiftCompilerPlugin",
+                    package: "swift-syntax"
+                )
+            ]
+        ),
+        .testTarget(
+            name: "\(name)MacrosTests",
+            dependencies: [
+                .target(
+                    name: "\(name)Macros"
+                ),
+                .product(
+                    name: "SwiftSyntaxMacrosTestSupport",
+                    package: "swift-syntax"
+                )
+            ]
+        ),
+        .testTarget(
+            name: "\(name)Tests",
+            dependencies: testDependencies + [
+                .target(name: name)
+            ]
+        )
+    ]
+}
 
 let package = Package(
     name: "Probing",
+    platforms: [
+        .macOS(.v15),
+        .macCatalyst(.v18),
+        .iOS(.v18),
+        .tvOS(.v18),
+        .watchOS(.v11),
+        .visionOS(.v2)
+    ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "Probing",
-            targets: ["Probing"]),
+            targets: ["Probing"]
+        ),
+        .library(
+            name: "ProbeTesting",
+            targets: ["ProbeTesting"]
+        ),
+        .library(
+            name: "DeeplyCopyable",
+            targets: ["DeeplyCopyable"]
+        ),
+        .library(
+            name: "EquatableObject",
+            targets: ["EquatableObject"]
+        )
+    ],
+    dependencies: [
+        .package(
+            url: "https://github.com/NSFatalError/Principle",
+            from: "0.0.3"
+        ),
+        .package(
+            url: "https://github.com/NSFatalError/PrincipleMacros",
+            from: "0.0.3"
+        ),
+        .package(
+            url: "https://github.com/swiftlang/swift-syntax",
+            from: "600.0.0-latest"
+        ),
+        .package(
+            url: "https://github.com/apple/swift-algorithms",
+            from: "1.2.0"
+        )
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Probing"),
-        .testTarget(
-            name: "ProbingTests",
-            dependencies: ["Probing"]
+            name: "ProbeTesting",
+            dependencies: [
+                "Principle",
+                "Probing"
+            ]
         ),
-    ]
+        .testTarget(
+            name: "ProbeTestingTests",
+            dependencies: ["ProbeTesting"]
+        )
+    ] + macroTargets(
+        name: "Probing",
+        dependencies: [
+            "Principle",
+            "DeeplyCopyable",
+            "EquatableObject",
+            .product(
+                name: "Algorithms",
+                package: "swift-algorithms"
+            )
+        ]
+    ) + macroTargets(
+        name: "DeeplyCopyable",
+        testDependencies: [
+            "EquatableObject"
+        ]
+    ) + macroTargets(
+        name: "EquatableObject"
+    )
 )

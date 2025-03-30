@@ -1,0 +1,51 @@
+{
+  "originHash" : "b2843f579af8d94d4d78ad54a94e1038f8645139e4f07998c4eddec2478f2b07",
+  "pins" : [
+    {
+      "identity" : "principle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/NSFatalError/Principle",
+      "state" : {
+        "revision" : "3a0ce9bef0828a948b12dc6fb30589a4cfd85ef3",
+        "version" : "0.0.3"
+      }
+    },
+    {
+      "identity" : "principlemacros",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/NSFatalError/PrincipleMacros",
+      "state" : {
+        "revision" : "db8a49d76742ed362b7a5d53ee56a5af9e641dc0",
+        "version" : "0.0.3"
+      }
+    },
+    {
+      "identity" : "swift-algorithms",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-algorithms",
+      "state" : {
+        "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
+        "version" : "1.2.1"
+      }
+    },
+    {
+      "identity" : "swift-numerics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-numerics.git",
+      "state" : {
+        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}
