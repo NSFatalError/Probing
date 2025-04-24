@@ -12,7 +12,7 @@ import SwiftCompilerPlugin
 @main
 internal struct ProbingPlugin: CompilerPlugin {
 
-    let providingMacros: [Macro.Type] = [
+    let providingMacros: [any Macro.Type] = [
         ProbeMacro.self,
         EffectMacro.self
     ]

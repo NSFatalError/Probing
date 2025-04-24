@@ -13,7 +13,7 @@ import XCTest
 
 internal final class ProbeMacroTests: XCTestCase {
 
-    private let macros: [String: Macro.Type] = [
+    private let macros: [String: any Macro.Type] = [
         "probe": ProbeMacro.self
     ]
 

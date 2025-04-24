@@ -15,6 +15,8 @@ public enum ProbeMacro: ExpressionMacro {
         in _: some MacroExpansionContext
     ) throws -> ExprSyntax {
         let parameters = Parameters(from: node)
+        // Review after async caller execution gets implemented
+        // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
 
         return """
         { (isolation: isolated (any Actor)?) async -> Void in
