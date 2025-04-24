@@ -12,7 +12,7 @@ public enum EquatableObjectMacro {
 
     private static func validate(
         _ declaration: some DeclGroupSyntax,
-        in context: MacroExpansionContext
+        in context: some MacroExpansionContext
     ) -> ClassDeclSyntax? {
         guard let declaration = declaration as? ClassDeclSyntax,
               declaration.isFinal

@@ -81,17 +81,6 @@ extension RawRepresentable where Self: DeeplyCopyable, RawValue: DeeplyCopyable 
     }
 }
 
-extension Dictionary: DeeplyCopyable where Key: DeeplyCopyable, Value: DeeplyCopyable {
-
-    public init(deeplyCopying other: Self) {
-        self.init(
-            uniqueKeysWithValues: other.lazy.map { key, value in
-                (key.deepCopy(), value.deepCopy())
-            }
-        )
-    }
-}
-
 // MARK: - BinaryInteger
 
 extension BinaryInteger where Self: DeeplyCopyable {
@@ -140,10 +129,12 @@ extension RangeReplaceableCollection where Self: DeeplyCopyable, Element: Deeply
 extension Data: DeeplyCopyable {}
 extension String: DeeplyCopyable {}
 extension Substring: DeeplyCopyable {}
+
 extension Array: DeeplyCopyable where Element: DeeplyCopyable {}
 extension ContiguousArray: DeeplyCopyable where Element: DeeplyCopyable {}
-extension ArraySlice: DeeplyCopyable where Element: DeeplyCopyable {}
+
 extension Slice: DeeplyCopyable where Base: RangeReplaceableCollection, Element: DeeplyCopyable {}
+extension ArraySlice: DeeplyCopyable where Element: DeeplyCopyable {}
 
 // MARK: - SetAlgebra
 
@@ -155,3 +146,16 @@ extension SetAlgebra where Self: Sequence, Self: DeeplyCopyable, Element: Deeply
 }
 
 extension Set: DeeplyCopyable where Element: DeeplyCopyable {}
+
+// MARK: - Dictionary
+
+extension Dictionary: DeeplyCopyable where Key: DeeplyCopyable, Value: DeeplyCopyable {
+
+    public init(deeplyCopying other: Self) {
+        self.init(
+            uniqueKeysWithValues: other.lazy.map { key, value in
+                (key.deepCopy(), value.deepCopy())
+            }
+        )
+    }
+}

@@ -21,7 +21,7 @@ internal struct DeeplyCopyableEnumInitDeclBuilder: EnumDeclBuilder {
         [
             """
             \(inheritedAccessControlLevel)init(deeplyCopying other: \(trimmedTypeName)) {
-                \(switchExprBuilder().build().formatted())
+                \(switchExprBuilder().build())
             }
             """
         ]
