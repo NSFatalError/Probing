@@ -67,20 +67,20 @@ jobs:
       id: destination
       run: |
         case "${{ matrix.platform }}" in
-          ios)
-            destination="platform=iOS Simulator,name=iPhone 16 Pro Max,OS=latest"
-            ;;
           maccatalyst)
             destination="platform=macOS,variant=Mac Catalyst"
+            ;;
+          ios)
+            destination="platform=iOS Simulator,name=iPhone 16 Pro Max,OS=latest"
             ;;
           tvos)
             destination="platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
             ;;
-          visionos)
-            destination="platform=visionOS Simulator,name=Apple Vision Pro,OS=latest"
-            ;;
           watchos)
             destination="platform=watchOS Simulator,name=Apple Watch Series 10 (46mm),OS=latest"
+            ;;
+          visionos)
+            destination="platform=visionOS Simulator,name=Apple Vision Pro,OS=latest"
             ;;
           *)
             echo "Unknown platform: ${{ matrix.platform }}"
