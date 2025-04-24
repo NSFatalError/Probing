@@ -128,3 +128,10 @@ let package = Package(
         name: "EquatableObject"
     )
 )
+
+for target in package.targets {
+    target.swiftSettings = (target.swiftSettings ?? []) + [
+        .swiftLanguageMode(.v6),
+        .enableUpcomingFeature("ExistentialAny")
+    ]
+}
