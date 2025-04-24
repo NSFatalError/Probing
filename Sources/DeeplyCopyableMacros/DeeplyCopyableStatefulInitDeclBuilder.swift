@@ -10,7 +10,7 @@ import PrincipleMacros
 
 internal struct DeeplyCopyableStatefulInitDeclBuilder: StatefulDeclBuilder {
 
-    let declaration: StatefulDeclSyntax
+    let declaration: any StatefulDeclSyntax
     let filteredProperties: PropertiesList
 
     var settings: DeclBuilderSettings {
