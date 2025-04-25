@@ -6,4 +6,4 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@_exported import Probing
+@_documentation(visibility: private) @_exported import Probing

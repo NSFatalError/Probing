@@ -12,7 +12,7 @@ internal enum TestPhase {
     case running
     case paused(TestContinuation)
     case passed
-    case failed(Error)
+    case failed(any Error)
 }
 
 extension TestPhase {

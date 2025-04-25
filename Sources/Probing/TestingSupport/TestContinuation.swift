@@ -6,4 +6,4 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-internal typealias TestContinuation = CheckedContinuation<Void, Error>
+internal typealias TestContinuation = CheckedContinuation<Void, any Error>

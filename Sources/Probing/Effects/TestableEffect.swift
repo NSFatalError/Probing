@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import Principle
+import PrincipleConcurrency
 
 public struct TestableEffect<Success: Sendable>: Effect, Hashable {
 
@@ -35,7 +35,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         }
 
         let isolation = extractIsolation(operation)
-        let operation = unsafeSendable(operation)
+        var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
             line: line,
@@ -43,18 +43,18 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         )
 
         let task = EffectIdentifier.appending(name()) { id in
+            var transfer = transfer.take()
             coordinator.willCreateEffect(
                 withID: id,
                 at: location
             )
 
             return Task(priority: priority) {
-                await coordinator.willStartEffect(
-                    withID: id,
-                    isolation: isolation
-                )
-
-                let value = await operation.perform()
+                // NOTE: #isolation != isolation
+                // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
+                // https://forums.swift.org/t/closure-isolation-control/70378
+                await coordinator.willStartEffect(withID: id, isolation: isolation)
+                let value = await transfer.finalize()()
 
                 defer {
                     coordinator.didCompleteEffect(
@@ -91,7 +91,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
-        let operation = unsafeSendable(operation)
+        var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
             line: line,
@@ -99,18 +99,15 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         )
 
         let task = EffectIdentifier.appending(name()) { [taskExecutor] id in
+            var transfer = transfer.take()
             coordinator.willCreateEffect(
                 withID: id,
                 at: location
             )
 
             return Task(executorPreference: taskExecutor, priority: priority) {
-                await coordinator.willStartEffect(
-                    withID: id,
-                    isolation: #isolation
-                )
-
-                let value = await operation.perform()
+                await coordinator.willStartEffect(withID: id, isolation: nil)
+                let value = await transfer.finalize()()
 
                 defer {
                     coordinator.didCompleteEffect(

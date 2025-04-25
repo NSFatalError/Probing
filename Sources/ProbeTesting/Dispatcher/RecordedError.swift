@@ -10,11 +10,11 @@ import Testing
 
 internal struct RecordedError: Error {
 
-    let underlying: Error
+    let underlying: any Error
     let sourceLocation: SourceLocation
 
     init(
-        underlying: Error,
+        underlying: some Error,
         sourceLocation: SourceLocation
     ) {
         self.underlying = underlying
