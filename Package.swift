@@ -100,7 +100,6 @@ let package = Package(
         .target(
             name: "ProbeTesting",
             dependencies: [
-                "Principle",
                 "Probing"
             ]
         ),
@@ -111,9 +110,16 @@ let package = Package(
     ] + macroTargets(
         name: "Probing",
         dependencies: [
-            "Principle",
             "DeeplyCopyable",
             "EquatableObject",
+            .product(
+                name: "PrincipleConcurrency",
+                package: "Principle"
+            ),
+            .product(
+                name: "PrincipleCollections",
+                package: "Principle"
+            ),
             .product(
                 name: "Algorithms",
                 package: "swift-algorithms"

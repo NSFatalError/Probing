@@ -1,13 +1,13 @@
 {
-  "originHash" : "805ad65cc3730afcfb0d1d901651c2679651dd2ad8b7ae03097bf30d82c80883",
+  "originHash" : "85f2024014ad1bd1c6c6f5b4aecbe180fcd0406c3e1c11a55c264ce280c7aafb",
   "pins" : [
     {
       "identity" : "principle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NSFatalError/Principle",
       "state" : {
-        "revision" : "27f8e68287d3eeed797c82286d1202754a39d439",
-        "version" : "1.0.1"
+        "revision" : "e132d110373c1c8d92df6ebfe7774145c89f9432",
+        "version" : "1.0.2"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NSFatalError/PrincipleMacros",
       "state" : {
-        "revision" : "f3c3d13c1201c5e09e45dc399adbc5691107acd8",
-        "version" : "1.0.0"
+        "revision" : "6614d281e40365ea2c877dd61c9751b4ce6ee062",
+        "version" : "1.0.1"
       }
     },
     {
