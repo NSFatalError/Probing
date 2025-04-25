@@ -52,6 +52,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             return Task(priority: priority) {
                 // NOTE: #isolation != isolation
                 // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
+                // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0472-task-start-synchronously-on-caller-context.md
                 // https://forums.swift.org/t/closure-isolation-control/70378
                 await coordinator.willStartEffect(withID: id, isolation: isolation)
                 let value = await transfer.finalize()()
