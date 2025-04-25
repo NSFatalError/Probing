@@ -12,7 +12,7 @@ internal struct ProbingState {
 
     let rootEffect: EffectState
     private(set) var testPhase = TestPhase.scheduled
-    private(set) var errors = [Error]()
+    private(set) var errors = [any Error]()
 
     var isTracking: Bool {
         !testPhase.isCompleted && errors.isEmpty
@@ -29,7 +29,7 @@ extension ProbingState {
         testPhase = .paused(continuation)
     }
 
-    mutating func resumeTestIfPossible(throwing error: Error?) {
+    mutating func resumeTestIfPossible(throwing error: (any Error)?) {
         if let error {
             errors.append(error)
         }
@@ -63,7 +63,7 @@ extension ProbingState {
         completeTest()
     }
 
-    private mutating func failTest(with error: Error) {
+    private mutating func failTest(with error: any Error) {
         testPhase = .failed(error)
         completeTest()
     }
@@ -116,9 +116,14 @@ extension ProbingState {
 extension Mutex<ProbingState> {
 
     func resumeTestIfPossible(
-        after operation: (inout ProbingState) throws -> Void
+        after operation: (inout sending ProbingState) throws -> Void
     ) {
         withLock { state in
+            // https://github.com/swiftlang/swift/issues/80489
+            // https://github.com/swiftlang/swift/issues/80490
+            // https://forums.swift.org/t/sending-inout-sending-mutex/76373/15
+            nonisolated(unsafe) var state = state
+
             do {
                 try operation(&state)
                 state.resumeTestIfPossible(throwing: nil)
