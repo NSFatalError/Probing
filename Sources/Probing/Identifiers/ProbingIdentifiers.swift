@@ -24,19 +24,3 @@ internal enum ProbingIdentifiers {
         join(components.lazy.map(\.rawValue))
     }
 }
-
-extension ProbingIdentifiers {
-
-    static func preconditionNotEmpty(
-        _ components: some Collection<some ProbingIdentifierProtocol>,
-        file: StaticString = #file,
-        line: UInt = #line
-    ) {
-        precondition(
-            !components.isEmpty,
-            "Identifier must not be empty.",
-            file: file,
-            line: line
-        )
-    }
-}

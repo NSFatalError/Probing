@@ -12,7 +12,7 @@ public struct ProbeIdentifier {
     public let effect: EffectIdentifier
     public let name: ProbeName
 
-    init(
+    public init(
         effect: EffectIdentifier,
         name: ProbeName
     ) {
@@ -22,26 +22,6 @@ public struct ProbeIdentifier {
         ])
         self.effect = effect
         self.name = name
-    }
-}
-
-extension ProbeIdentifier {
-
-    public static var probe: Self {
-        .probe(.default)
-    }
-
-    public static func probe(
-        _ name: ProbeName
-    ) -> Self {
-        .init(effect: .root, name: name)
-    }
-
-    public static func probe(
-        _ name: ProbeName = .default,
-        in effect: EffectIdentifier
-    ) -> Self {
-        .init(effect: effect, name: name)
     }
 }
 
