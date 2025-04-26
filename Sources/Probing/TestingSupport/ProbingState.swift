@@ -98,6 +98,9 @@ extension ProbingState {
             return nil
         }
     }
+}
+
+extension ProbingState {
 
     func preconditionTestPhase(
         _ condition: (TestPhase) -> Bool,
@@ -109,6 +112,14 @@ extension ProbingState {
             "Cannot transition from current test phase: \(testPhase).",
             file: file,
             line: line
+        )
+    }
+
+    func preconditionTestPhase(_ precondition: TestPhase.Precondition) {
+        preconditionTestPhase(
+            precondition.condition,
+            file: precondition.file,
+            line: precondition.line
         )
     }
 }

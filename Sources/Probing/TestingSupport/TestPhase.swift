@@ -71,3 +71,23 @@ extension TestPhase {
         }
     }
 }
+
+extension TestPhase {
+
+    struct Precondition {
+
+        let condition: @Sendable (TestPhase) -> Bool
+        let file: StaticString
+        let line: UInt
+
+        init(
+            _ condition: @Sendable @escaping (TestPhase) -> Bool,
+            file: StaticString = #file,
+            line: UInt = #line
+        ) {
+            self.condition = condition
+            self.file = file
+            self.line = line
+        }
+    }
+}
