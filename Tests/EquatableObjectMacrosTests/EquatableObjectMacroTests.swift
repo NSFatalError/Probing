@@ -13,7 +13,7 @@ import XCTest
 
 internal final class EquatableObjectMacroTests: XCTestCase {
 
-    private let macros: [String: Macro.Type] = [
+    private let macros: [String: any Macro.Type] = [
         "EquatableObject": EquatableObjectMacro.self
     ]
 

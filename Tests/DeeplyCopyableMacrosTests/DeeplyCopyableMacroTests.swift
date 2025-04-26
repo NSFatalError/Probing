@@ -13,7 +13,7 @@ import XCTest
 
 internal final class DeeplyCopyableMacroTests: XCTestCase {
 
-    private let macros: [String: Macro.Type] = [
+    private let macros: [String: any Macro.Type] = [
         "DeeplyCopyable": DeeplyCopyableMacro.self
     ]
 

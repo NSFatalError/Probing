@@ -13,7 +13,7 @@ import XCTest
 
 internal final class EffectMacroTests: XCTestCase {
 
-    private let macros: [String: Macro.Type] = [
+    private let macros: [String: any Macro.Type] = [
         "Effect": EffectMacro.self
     ]
 
