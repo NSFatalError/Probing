@@ -11,6 +11,7 @@ import Testing
 
 public func withProbing<R>(
     at sourceLocation: SourceLocation = #_sourceLocation,
+    options: ProbingOptions = [.ignoreProbingInTasks],
     isolation: isolated (any Actor)? = #isolation,
     @_implicitSelfCapture of body: @escaping () async throws -> sending R,
     @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> sending Void
@@ -19,6 +20,7 @@ public func withProbing<R>(
     let body = uncheckedSendable(body)
 
     return try await ProbingCoordinator.run(
+        options: options,
         isolation: isolation,
         fileID: sourceLocation.fileID,
         line: sourceLocation.line,

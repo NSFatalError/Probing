@@ -7,7 +7,7 @@
 //
 
 import Algorithms
-import Principle
+import PrincipleCollections
 
 internal enum ProbingErrors {}
 
@@ -54,7 +54,7 @@ extension ProbingErrors {
             uses the same identifier and \(violation).
 
             Recovery suggestions:
-            - If effects have distinct purposes assign unique identifiers to them.
+            - If effects have distinct purposes assign unique identifiers to each of them.
             - Ensure preexisting effect and its children have completed before a new one is created.
             """
         }
@@ -81,7 +81,7 @@ extension ProbingErrors {
 
                 Recovery suggestions:
                 - If cancellation is expected use the getCancelledValue method.
-                - Ensure test was setup in a way that allows conditional code to finish the effect.
+                - Ensure test was set up in a way that allows conditional code to finish the effect.
                 """
 
             default:
@@ -111,7 +111,7 @@ extension ProbingErrors {
 
                 Recovery suggestions:
                 - If finish is expected use the getValue method.
-                - Ensure test was setup in a way that allows conditional code to cancel the effect.
+                - Ensure test was set up in a way that allows conditional code to cancel the effect.
                 """
 
             default:
@@ -134,10 +134,7 @@ extension ProbingErrors {
 
         let backtrace: EffectBacktrace
         let expectation: (id: EffectIdentifier, dispatch: EffectDispatch)
-
-        private var descendant: String {
-            backtrace.id == .root ? "effect" : "child"
-        }
+        let options = ProbingOptions.current
 
         private var requirement: String {
             switch expectation.dispatch {
@@ -146,21 +143,31 @@ extension ProbingErrors {
             case let .runUntilCompleted(includeDescendants):
                 "be completed\(includeDescendants ? ", including its descendants" : "")"
             case .runUntilChildCreated, .suspendWhenPossible:
-                "[internal framework error]"
+                "[precondition failure]"
             }
         }
 
         var description: String {
-            """
-            \(backtrace.foreword), was completed without creating the expected \(descendant) \
-            with identifier \"\(expectation.id.suffix(from: backtrace.id))\".
+            var description = """
+            \(backtrace.foreword), was completed without creating the expected child \
+            with partial identifier \"\(expectation.id.suffix(from: backtrace.id))\".
 
             This child effect was required to \(requirement).
 
             Recovery suggestions:
             - Verify that the provided identifier is correct.
-            - Ensure test was setup in a way that allows conditional code to create the expected child effect.
+            - Ensure test was set up in a way that allows conditional code to create the expected child effect.
             """
+
+            if options.contains(.ignoreProbingInTasks) {
+                description += "\n\n" + """
+                Since ignoreProbingInTasks option  was enabled (default), it's possible that the child effect \
+                was created from a Task's body and run as a standard task. Only child effects created from other #Effect macros \
+                allow the framework to control their execution. To support them, replace all Task instances with #Effect macros.
+                """
+            }
+
+            return description
         }
     }
 
@@ -168,16 +175,27 @@ extension ProbingErrors {
 
         let backtrace: EffectBacktrace
         let expectation: ProbeIdentifier
+        let options = ProbingOptions.current
 
         var description: String {
-            """
+            var description = """
             \(backtrace.foreword), was completed without installing the expected probe \
             with identifier \"\(expectation)\".
 
             Recovery suggestions:
             - Verify that the provided identifier is correct.
-            - Ensure test was setup in a way that allows conditional code to install the expected probe.
+            - Ensure test was set up in a way that allows conditional code to install the expected probe.
             """
+
+            if options.contains(.ignoreProbingInTasks) {
+                description += "\n\n" + """
+                Since ignoreProbingInTasks option was enabled (default), it's possible that the probe \
+                was installed from a Task's body and resumed immediately. Only probes created from #Effect macros \
+                allow the framework to control their execution. To support them, replace all Task instances with #Effect macros.
+                """
+            }
+
+            return description
         }
     }
 }
@@ -242,8 +260,8 @@ extension ProbingErrors {
         \(violation)
 
         Recovery suggestions:
+        - Ensure no part of the tested code runs concurrently with the test dispatches.
         - Replace all Task instances with #Effect macros to allow the framework to control their execution.
-        - Serialize creation of \(subsystem)s by manually controlling the execution flow.
         - If the issue persists, consider removing problematic \(subsystem)s and using an alternative testing approach.
         """
     }
@@ -254,12 +272,12 @@ extension ProbingErrors {
 extension EffectBacktrace {
 
     fileprivate var foreword: String {
-        afterword.capitalizingFirstLetter()
+        afterword.uppercasingFirstCharacter()
     }
 
     fileprivate var afterword: String {
         if id == .root {
-            "test body created at \(location)"
+            "probed body (root effect), created at \(location)"
         } else {
             "effect with identifier \"\(id)\", created at \(location)"
         }

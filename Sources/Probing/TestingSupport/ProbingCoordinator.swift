@@ -10,12 +10,16 @@ import Synchronization
 
 package final class ProbingCoordinator: Sendable {
 
+    let options: ProbingOptions
     private let state: Mutex<ProbingState>
 
-    private init(rootEffectLocation: ProbingLocation) {
-        self.state = .init(
-            ProbingState(rootEffectLocation: rootEffectLocation)
-        )
+    private init(
+        options: ProbingOptions,
+        rootEffectLocation: ProbingLocation
+    ) {
+        let initialState = ProbingState(rootEffectLocation: rootEffectLocation)
+        self.state = .init(initialState)
+        self.options = options
     }
 
     deinit {
@@ -40,6 +44,7 @@ extension ProbingCoordinator {
     }
 
     package static func run<R>(
+        options: ProbingOptions,
         isolation: isolated (any Actor)?,
         fileID: String,
         line: Int,
@@ -47,6 +52,7 @@ extension ProbingCoordinator {
         body: (ProbingCoordinator) async throws -> R
     ) async throws -> R {
         let coordinator = ProbingCoordinator(
+            options: options,
             rootEffectLocation: ProbingLocation(
                 fileID: fileID,
                 line: line,
