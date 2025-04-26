@@ -29,11 +29,6 @@ extension EffectState {
         let backtrace = EffectBacktrace(id: .root, location: location)
         return .init(backtrace: backtrace)
     }
-
-    private static func child(id: EffectIdentifier, location: ProbingLocation) -> EffectState {
-        let backtrace = EffectBacktrace(id: id, location: location)
-        return .init(backtrace: backtrace)
-    }
 }
 
 extension EffectState {
@@ -90,10 +85,10 @@ extension EffectState {
 
 extension EffectState {
 
-    func createChild(withID childID: EffectIdentifier, at location: ProbingLocation) throws {
+    func createChild(withBacktrace backtrace: EffectBacktrace) throws {
         preconditionRoot()
-        let child = EffectState.child(id: childID, location: location)
-        try insertChild(child, at: childID.path[...])
+        let child = EffectState(backtrace: backtrace)
+        try insertChild(child, at: backtrace.id.path[...])
     }
 
     private func insertChild(_ child: EffectState, at path: ArraySlice<EffectName>) throws {

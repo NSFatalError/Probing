@@ -12,6 +12,7 @@ internal struct ProbingState {
 
     let rootEffect: EffectState
     private(set) var testPhase = TestPhase.scheduled
+    private(set) var taskIDs = Set<Int>()
     private(set) var errors = [any Error]()
 
     var isTracking: Bool {
@@ -73,6 +74,25 @@ extension ProbingState {
             withID: .root,
             includingDescendants: true
         )
+    }
+}
+
+extension ProbingState {
+
+    mutating func registerCurrentTask() {
+        guard let taskID = Task.id else {
+            return
+        }
+        let result = taskIDs.insert(taskID)
+        precondition(result.inserted, "Task was already registered.")
+    }
+
+    mutating func unregisterCurrentTask() {
+        guard let taskID = Task.id else {
+            return
+        }
+        let result = taskIDs.remove(taskID)
+        precondition(result != nil, "Task was never registered.")
     }
 }
 

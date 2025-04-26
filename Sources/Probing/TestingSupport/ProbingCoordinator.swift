@@ -28,6 +28,10 @@ package final class ProbingCoordinator: Sendable {
                 state.testPhase.isCompleted,
                 "Test has not been completed before coordinator deallocation."
             )
+            precondition(
+                state.taskIDs.isEmpty,
+                "Some effects did not report completion before coordinator deallocation."
+            )
         }
     }
 }
@@ -171,6 +175,16 @@ extension ProbingCoordinator {
 
 extension ProbingCoordinator {
 
+    private func shouldProbeCurrentTask(state: ProbingState) -> Bool {
+        guard options.contains(.ignoreProbingInTasks) else {
+            return true
+        }
+        guard let taskID = Task.id else {
+            return false
+        }
+        return state.taskIDs.contains(taskID)
+    }
+
     func installProbe(
         withName name: ProbeName,
         at location: ProbingLocation,
@@ -206,12 +220,16 @@ extension ProbingCoordinator {
 
                 switch childEffect.phase {
                 case let .probed(preexisting):
-                    // UNSAFE_CURRENT_TASK
                     throw apiMisuseError(preexisting: preexisting)
 
                 default:
                     guard !state.testPhase.isRunning else {
                         throw apiMisuseError(preexisting: nil)
+                    }
+
+                    guard shouldProbeCurrentTask(state: state) else {
+                        continuation.resume()
+                        return
                     }
 
                     state.preconditionTestPhase(\.isPaused)
@@ -229,21 +247,29 @@ extension ProbingCoordinator {
     func willCreateEffect(
         withID id: EffectIdentifier,
         at location: ProbingLocation
-    ) {
-        // UNSAFE_CURRENT_TASK
+    ) -> Bool {
+        let backtrace = EffectBacktrace(id: id, location: location)
+        var didCreateChild = false
+
         state.resumeTestIfPossible { state in
             guard state.isTracking else {
                 return
             }
 
             guard !state.testPhase.isRunning else {
-                let backtrace = EffectBacktrace(id: id, location: location)
                 throw ProbingErrors.EffectAPIMisuse(backtrace: backtrace)
             }
 
+            guard shouldProbeCurrentTask(state: state) else {
+                return
+            }
+
             state.preconditionTestPhase(\.isPaused)
-            try state.rootEffect.createChild(withID: id, at: location)
+            try state.rootEffect.createChild(withBacktrace: backtrace)
+            didCreateChild = true
         }
+
+        return didCreateChild
     }
 }
 
@@ -256,6 +282,10 @@ extension ProbingCoordinator {
     ) async {
         await withCheckedContinuation(isolation: isolation) { underlying in
             state.resumeTestIfPossible { state in
+                if options.contains(.ignoreProbingInTasks) {
+                    state.registerCurrentTask()
+                }
+
                 guard state.isTracking,
                       let childEffect = state.childEffect(withID: id)
                 else {
@@ -311,6 +341,10 @@ extension ProbingCoordinator {
         testPhasePrecondition precondition: TestPhase.Precondition
     ) {
         state.resumeTestIfPossible { state in
+            if options.contains(.ignoreProbingInTasks) {
+                state.unregisterCurrentTask()
+            }
+
             guard state.isTracking,
                   let childEffect = state.childEffect(withID: id)
             else {

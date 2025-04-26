@@ -34,6 +34,8 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
+        let name = name()
+        let id = EffectIdentifier.current.appending(name)
         let isolation = extractIsolation(operation)
         var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
@@ -42,18 +44,24 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             column: column
         )
 
-        let task = EffectIdentifier.appending(name()) { id in
-            var transfer = transfer.take()
-            coordinator.willCreateEffect(
-                withID: id,
-                at: location
+        guard coordinator.willCreateEffect(withID: id, at: location) else {
+            return .init(
+                task: Task(
+                    priority: priority,
+                    operation: transfer.finalize()
+                )
             )
+        }
+
+        let task = EffectIdentifier.appending(name) { id in
+            var transfer = transfer.take()
 
             return Task(priority: priority) {
-                // NOTE: #isolation != isolation
                 // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
                 // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0472-task-start-synchronously-on-caller-context.md
                 // https://forums.swift.org/t/closure-isolation-control/70378
+                // This closure would preferably be isolated to `operation.isolation`
+
                 await coordinator.willStartEffect(withID: id, isolation: isolation)
                 let value = await transfer.finalize()()
 
@@ -92,6 +100,8 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
+        let name = name()
+        let id = EffectIdentifier.current.appending(name)
         var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
@@ -99,12 +109,18 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             column: column
         )
 
-        let task = EffectIdentifier.appending(name()) { [taskExecutor] id in
-            var transfer = transfer.take()
-            coordinator.willCreateEffect(
-                withID: id,
-                at: location
+        guard coordinator.willCreateEffect(withID: id, at: location) else {
+            return .init(
+                task: Task(
+                    executorPreference: taskExecutor,
+                    priority: priority,
+                    operation: transfer.finalize()
+                )
             )
+        }
+
+        let task = EffectIdentifier.appending(name) { [taskExecutor] id in
+            var transfer = transfer.take()
 
             return Task(executorPreference: taskExecutor, priority: priority) {
                 await coordinator.willStartEffect(withID: id, isolation: nil)

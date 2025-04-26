@@ -43,12 +43,16 @@ extension EffectIdentifier {
         _current
     }
 
+    func appending(_ childName: EffectName) -> EffectIdentifier {
+        let childPath = path + CollectionOfOne(childName)
+        return EffectIdentifier(path: childPath)
+    }
+
     static func appending<R>(
         _ childName: EffectName,
         operation: (EffectIdentifier) throws -> R
     ) rethrows -> R {
-        let childPath = current.path + CollectionOfOne(childName)
-        let childID = EffectIdentifier(path: childPath)
+        let childID = current.appending(childName)
         return try $_current.withValue(childID) {
             try operation(childID)
         }

@@ -31,6 +31,7 @@ public func withProbing<R>(
                     _ = isolation
                     let dispatcher = ProbingDispatcher(coordinator: coordinator)
                     await coordinator.willStartTest(isolation: isolation)
+                    try Task.checkCancellation()
                     try await test.perform(dispatcher)
                 } catch {
                     try? coordinator.didCompleteTest()
@@ -54,6 +55,9 @@ public func withProbing<R>(
                 await coordinator.willStartRootEffect(isolation: isolation)
                 defer { coordinator.didCompleteRootEffect() }
                 result = try await body.perform()
+            } catch {
+                testTask.cancel()
+                throw error
             }
 
             _ = try await testTask.value
