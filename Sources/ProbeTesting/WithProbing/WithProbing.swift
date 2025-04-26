@@ -6,18 +6,17 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import Principle
 import Probing
 import Testing
 
-public func withProbing<R: Sendable>(
-    sourceLocation: SourceLocation = #_sourceLocation,
+public func withProbing<R>(
+    at sourceLocation: SourceLocation = #_sourceLocation,
     isolation: isolated (any Actor)? = #isolation,
-    @_implicitSelfCapture of body: @escaping () async throws -> R,
-    @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> Void
+    @_implicitSelfCapture of body: @escaping () async throws -> sending R,
+    @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> sending Void
 ) async throws -> R {
-    let test = veryUnsafeSendable(test)
-    let body = veryUnsafeSendable(body)
+    let test = uncheckedSendable(test)
+    let body = uncheckedSendable(body)
 
     return try await ProbingCoordinator.run(
         isolation: isolation,
@@ -46,15 +45,17 @@ public func withProbing<R: Sendable>(
                 }
             }
 
-            let value = try await {
+            let result: R
+
+            do {
                 _ = isolation
                 await coordinator.willStartRootEffect(isolation: isolation)
                 defer { coordinator.didCompleteRootEffect() }
-                return try await body.perform()
-            }()
+                result = try await body.perform()
+            }
 
             _ = try await testTask.value
-            return value
+            return result
         }
     )
 }

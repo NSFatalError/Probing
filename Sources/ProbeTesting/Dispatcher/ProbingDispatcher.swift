@@ -6,7 +6,6 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import Principle
 import Probing
 import Testing
 
@@ -21,31 +20,38 @@ public struct ProbingDispatcher: Sendable {
 
 extension ProbingDispatcher {
 
-    private func withIssueRecording<R: Sendable>(
+    private func withIssueRecording<R>(
         at sourceLocation: SourceLocation,
         isolation: isolated (any Actor)?,
         perform dispatch: () async throws -> Void,
-        after operation: () async throws -> R
+        after operation: @escaping () async throws -> sending R
     ) async throws -> R {
-        try await withoutActuallyEscaping(operation) { operation in
-            let task = Task {
-                _ = isolation
-                try Task.checkCancellation()
-                return try await operation()
-            }
+        var result: R?
 
-            do {
-                _ = isolation
-                try await dispatch()
-                return try await task.value
-            } catch {
-                task.cancel()
-                throw RecordedError(
-                    underlying: error,
-                    sourceLocation: sourceLocation
-                )
+        let task = Task {
+            _ = isolation
+            if !Task.isCancelled {
+                result = try await operation()
             }
         }
+
+        do {
+            _ = isolation
+            try await dispatch()
+        } catch {
+            task.cancel()
+            throw RecordedError(
+                underlying: error,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        try await task.value
+        guard let result else {
+            preconditionFailure("Task did not produce any result.")
+        }
+
+        return result
     }
 
     private func withIssueRecording<R>(
@@ -67,11 +73,11 @@ extension ProbingDispatcher {
 
     // swiftlint:disable no_empty_block
 
-    public func run<R: Sendable>(
-        upTo id: ProbeIdentifier,
+    public func runUpToProbe<R>(
+        _ id: ProbeIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        after operation: () async throws -> R = {}
+        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
     ) async throws -> R {
         try await withIssueRecording(
             at: sourceLocation,
@@ -86,12 +92,46 @@ extension ProbingDispatcher {
         )
     }
 
-    public func runUntilCompletion<R: Sendable>(
-        of id: EffectIdentifier,
+    public func runUpToProbe<R>(
+        inEffect effectID: EffectIdentifier,
+        sourceLocation: SourceLocation = #_sourceLocation,
+        isolation: isolated (any Actor)? = #isolation,
+        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+    ) async throws -> R {
+        try await runUpToProbe(
+            .init(effect: effectID, name: .default),
+            sourceLocation: sourceLocation,
+            isolation: isolation,
+            after: operation
+        )
+    }
+
+    public func runUpToProbe<R>(
+        sourceLocation: SourceLocation = #_sourceLocation,
+        isolation: isolated (any Actor)? = #isolation,
+        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+    ) async throws -> R {
+        try await runUpToProbe(
+            inEffect: .root,
+            sourceLocation: sourceLocation,
+            isolation: isolation,
+            after: operation
+        )
+    }
+
+    // swiftlint:enable no_empty_block
+}
+
+extension ProbingDispatcher {
+
+    // swiftlint:disable no_empty_block
+
+    public func runUntilEffectCompleted<R>(
+        _ id: EffectIdentifier,
         includingDescendants includeDescendants: Bool = false,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        after operation: () async throws -> R = {}
+        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
     ) async throws -> R {
         try await withIssueRecording(
             at: sourceLocation,
@@ -107,40 +147,30 @@ extension ProbingDispatcher {
         )
     }
 
-    public func runUntilEverythingCompleted<R: Sendable>(
+    public func runUntilEverythingCompleted<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        after operation: () async throws -> R = {}
+        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
     ) async throws -> R {
-        try await withIssueRecording(
-            at: sourceLocation,
+        try await runUntilEffectCompleted(
+            .root,
+            includingDescendants: true,
+            sourceLocation: sourceLocation,
             isolation: isolation,
-            perform: {
-                try await coordinator.runUntilEffectCompleted(
-                    withID: .root,
-                    includingDescendants: true,
-                    isolation: isolation
-                )
-            },
             after: operation
         )
     }
 
-    public func runUntilExitOfBody<R: Sendable>(
+    public func runUntilExitOfBody<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        after operation: () async throws -> R = {}
+        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
     ) async throws -> R {
-        try await withIssueRecording(
-            at: sourceLocation,
+        try await runUntilEffectCompleted(
+            .root,
+            includingDescendants: false,
+            sourceLocation: sourceLocation,
             isolation: isolation,
-            perform: {
-                try await coordinator.runUntilEffectCompleted(
-                    withID: .root,
-                    includingDescendants: false,
-                    isolation: isolation
-                )
-            },
             after: operation
         )
     }
@@ -151,22 +181,30 @@ extension ProbingDispatcher {
 extension ProbingDispatcher {
 
     public func getValue<Success: Sendable>(
-        ofEffect id: EffectIdentifier,
+        fromEffect id: EffectIdentifier,
         as successType: Success.Type,
         sourceLocation: SourceLocation = #_sourceLocation
     ) throws -> Success {
-        try withIssueRecording(at: sourceLocation) {
-            try coordinator.getValue(ofEffectWithID: id, at: successType)
+        precondition(
+            id != .root,
+            "To get value from the root effect use result from withProbing function.",
+        )
+        return try withIssueRecording(at: sourceLocation) {
+            try coordinator.getValue(fromEffectWithID: id, as: successType)
         }
     }
 
     public func getCancelledValue<Success: Sendable>(
-        ofEffect id: EffectIdentifier,
+        fromEffect id: EffectIdentifier,
         as successType: Success.Type,
         sourceLocation: SourceLocation = #_sourceLocation
     ) throws -> Success {
-        try withIssueRecording(at: sourceLocation) {
-            try coordinator.getCancelledValue(ofEffectWithID: id, at: successType)
+        precondition(
+            id != .root,
+            "Root effect does not support cancellation."
+        )
+        return try withIssueRecording(at: sourceLocation) {
+            try coordinator.getCancelledValue(fromEffectWithID: id, as: successType)
         }
     }
 }
