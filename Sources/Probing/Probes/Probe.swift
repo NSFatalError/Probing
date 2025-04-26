@@ -10,7 +10,7 @@
 public macro probe(
     _ name: @autoclosure () -> ProbeName = .default,
     preprocessorFlag: StaticString = "DEBUG",
-    when precondition: @autoclosure () -> Bool = true
+    when condition: @autoclosure () -> Bool = true
 ) = #externalMacro(
     module: "ProbingMacros",
     type: "ProbeMacro"
@@ -18,14 +18,14 @@ public macro probe(
 
 public func _probe( // swiftlint:disable:this identifier_name
     _ name: @autoclosure () -> ProbeName,
-    when precondition: @autoclosure () -> Bool,
+    when condition: @autoclosure () -> Bool,
     isolation: isolated (any Actor)?,
     fileID: String = #fileID,
     line: Int = #line,
     column: Int = #column
 ) async {
     guard let coordinator = ProbingCoordinator.current,
-          precondition()
+          condition()
     else {
         return
     }
