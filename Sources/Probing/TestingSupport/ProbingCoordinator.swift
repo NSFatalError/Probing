@@ -39,7 +39,7 @@ extension ProbingCoordinator {
         _current
     }
 
-    package static func run<R: Sendable>(
+    package static func run<R>(
         isolation: isolated (any Actor)?,
         fileID: String,
         line: Int,
@@ -65,26 +65,26 @@ extension ProbingCoordinator {
 extension ProbingCoordinator {
 
     private func pauseTest(
-        phasePrecondition precondition: (TestPhase) -> Bool,
         isolation: isolated (any Actor)?,
-        file: StaticString = #file,
-        line: UInt = #line,
-        perform dispatches: (inout ProbingState) throws -> Void
+        phasePrecondition precondition: TestPhase.Precondition,
+        perform dispatches: (ProbingState) throws -> Void
     ) async throws {
         try await withCheckedThrowingContinuation(isolation: isolation) { continuation in
             state.resumeTestIfPossible { state in
-                state.preconditionTestPhase(precondition, file: file, line: line)
+                state.preconditionTestPhase(precondition)
                 state.pauseTest(using: continuation)
-                try dispatches(&state)
+                try dispatches(state)
             }
         }
     }
 
-    package func willStartTest(isolation: isolated (any Actor)?) async {
+    package func willStartTest(
+        isolation: isolated (any Actor)?
+    ) async {
         do {
             try await pauseTest(
-                phasePrecondition: \.isScheduled,
                 isolation: isolation,
+                phasePrecondition: .init(\.isScheduled),
                 perform: { _ in } // swiftlint:disable:this no_empty_block
             )
         } catch {
@@ -113,8 +113,8 @@ extension ProbingCoordinator {
         isolation: isolated (any Actor)?
     ) async throws {
         try await pauseTest(
-            phasePrecondition: \.isRunning,
             isolation: isolation,
+            phasePrecondition: .init(\.isRunning),
             perform: { state in
                 try state.rootEffect.runUntilProbeInstalled(withID: id)
             }
@@ -127,8 +127,8 @@ extension ProbingCoordinator {
         isolation: isolated (any Actor)?
     ) async throws {
         try await pauseTest(
-            phasePrecondition: \.isRunning,
             isolation: isolation,
+            phasePrecondition: .init(\.isRunning),
             perform: { state in
                 state.rootEffect.runUntilEffectCompleted(
                     withID: id,
@@ -139,8 +139,8 @@ extension ProbingCoordinator {
     }
 
     package func getValue<Success: Sendable>(
-        ofEffectWithID id: EffectIdentifier,
-        at successType: Success.Type
+        fromEffectWithID id: EffectIdentifier,
+        as successType: Success.Type
     ) throws -> Success {
         try state.withLock { state in
             state.preconditionTestPhase(\.isRunning)
@@ -150,8 +150,8 @@ extension ProbingCoordinator {
     }
 
     package func getCancelledValue<Success: Sendable>(
-        ofEffectWithID id: EffectIdentifier,
-        at successType: Success.Type
+        fromEffectWithID id: EffectIdentifier,
+        as successType: Success.Type
     ) throws -> Success {
         try state.withLock { state in
             state.preconditionTestPhase(\.isRunning)
@@ -190,7 +190,7 @@ extension ProbingCoordinator {
                     underlying: underlying
                 )
 
-                func apiMisuseError(preexisting: ProbeContinuation?) -> Error {
+                func apiMisuseError(preexisting: ProbeContinuation?) -> some Error {
                     continuation.resume()
                     return ProbingErrors.ProbeAPIMisuse(
                         backtrace: continuation.backtrace,
@@ -200,6 +200,7 @@ extension ProbingCoordinator {
 
                 switch childEffect.phase {
                 case let .probed(preexisting):
+                    // UNSAFE_CURRENT_TASK
                     throw apiMisuseError(preexisting: preexisting)
 
                 default:
@@ -223,6 +224,7 @@ extension ProbingCoordinator {
         withID id: EffectIdentifier,
         at location: ProbingLocation
     ) {
+        // UNSAFE_CURRENT_TASK
         state.resumeTestIfPossible { state in
             guard state.isTracking else {
                 return
@@ -244,9 +246,7 @@ extension ProbingCoordinator {
     private func willStartEffect(
         withID id: EffectIdentifier,
         isolation: isolated (any Actor)?,
-        testPhasePrecondition precondition: (TestPhase) -> Bool,
-        file: StaticString = #file,
-        line: UInt = #line
+        testPhasePrecondition precondition: TestPhase.Precondition
     ) async {
         await withCheckedContinuation(isolation: isolation) { underlying in
             state.resumeTestIfPossible { state in
@@ -268,7 +268,7 @@ extension ProbingCoordinator {
                     throw ProbingErrors.EffectAPIMisuse(backtrace: childEffect.backtrace)
                 }
 
-                state.preconditionTestPhase(precondition, file: file, line: line)
+                state.preconditionTestPhase(precondition)
                 childEffect.enqueue(using: continuation)
             }
         }
@@ -281,7 +281,7 @@ extension ProbingCoordinator {
         await willStartEffect(
             withID: id,
             isolation: isolation,
-            testPhasePrecondition: \.isPaused
+            testPhasePrecondition: .init(\.isPaused)
         )
     }
 
@@ -291,7 +291,7 @@ extension ProbingCoordinator {
         await willStartEffect(
             withID: .root,
             isolation: isolation,
-            testPhasePrecondition: \.isScheduled
+            testPhasePrecondition: .init(\.isScheduled)
         )
     }
 }
@@ -302,9 +302,7 @@ extension ProbingCoordinator {
         withID id: EffectIdentifier,
         returning value: some Sendable,
         wasCancelled: Bool,
-        testPhasePrecondition precondition: (TestPhase) -> Bool,
-        file: StaticString = #file,
-        line: UInt = #line
+        testPhasePrecondition precondition: TestPhase.Precondition
     ) {
         state.resumeTestIfPossible { state in
             guard state.isTracking,
@@ -317,7 +315,7 @@ extension ProbingCoordinator {
                 throw ProbingErrors.EffectAPIMisuse(backtrace: childEffect.backtrace)
             }
 
-            state.preconditionTestPhase(precondition, file: file, line: line)
+            state.preconditionTestPhase(precondition)
             try (wasCancelled ? childEffect.cancel : childEffect.finish)(value)
         }
     }
@@ -331,7 +329,7 @@ extension ProbingCoordinator {
             withID: id,
             returning: value,
             wasCancelled: wasCancelled,
-            testPhasePrecondition: \.isPaused
+            testPhasePrecondition: .init(\.isPaused)
         )
     }
 
@@ -340,7 +338,7 @@ extension ProbingCoordinator {
             withID: .root,
             returning: (),
             wasCancelled: false,
-            testPhasePrecondition: \.isPaused
+            testPhasePrecondition: .init(\.isPaused)
         )
     }
 }
