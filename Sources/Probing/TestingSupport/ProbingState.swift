@@ -153,13 +153,14 @@ extension Mutex<ProbingState> {
             // https://github.com/swiftlang/swift/issues/80489
             // https://github.com/swiftlang/swift/issues/80490
             // https://forums.swift.org/t/sending-inout-sending-mutex/76373/15
-            nonisolated(unsafe) var state = state
+            nonisolated(unsafe) var unsafeState = consume state
+            defer { state = unsafeState }
 
             do {
-                try operation(&state)
-                state.resumeTestIfPossible(throwing: nil)
+                try operation(&unsafeState)
+                unsafeState.resumeTestIfPossible(throwing: nil)
             } catch {
-                state.resumeTestIfPossible(throwing: error)
+                unsafeState.resumeTestIfPossible(throwing: error)
             }
         }
     }

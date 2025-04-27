@@ -197,18 +197,18 @@ extension ProbingCoordinator {
 
         await withCheckedContinuation(isolation: isolation) { underlying in
             state.resumeTestIfPossible { state in
-                guard state.isTracking,
-                      let childEffect = state.childEffect(withID: id.effect)
-                else {
-                    underlying.resume()
-                    return
-                }
-
                 let continuation = ProbeContinuation(
                     id: id,
                     location: location,
                     underlying: underlying
                 )
+
+                guard state.isTracking,
+                      let childEffect = state.childEffect(withID: id.effect)
+                else {
+                    continuation.resume()
+                    return
+                }
 
                 func apiMisuseError(preexisting: ProbeContinuation?) -> some Error {
                     continuation.resume()
@@ -248,8 +248,11 @@ extension ProbingCoordinator {
         withID id: EffectIdentifier,
         at location: ProbingLocation
     ) -> Bool {
-        let backtrace = EffectBacktrace(id: id, location: location)
         var didCreateChild = false
+        let backtrace = EffectBacktrace(
+            id: id,
+            location: location
+        )
 
         state.resumeTestIfPossible { state in
             guard state.isTracking else {
@@ -327,7 +330,9 @@ extension ProbingCoordinator {
         await willStartEffect(
             withID: .root,
             isolation: isolation,
-            testPhasePrecondition: .init(\.isScheduled)
+            testPhasePrecondition: .init { testPhase in
+                testPhase.isScheduled || testPhase.isPaused
+            }
         )
     }
 }
