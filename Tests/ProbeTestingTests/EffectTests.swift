@@ -21,6 +21,161 @@ internal class EffectTests {
         self.model = .init()
         self.shell = await .init(model: model)
     }
+
+    @Test
+    func testNameAmbiguity() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithAmbiguousEffects()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.EffectIdentifierAmbiguous.self)
+        }
+    }
+
+    @Test
+    func testNameAmbiguityWhenChildNotCompleted() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithAmbiguousEffects()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilEffectCompleted("ambiguous")
+                try await dispatcher.runUntilExitOfBody()
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.EffectIdentifierAmbiguous.self)
+        }
+    }
+
+    @Test
+    func testNameReplacement() async throws {
+        try await withProbing {
+            await shell.callWithAmbiguousEffects()
+        } dispatchedBy: { dispatcher in
+            try await dispatcher.runUntilEffectCompleted("ambiguous", includingDescendants: true)
+            let first = try dispatcher.getValue(fromEffect: "ambiguous", as: Int.self)
+            #expect(first == 1)
+
+            try await dispatcher.runUntilExitOfBody()
+            try await dispatcher.runUntilEffectCompleted("ambiguous")
+            let second = try dispatcher.getValue(fromEffect: "ambiguous", as: Int.self)
+            #expect(second == 2)
+        }
+    }
+}
+
+extension EffectTests {
+
+    @Test
+    func testGettingValue() async throws {
+        try await withProbing {
+            await shell.callWithEffect()
+        } dispatchedBy: { dispatcher in
+            try await dispatcher.runUntilEffectCompleted("1")
+            let result = try dispatcher.getValue(fromEffect: "1", as: EffectIdentifier?.self)
+            #expect(result == "1")
+        }
+    }
+
+    @Test
+    func testGettingValueWhenCancelled() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithCancelledEffect()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilEffectCompleted("1")
+                _ = try dispatcher.getValue(fromEffect: "1", as: EffectIdentifier?.self)
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.FinishedValueNotMatching.self)
+        }
+    }
+
+    @Test
+    func testGettingValueWhenCastingFails() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithEffect()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilEffectCompleted("1")
+                _ = try dispatcher.getValue(fromEffect: "1", as: Int.self)
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.FinishedValueNotMatching.self)
+        }
+    }
+
+    @Test
+    func testGettingValueWhenNotCompleted() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithEffect()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+                _ = try dispatcher.getValue(fromEffect: "1", as: Int.self)
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.FinishedValueNotMatching.self)
+        }
+    }
+}
+
+extension EffectTests {
+
+    @Test
+    func testGettingCancelledValue() async throws {
+        try await withProbing {
+            await shell.callWithCancelledEffect()
+        } dispatchedBy: { dispatcher in
+            try await dispatcher.runUntilEffectCompleted("1")
+            let result = try dispatcher.getCancelledValue(fromEffect: "1", as: EffectIdentifier?.self)
+            #expect(result == nil)
+        }
+    }
+
+    @Test
+    func testGettingCancelledValueWhenFinished() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithEffect()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilEffectCompleted("1")
+                _ = try dispatcher.getCancelledValue(fromEffect: "1", as: EffectIdentifier?.self)
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.CancelledValueNotMatching.self)
+        }
+    }
+
+    @Test
+    func testGettingCancelledValueWhenCastingFails() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithCancelledEffect()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilEffectCompleted("1")
+                _ = try dispatcher.getCancelledValue(fromEffect: "1", as: Int.self)
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.CancelledValueNotMatching.self)
+        }
+    }
+
+    @Test
+    func testGettingCancelledValueWhenNotCompleted() async throws {
+        try await withKnownIssue {
+            try await withProbing {
+                await shell.callWithCancelledEffect()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+                _ = try dispatcher.getCancelledValue(fromEffect: "1", as: Int.self)
+            }
+        } matching: { issue in
+            issue.didRecordError(ProbingErrors.CancelledValueNotMatching.self)
+        }
+    }
 }
 
 extension EffectTests {
@@ -610,18 +765,19 @@ extension EffectTests {
         }
 
         @discardableResult
-        private func makeEffect(_ name: EffectName) -> any Effect<Void> {
+        private func makeEffect(_ name: EffectName) -> any Effect<EffectIdentifier?> {
             #Effect(name) {
                 self.model.tick()
                 await #probe("1")
 
                 guard !Task.isCancelled else {
-                    return
+                    return nil
                 }
 
                 self.model.tick()
                 await #probe("2")
                 self.model.tick()
+                return .current
             }
         }
 
@@ -649,13 +805,25 @@ extension EffectTests {
             #Effect("1") {
                 await self.callWithIndependentEffects()
             }
+
             await #probe("1")
             model.tick()
             #Effect("2") {
                 await self.callWithIndependentEffects()
             }
+
             await #probe("2")
             model.tick()
+        }
+
+        func callWithAmbiguousEffects() async {
+            #Effect("ambiguous") {
+                #Effect("nested") { -1 }
+                return 1
+            }
+
+            await #probe()
+            #Effect("ambiguous") { 2 }
         }
     }
 }

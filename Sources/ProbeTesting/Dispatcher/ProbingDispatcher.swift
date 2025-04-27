@@ -183,7 +183,7 @@ extension ProbingDispatcher {
 
     public func getValue<Success: Sendable>(
         fromEffect id: EffectIdentifier,
-        as successType: Success.Type,
+        as successType: Success.Type = Success.self,
         sourceLocation: SourceLocation = #_sourceLocation
     ) throws -> Success {
         precondition(
@@ -197,7 +197,7 @@ extension ProbingDispatcher {
 
     public func getCancelledValue<Success: Sendable>(
         fromEffect id: EffectIdentifier,
-        as successType: Success.Type,
+        as successType: Success.Type = Success.self,
         sourceLocation: SourceLocation = #_sourceLocation
     ) throws -> Success {
         precondition(
