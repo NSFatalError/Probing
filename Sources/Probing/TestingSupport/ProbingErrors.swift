@@ -162,8 +162,9 @@ extension ProbingErrors {
             if options.contains(.ignoreProbingInTasks) {
                 description += "\n\n" + """
                 Since ignoreProbingInTasks option  was enabled (default), it's possible that the child effect \
-                was created from a Task's body and run as a standard task. Only child effects created from other #Effect macros \
-                allow the framework to control their execution. To support them, replace all Task instances with #Effect macros.
+                was created from a Task's body and run as a standard task. Only child effects created from other \
+                #Effect macros allow the framework to control their execution. To support them, replace all \
+                Task instances with #Effect macros.
                 """
             }
 
@@ -190,8 +191,9 @@ extension ProbingErrors {
             if options.contains(.ignoreProbingInTasks) {
                 description += "\n\n" + """
                 Since ignoreProbingInTasks option was enabled (default), it's possible that the probe \
-                was installed from a Task's body and resumed immediately. Only probes created from #Effect macros \
-                allow the framework to control their execution. To support them, replace all Task instances with #Effect macros.
+                was installed from a Task's body and resumed immediately. Only probes created from \
+                #Effect macros allow the framework to control their execution. To support them, replace all \
+                Task instances with #Effect macros.
                 """
             }
 

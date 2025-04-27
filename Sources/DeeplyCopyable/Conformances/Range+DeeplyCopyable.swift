@@ -1,5 +1,5 @@
 //
-//  DeeplyCopyable+RangeExpression.swift
+//  Range+DeeplyCopyable.swift
 //  Probing
 //
 //  Created by Kamil Strzelecki on 27/04/2025.

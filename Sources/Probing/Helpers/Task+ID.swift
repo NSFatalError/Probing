@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-extension Task<Void, Never> {
+extension Task where Success == Void, Failure == Never {
 
     static var id: Int? {
         withUnsafeCurrentTask { task in

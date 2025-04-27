@@ -187,7 +187,7 @@ extension ProbingDispatcher {
     ) throws -> Success {
         precondition(
             id != .root,
-            "To get value from the root effect use result from withProbing function.",
+            "To get value from the root effect use result from withProbing function."
         )
         return try withIssueRecording(at: sourceLocation) {
             try coordinator.getValue(fromEffectWithID: id, as: successType)

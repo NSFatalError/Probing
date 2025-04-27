@@ -47,7 +47,7 @@ extension ProbingCoordinator {
         _current
     }
 
-    package static func run<R>(
+    package static func run<R>( // swiftlint:disable:this function_parameter_count
         options: ProbingOptions,
         isolation: isolated (any Actor)?,
         fileID: String,
