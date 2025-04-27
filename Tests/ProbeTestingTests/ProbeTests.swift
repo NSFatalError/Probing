@@ -226,7 +226,7 @@ extension ProbeTests {
 
     private final class NonSendableModel {
 
-        var value = 0
+        private(set) var value = 0
 
         func tick() {
             value += 1

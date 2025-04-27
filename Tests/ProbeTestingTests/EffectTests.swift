@@ -748,7 +748,7 @@ extension EffectTests {
     @MainActor
     private final class IsolatedModel {
 
-        var values = [EffectIdentifier: Int]()
+        private(set) var values = [EffectIdentifier: Int]()
 
         func tick() {
             values[.current, default: 0] += 1

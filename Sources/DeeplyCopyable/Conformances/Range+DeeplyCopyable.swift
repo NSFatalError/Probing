@@ -41,7 +41,7 @@ extension PartialRangeUpTo: DeeplyCopyable where Bound: DeeplyCopyable {
     }
 }
 
-extension RangeSet where Bound: DeeplyCopyable {
+extension RangeSet: DeeplyCopyable where Bound: DeeplyCopyable {
 
     public init(deeplyCopying other: Self) {
         self.init(other.ranges.lazy.map { $0.deepCopy() })
