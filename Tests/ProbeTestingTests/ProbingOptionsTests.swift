@@ -41,13 +41,17 @@ internal struct ProbingOptionsTests {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await shell.callWithTask()
             } dispatchedBy: { dispatcher in
-                await #expect(model.value == 0)
-                try await dispatcher.runUpToProbe()
+                do {
+                    await #expect(model.value == 0)
+                    try await dispatcher.runUpToProbe()
+                } catch {
+                    await #expect(model.value == 3)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.ProbeNotInstalled.self)
         }
-        await #expect(model.value == 3)
     }
 
     @Test
@@ -56,13 +60,17 @@ internal struct ProbingOptionsTests {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await shell.callWithTaskGroup()
             } dispatchedBy: { dispatcher in
-                await #expect(model.value == 0)
-                try await dispatcher.runUpToProbe()
+                do {
+                    await #expect(model.value == 0)
+                    try await dispatcher.runUpToProbe()
+                } catch {
+                    await #expect(model.value == 6)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.ProbeNotInstalled.self)
         }
-        await #expect(model.value == 6)
     }
 
     @Test
@@ -71,13 +79,17 @@ internal struct ProbingOptionsTests {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await shell.callWithAsyncLet()
             } dispatchedBy: { dispatcher in
-                await #expect(model.value == 0)
-                try await dispatcher.runUpToProbe()
+                do {
+                    await #expect(model.value == 0)
+                    try await dispatcher.runUpToProbe()
+                } catch {
+                    await #expect(model.value == 6)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.ProbeNotInstalled.self)
         }
-        await #expect(model.value == 6)
     }
 }
 
