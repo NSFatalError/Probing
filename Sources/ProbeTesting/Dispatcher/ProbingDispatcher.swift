@@ -30,9 +30,8 @@ extension ProbingDispatcher {
 
         let task = Task {
             _ = isolation
-            if !Task.isCancelled {
-                result = try await operation()
-            }
+            try Task.checkCancellation()
+            result = try await operation()
         }
 
         do {
@@ -46,7 +45,9 @@ extension ProbingDispatcher {
             )
         }
 
+        try Task.checkCancellation()
         try await task.value
+
         guard let result else {
             preconditionFailure("Task did not produce any result.")
         }

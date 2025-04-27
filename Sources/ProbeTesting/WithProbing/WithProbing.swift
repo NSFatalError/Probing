@@ -53,10 +53,11 @@ public func withProbing<R>(
             do {
                 _ = isolation
                 await coordinator.willStartRootEffect(isolation: isolation)
-                defer { coordinator.didCompleteRootEffect() }
                 result = try await body.perform()
+                coordinator.didCompleteRootEffect()
             } catch {
                 testTask.cancel()
+                coordinator.didCompleteRootEffect()
                 throw error
             }
 

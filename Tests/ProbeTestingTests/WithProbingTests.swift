@@ -161,6 +161,23 @@ internal struct WithProbingTests {
 
 extension WithProbingTests {
 
+    @Test
+    func testThrowingEarly() async {
+        await #expect(throws: MockError.self) {
+            try await withProbing {
+                try shell.throwingCall()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+                Issue.record()
+            }
+        }
+    }
+}
+
+extension WithProbingTests {
+
+    private struct MockError: Error {}
+
     private final class NonSendableModel {
 
         var value = 0
@@ -180,6 +197,10 @@ extension WithProbingTests {
 
         func call() {
             model.tick()
+        }
+
+        func throwingCall() throws {
+            throw MockError()
         }
     }
 }

@@ -105,7 +105,13 @@ let package = Package(
         ),
         .testTarget(
             name: "ProbeTestingTests",
-            dependencies: ["ProbeTesting"]
+            dependencies: [
+                "ProbeTesting",
+                .product(
+                    name: "Algorithms",
+                    package: "swift-algorithms"
+                )
+            ]
         )
     ] + macroTargets(
         name: "Probing",

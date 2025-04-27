@@ -207,6 +207,23 @@ extension ProbeTests {
 
 extension ProbeTests {
 
+    @Test
+    func testThrowingLate() async {
+        await #expect(throws: MockError.self) {
+            try await withProbing {
+                try await shell.throwingCall()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+                Issue.record()
+            }
+        }
+    }
+}
+
+extension ProbeTests {
+
+    private struct MockError: Error {}
+
     private final class NonSendableModel {
 
         var value = 0
@@ -238,6 +255,11 @@ extension ProbeTests {
             model.tick()
             await #probe("2")
             model.tick()
+        }
+
+        func throwingCall() async throws {
+            await callWithDefaultProbes()
+            throw MockError()
         }
     }
 }
