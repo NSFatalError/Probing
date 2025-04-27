@@ -17,9 +17,10 @@ public struct ProbingOptions: OptionSet, Sendable {
 
 extension ProbingOptions {
 
-    static var current: Self {
-        ProbingCoordinator.current?.options ?? []
-    }
-
+    public static let attemptProbingInTasks = Self([])
     public static let ignoreProbingInTasks = Self(rawValue: 1 << 0)
+
+    static var current: Self {
+        ProbingCoordinator.current?.options ?? .attemptProbingInTasks
+    }
 }

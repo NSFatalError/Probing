@@ -19,21 +19,6 @@ public struct EffectIdentifier {
     }
 }
 
-extension EffectIdentifier: ProbingIdentifierProtocol {
-
-    public init(rawValue: String) {
-        let path = ProbingIdentifiers.split(rawValue).map(EffectName.init)
-        self.init(path: path)
-    }
-}
-
-extension EffectIdentifier: ExpressibleByArrayLiteral {
-
-    public init(arrayLiteral elements: EffectName...) {
-        self.init(path: elements)
-    }
-}
-
 extension EffectIdentifier {
 
     @TaskLocal
@@ -56,5 +41,28 @@ extension EffectIdentifier {
     func appending(_ childName: EffectName) -> EffectIdentifier {
         let childPath = path + CollectionOfOne(childName)
         return EffectIdentifier(path: childPath)
+    }
+}
+
+extension EffectIdentifier: ProbingIdentifierProtocol {
+
+    public var description: String {
+        if rawValue.isEmpty {
+            "(root)"
+        } else {
+            rawValue
+        }
+    }
+
+    public init(rawValue: String) {
+        let path = ProbingIdentifiers.split(rawValue).map(EffectName.init)
+        self.init(path: path)
+    }
+}
+
+extension EffectIdentifier: ExpressibleByArrayLiteral {
+
+    public init(arrayLiteral elements: EffectName...) {
+        self.init(path: elements)
     }
 }

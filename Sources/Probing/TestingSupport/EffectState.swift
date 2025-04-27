@@ -257,6 +257,7 @@ extension EffectState {
         case .suspendWhenPossible:
             phase = .enqueued(continuation)
         case .runUntilChildCreated, .runUntilCompleted, .runUntilProbeInstalled:
+            phase = .executing
             continuation.resume()
         }
     }

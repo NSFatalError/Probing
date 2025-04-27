@@ -248,7 +248,7 @@ extension ProbingCoordinator {
         withID id: EffectIdentifier,
         at location: ProbingLocation
     ) -> Bool {
-        var didCreateChild = false
+        var shouldProbe = true
         let backtrace = EffectBacktrace(
             id: id,
             location: location
@@ -264,15 +264,15 @@ extension ProbingCoordinator {
             }
 
             guard shouldProbeCurrentTask(state: state) else {
+                shouldProbe = false
                 return
             }
 
             state.preconditionTestPhase(\.isPaused)
             try state.rootEffect.createChild(withBacktrace: backtrace)
-            didCreateChild = true
         }
 
-        return didCreateChild
+        return shouldProbe
     }
 }
 
