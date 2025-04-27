@@ -21,8 +21,8 @@ extension ProbingOptions: CustomTestStringConvertible {
 
     public var testDescription: String {
         switch self {
-        case []:
-            "none"
+        case .attemptProbingInTasks:
+            "attemptProbingInTasks"
         case .ignoreProbingInTasks:
             "ignoreProbingInTasks"
         default:

@@ -104,8 +104,13 @@ extension ProbeTests {
             try await withProbing {
                 await shell.callWithDefaultProbes()
             } dispatchedBy: { dispatcher in
-                #expect(model.value == 0)
-                try dispatcher.getValue(fromEffect: "test", as: Void.self)
+                do {
+                    #expect(model.value == 0)
+                    try dispatcher.getValue(fromEffect: "test", as: Void.self)
+                } catch {
+                    #expect(model.value == 0)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.EffectNotFound.self)
@@ -119,8 +124,13 @@ extension ProbeTests {
             try await withProbing {
                 await shell.callWithDefaultProbes()
             } dispatchedBy: { dispatcher in
-                #expect(model.value == 0)
-                try dispatcher.getCancelledValue(fromEffect: "test", as: Void.self)
+                do {
+                    #expect(model.value == 0)
+                    try dispatcher.getCancelledValue(fromEffect: "test", as: Void.self)
+                } catch {
+                    #expect(model.value == 0)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.EffectNotFound.self)
@@ -134,13 +144,17 @@ extension ProbeTests {
             try await withProbing(options: options) {
                 await shell.callWithNamedProbes()
             } dispatchedBy: { dispatcher in
-                #expect(model.value == 0)
-                try await dispatcher.runUpToProbe("3")
+                do {
+                    #expect(model.value == 0)
+                    try await dispatcher.runUpToProbe("3")
+                } catch {
+                    #expect(model.value == 3)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.ProbeNotInstalled.self)
         }
-        #expect(model.value == 3)
     }
 
     @Test(arguments: ProbingOptions.all)
@@ -149,13 +163,17 @@ extension ProbeTests {
             try await withProbing(options: options) {
                 await shell.callWithNamedProbes()
             } dispatchedBy: { dispatcher in
-                #expect(model.value == 0)
-                try await dispatcher.runUpToProbe(inEffect: "test")
+                do {
+                    #expect(model.value == 0)
+                    try await dispatcher.runUpToProbe(inEffect: "test")
+                } catch {
+                    #expect(model.value == 3)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.ChildEffectNotCreated.self)
         }
-        #expect(model.value == 3)
     }
 
     @Test(
@@ -170,16 +188,20 @@ extension ProbeTests {
             try await withProbing(options: options) {
                 await shell.callWithNamedProbes()
             } dispatchedBy: { dispatcher in
-                #expect(model.value == 0)
-                try await dispatcher.runUntilEffectCompleted(
-                    "test",
-                    includingDescendants: includingDescendants
-                )
+                do {
+                    #expect(model.value == 0)
+                    try await dispatcher.runUntilEffectCompleted(
+                        "test",
+                        includingDescendants: includingDescendants
+                    )
+                } catch {
+                    #expect(model.value == 3)
+                    throw error
+                }
             }
         } matching: { issue in
             issue.didRecordError(ProbingErrors.ChildEffectNotCreated.self)
         }
-        #expect(model.value == 3)
     }
 }
 
