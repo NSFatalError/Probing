@@ -12,7 +12,7 @@ import Testing
 extension Issue {
 
     func didRecordError<Underlying: Error>(
-        _ underlying: Underlying.Type
+        _: Underlying.Type
     ) -> Bool {
         let recordedError = error as? RecordedError
         return recordedError?.underlying is Underlying
