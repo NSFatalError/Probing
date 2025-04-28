@@ -10,8 +10,8 @@ import Synchronization
 
 package final class ProbingCoordinator: Sendable {
 
-    let options: ProbingOptions
     private let state: Mutex<ProbingState>
+    let options: ProbingOptions
 
     private init(
         options: ProbingOptions,
@@ -106,7 +106,7 @@ extension ProbingCoordinator {
 
     package func didCompleteTest() throws {
         try state.withLock { state in
-            guard !state.testPhase.hasFailed else {
+            guard !state.testPhase.isFailed else {
                 return
             }
 
@@ -210,21 +210,21 @@ extension ProbingCoordinator {
                     return
                 }
 
-                func apiMisuseError(preexisting: ProbeContinuation?) -> some Error {
-                    continuation.resume()
-                    return ProbingErrors.ProbeAPIMisuse(
-                        backtrace: continuation.backtrace,
-                        preexisting: preexisting?.backtrace
-                    )
-                }
-
                 switch childEffect.phase {
                 case let .probed(preexisting):
-                    throw apiMisuseError(preexisting: preexisting)
+                    continuation.resume()
+                    throw ProbingErrors.ProbeAPIMisuse(
+                        backtrace: continuation.backtrace,
+                        preexisting: preexisting.backtrace
+                    )
 
                 default:
                     guard !state.testPhase.isRunning else {
-                        throw apiMisuseError(preexisting: nil)
+                        continuation.resume()
+                        throw ProbingErrors.ProbeAPIMisuse(
+                            backtrace: continuation.backtrace,
+                            preexisting: nil
+                        )
                     }
 
                     guard shouldProbeCurrentTask(state: state) else {
