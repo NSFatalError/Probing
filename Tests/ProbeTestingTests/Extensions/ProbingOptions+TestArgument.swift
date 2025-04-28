@@ -1,5 +1,5 @@
 //
-//  ProbingOptions.swift
+//  ProbingOptions+TestArgument.swift
 //  Probing
 //
 //  Created by Kamil Strzelecki on 27/04/2025.
@@ -12,7 +12,7 @@ import Testing
 extension ProbingOptions {
 
     static let all: [ProbingOptions] = [
-        .init(),
+        .attemptProbingInTasks,
         .ignoreProbingInTasks
     ]
 }
