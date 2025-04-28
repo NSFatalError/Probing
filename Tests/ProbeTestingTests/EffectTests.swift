@@ -808,7 +808,7 @@ extension EffectTests {
 
             await #probe("1")
             model.tick()
-            #Effect("2") {
+            #ConcurrentEffect("2") {
                 await self.callWithIndependentEffects()
             }
 

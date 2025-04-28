@@ -13,10 +13,10 @@ public struct ProbingDispatcher: ~Escapable, Sendable {
 
     private let coordinator: ProbingCoordinator
 
-    /// @lifetime(immortal)
-    /// https://github.com/swiftlang/swift-evolution/blob/main/proposals/0446-non-escapable.md
-    /// https://github.com/swiftlang/swift-evolution/blob/main/proposals/0465-nonescapable-stdlib-primitives.md
     init(coordinator: inout ProbingCoordinator) {
+        // @lifetime(immortal)
+        // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0446-non-escapable.md
+        // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0465-nonescapable-stdlib-primitives.md
         self.coordinator = coordinator
     }
 }
