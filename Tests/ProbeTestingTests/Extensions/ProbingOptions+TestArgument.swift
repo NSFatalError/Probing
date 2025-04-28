@@ -6,12 +6,12 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@testable import Probing
+@testable import ProbeTesting
 import Testing
 
 extension ProbingOptions {
 
-    static let all: [ProbingOptions] = [
+    static let all: [Self] = [
         .attemptProbingInTasks,
         .ignoreProbingInTasks
     ]
