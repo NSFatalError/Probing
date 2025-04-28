@@ -111,6 +111,10 @@ let package = Package(
             dependencies: [
                 "ProbeTesting",
                 .product(
+                    name: "PrincipleConcurrency",
+                    package: "Principle"
+                ),
+                .product(
                     name: "Algorithms",
                     package: "swift-algorithms"
                 )
