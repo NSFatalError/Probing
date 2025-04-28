@@ -161,7 +161,7 @@ extension ProbingErrors {
 
             if options.contains(.ignoreProbingInTasks) {
                 description += "\n\n" + """
-                Since ignoreProbingInTasks option  was enabled (default), it's possible that the child effect \
+                Since ignoreProbingInTasks option was enabled (default), it's possible that the child effect \
                 was created from a Task's body and run as a standard task. Only child effects created from other \
                 #Effect macros allow the framework to control their execution. To support them, replace all \
                 Task instances with #Effect macros.
