@@ -14,10 +14,10 @@ public func withProbing<R>(
     options: ProbingOptions = [.ignoreProbingInTasks],
     isolation: isolated (any Actor)? = #isolation,
     @_implicitSelfCapture of body: @escaping () async throws -> sending R,
-    @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> sending Void
+    @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> Void
 ) async throws -> R {
-    let test = uncheckedSendable(test)
-    let body = uncheckedSendable(body)
+    nonisolated(unsafe) let body = body
+    nonisolated(unsafe) let test = test
 
     return try await ProbingCoordinator.run(
         options: options,
@@ -29,10 +29,11 @@ public func withProbing<R>(
             let testTask = Task {
                 do {
                     _ = isolation
-                    let dispatcher = ProbingDispatcher(coordinator: coordinator)
+                    var reference = coordinator
+                    let dispatcher = ProbingDispatcher(coordinator: &reference)
                     await coordinator.willStartTest(isolation: isolation)
                     try Task.checkCancellation()
-                    try await test.perform(dispatcher)
+                    try await test(dispatcher)
                 } catch {
                     try? coordinator.didCompleteTest()
                     throw error
@@ -53,7 +54,7 @@ public func withProbing<R>(
             do {
                 _ = isolation
                 await coordinator.willStartRootEffect(isolation: isolation)
-                result = try await body.perform()
+                result = try await body()
                 coordinator.didCompleteRootEffect()
             } catch {
                 testTask.cancel()
