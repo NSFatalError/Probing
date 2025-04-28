@@ -13,6 +13,15 @@ internal enum TestPhase {
     case paused(TestContinuation)
     case passed
     case failed(any Error)
+
+    var isCompleted: Bool {
+        switch self {
+        case .failed, .passed:
+            true
+        default:
+            false
+        }
+    }
 }
 
 extension TestPhase {
@@ -44,7 +53,7 @@ extension TestPhase {
         }
     }
 
-    var hasPassed: Bool {
+    var isPassed: Bool {
         switch self {
         case .passed:
             true
@@ -53,18 +62,9 @@ extension TestPhase {
         }
     }
 
-    var hasFailed: Bool {
+    var isFailed: Bool {
         switch self {
         case .failed:
-            true
-        default:
-            false
-        }
-    }
-
-    var isCompleted: Bool {
-        switch self {
-        case .failed, .passed:
             true
         default:
             false

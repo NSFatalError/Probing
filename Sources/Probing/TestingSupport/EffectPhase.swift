@@ -14,9 +14,6 @@ internal enum EffectPhase {
     case probed(ProbeContinuation)
     case finished(any Sendable)
     case cancelled(any Sendable)
-}
-
-extension EffectPhase {
 
     var isSuspended: Bool {
         switch self {
@@ -35,6 +32,9 @@ extension EffectPhase {
             false
         }
     }
+}
+
+extension EffectPhase {
 
     var isCreated: Bool {
         switch self {

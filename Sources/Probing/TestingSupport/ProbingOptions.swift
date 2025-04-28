@@ -6,19 +6,22 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-public struct ProbingOptions: OptionSet, Sendable {
+package struct ProbingOptions: OptionSet, Sendable {
 
-    public let rawValue: Int
+    package let rawValue: Int
 
-    public init(rawValue: Int) {
+    package init(rawValue: Int) {
         self.rawValue = rawValue
     }
 }
 
 extension ProbingOptions {
 
-    public static let attemptProbingInTasks = Self([])
-    public static let ignoreProbingInTasks = Self(rawValue: 1 << 0)
+    package static let attemptProbingInTasks = Self([])
+    package static let ignoreProbingInTasks = Self(rawValue: 1 << 0)
+}
+
+extension ProbingOptions {
 
     static var current: Self {
         ProbingCoordinator.current?.options ?? .attemptProbingInTasks

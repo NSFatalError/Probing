@@ -101,6 +101,9 @@ let package = Package(
             name: "ProbeTesting",
             dependencies: [
                 "Probing"
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("LifetimeDependence")
             ]
         ),
         .testTarget(
@@ -111,6 +114,9 @@ let package = Package(
                     name: "Algorithms",
                     package: "swift-algorithms"
                 )
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("LifetimeDependence")
             ]
         )
     ] + macroTargets(

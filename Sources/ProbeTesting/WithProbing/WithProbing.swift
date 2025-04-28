@@ -20,7 +20,7 @@ public func withProbing<R>(
     nonisolated(unsafe) let test = test
 
     return try await ProbingCoordinator.run(
-        options: options,
+        options: options.underlying,
         isolation: isolation,
         fileID: sourceLocation.fileID,
         line: sourceLocation.line,
