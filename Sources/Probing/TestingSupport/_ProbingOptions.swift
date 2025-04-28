@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-package struct ProbingOptions: OptionSet, Sendable {
+package struct _ProbingOptions: OptionSet, Sendable {
 
     package let rawValue: Int
 
@@ -15,13 +15,13 @@ package struct ProbingOptions: OptionSet, Sendable {
     }
 }
 
-extension ProbingOptions {
+extension _ProbingOptions {
 
     package static let attemptProbingInTasks = Self([])
     package static let ignoreProbingInTasks = Self(rawValue: 1 << 0)
 }
 
-extension ProbingOptions {
+extension _ProbingOptions {
 
     static var current: Self {
         ProbingCoordinator.current?.options ?? .attemptProbingInTasks

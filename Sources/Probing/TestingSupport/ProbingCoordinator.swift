@@ -11,10 +11,10 @@ import Synchronization
 package final class ProbingCoordinator: Sendable {
 
     private let state: Mutex<ProbingState>
-    let options: ProbingOptions
+    let options: _ProbingOptions
 
     private init(
-        options: ProbingOptions,
+        options: _ProbingOptions,
         rootEffectLocation: ProbingLocation
     ) {
         let initialState = ProbingState(rootEffectLocation: rootEffectLocation)
@@ -48,7 +48,7 @@ extension ProbingCoordinator {
     }
 
     package static func run<R>( // swiftlint:disable:this function_parameter_count
-        options: ProbingOptions,
+        options: _ProbingOptions,
         isolation: isolated (any Actor)?,
         fileID: String,
         line: Int,

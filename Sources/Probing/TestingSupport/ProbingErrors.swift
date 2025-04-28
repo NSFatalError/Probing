@@ -134,7 +134,7 @@ extension ProbingErrors {
 
         let backtrace: EffectBacktrace
         let expectation: (id: EffectIdentifier, dispatch: EffectDispatch)
-        let options = ProbingOptions.current
+        let options = _ProbingOptions.current
 
         private var requirement: String {
             switch expectation.dispatch {
@@ -176,7 +176,7 @@ extension ProbingErrors {
 
         let backtrace: EffectBacktrace
         let expectation: ProbeIdentifier
-        let options = ProbingOptions.current
+        let options = _ProbingOptions.current
 
         var description: String {
             var description = """
