@@ -203,7 +203,7 @@ extension ProbingOptionsTests {
 
         try? await withTimeout(.seconds(1)) {
             func keepSampling() async -> Bool {
-                return await model.effectCompletions != expectation
+                await model.effectCompletions != expectation
             }
             while await keepSampling() {
                 try await Task.sleep(for: .milliseconds(1))
