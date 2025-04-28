@@ -19,13 +19,11 @@ public struct ProbingOptions: OptionSet, Sendable {
 
 extension ProbingOptions {
 
-    typealias Underlying = Probing.ProbingOptions
-
-    var underlying: Underlying {
+    var underlying: _ProbingOptions {
         .init(rawValue: rawValue)
     }
 
-    init(_ options: Underlying) {
+    init(_ options: _ProbingOptions) {
         self.rawValue = options.rawValue
     }
 }
