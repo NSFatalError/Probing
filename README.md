@@ -3,7 +3,6 @@
 </p>
 
 <h1 align="center">Probing</h1>
-<p align="center"><strong>My Heading Without Divider</strong></p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.1-EF5239?logo=swift&labelColor=white" />
@@ -12,4 +11,4 @@
     </a>
 </p>
 
----
+loreum ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui nec nisi efficitur facilisis. Donec ut ex id odio efficitur suscipit. Donec nec nunc a erat varius facilisis. Aenean vel odio id enim sodales varius. Sed ut ligula vel leo finibus convallis. Nulla facilisi. Suspendisse potenti. Nullam id ex sed justo tincidunt posuere.
