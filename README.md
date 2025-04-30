@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="images/logo.png" height="256" />
+    <img src="images/logo.png" height="200" />
 </p>
 
 <h1 align="center">Probing</h1>
