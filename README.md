@@ -3,6 +3,7 @@
 </p>
 
 <h1 align="center">Probing</h1>
+<p align="center"><strong>My Heading Without Divider</strong></p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.1-EF5239?logo=swift&labelColor=white" />
