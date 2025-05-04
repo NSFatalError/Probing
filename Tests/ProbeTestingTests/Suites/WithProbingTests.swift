@@ -13,17 +13,17 @@ import Testing
 internal struct WithProbingTests {
 
     private let model: NonSendableModel
-    private let shell: NonSendableShell
+    private let interactor: NonSendableInteractor
 
     init() {
         self.model = .init()
-        self.shell = .init(model: model)
+        self.interactor = .init(model: model)
     }
 
     @Test
     func testRunningWithoutDispatches() async throws {
         try await withProbing {
-            shell.call()
+            interactor.call()
         } dispatchedBy: { _ in
             #expect(model.value == 0)
         }
@@ -33,7 +33,7 @@ internal struct WithProbingTests {
     @Test
     func testRunningUntilExitOfBody() async throws {
         try await withProbing {
-            shell.call()
+            interactor.call()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUntilExitOfBody()
@@ -44,7 +44,7 @@ internal struct WithProbingTests {
     @Test
     func testRunningUntilEverythingCompleted() async throws {
         try await withProbing {
-            shell.call()
+            interactor.call()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUntilEverythingCompleted()
@@ -56,7 +56,7 @@ internal struct WithProbingTests {
     func testGettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                shell.call()
+                interactor.call()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -76,7 +76,7 @@ internal struct WithProbingTests {
     func testGettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                shell.call()
+                interactor.call()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -96,7 +96,7 @@ internal struct WithProbingTests {
     func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                shell.call()
+                interactor.call()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -115,7 +115,7 @@ internal struct WithProbingTests {
     func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                shell.call()
+                interactor.call()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -140,7 +140,7 @@ internal struct WithProbingTests {
     ) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                shell.call()
+                interactor.call()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -165,7 +165,7 @@ extension WithProbingTests {
     func testThrowingEarly() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
-                try shell.throwingCall()
+                try interactor.throwingCall()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
                 Issue.record()
@@ -187,7 +187,7 @@ extension WithProbingTests {
         }
     }
 
-    private final class NonSendableShell {
+    private final class NonSendableInteractor {
 
         private let model: NonSendableModel
 

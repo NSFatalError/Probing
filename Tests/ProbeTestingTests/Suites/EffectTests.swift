@@ -15,18 +15,18 @@ import Testing
 internal class EffectTests {
 
     private let model: IsolatedModel
-    private let shell: IsolatedShell
+    private let interactor: IsolatedInteractor
 
     init() async {
         self.model = .init()
-        self.shell = await .init(model: model)
+        self.interactor = await .init(model: model)
     }
 
     @Test
     func testNameAmbiguity() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithAmbiguousEffects()
+                await interactor.callWithAmbiguousEffects()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
             }
@@ -39,7 +39,7 @@ internal class EffectTests {
     func testNameAmbiguityWhenChildNotCompleted() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithAmbiguousEffects()
+                await interactor.callWithAmbiguousEffects()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEffectCompleted("ambiguous")
                 try await dispatcher.runUntilExitOfBody()
@@ -52,7 +52,7 @@ internal class EffectTests {
     @Test
     func testNameReplacement() async throws {
         try await withProbing {
-            await shell.callWithAmbiguousEffects()
+            await interactor.callWithAmbiguousEffects()
         } dispatchedBy: { dispatcher in
             try await dispatcher.runUntilEffectCompleted("ambiguous", includingDescendants: true)
             let first = try dispatcher.getValue(fromEffect: "ambiguous", as: Int.self)
@@ -71,7 +71,7 @@ extension EffectTests {
     @Test
     func testGettingValue() async throws {
         try await withProbing {
-            await shell.callWithEffect()
+            await interactor.callWithEffect()
         } dispatchedBy: { dispatcher in
             try await dispatcher.runUntilEffectCompleted("1")
             let result = try dispatcher.getValue(fromEffect: "1", as: EffectIdentifier?.self)
@@ -83,7 +83,7 @@ extension EffectTests {
     func testGettingValueWhenCancelled() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithCancelledEffect()
+                await interactor.callWithCancelledEffect()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEffectCompleted("1")
                 _ = try dispatcher.getValue(fromEffect: "1", as: EffectIdentifier?.self)
@@ -97,7 +97,7 @@ extension EffectTests {
     func testGettingValueWhenCastingFails() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithEffect()
+                await interactor.callWithEffect()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEffectCompleted("1")
                 _ = try dispatcher.getValue(fromEffect: "1", as: Int.self)
@@ -111,7 +111,7 @@ extension EffectTests {
     func testGettingValueWhenNotCompleted() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithEffect()
+                await interactor.callWithEffect()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
                 _ = try dispatcher.getValue(fromEffect: "1", as: Int.self)
@@ -127,7 +127,7 @@ extension EffectTests {
     @Test
     func testGettingCancelledValue() async throws {
         try await withProbing {
-            await shell.callWithCancelledEffect()
+            await interactor.callWithCancelledEffect()
         } dispatchedBy: { dispatcher in
             try await dispatcher.runUntilEffectCompleted("1")
             let result = try dispatcher.getCancelledValue(fromEffect: "1", as: EffectIdentifier?.self)
@@ -139,7 +139,7 @@ extension EffectTests {
     func testGettingCancelledValueWhenFinished() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithEffect()
+                await interactor.callWithEffect()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEffectCompleted("1")
                 _ = try dispatcher.getCancelledValue(fromEffect: "1", as: EffectIdentifier?.self)
@@ -153,7 +153,7 @@ extension EffectTests {
     func testGettingCancelledValueWhenCastingFails() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithCancelledEffect()
+                await interactor.callWithCancelledEffect()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEffectCompleted("1")
                 _ = try dispatcher.getCancelledValue(fromEffect: "1", as: Int.self)
@@ -167,7 +167,7 @@ extension EffectTests {
     func testGettingCancelledValueWhenNotCompleted() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithCancelledEffect()
+                await interactor.callWithCancelledEffect()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
                 _ = try dispatcher.getCancelledValue(fromEffect: "1", as: Int.self)
@@ -185,7 +185,7 @@ extension EffectTests {
         @Test
         func testRunningThroughProbes() async throws {
             try await withProbing {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 await #expect(model.values.isEmpty)
                 try await dispatcher.runUpToProbe("1")
@@ -271,7 +271,7 @@ extension EffectTests {
             withNumber number: Int
         ) async throws {
             try await withProbing {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 await #expect(model.values.isEmpty)
                 try await dispatcher.runUpToProbe("\(effect).\(number)")
@@ -300,7 +300,7 @@ extension EffectTests.Independent {
     @Test
     func testRunningWithoutDispatches() async throws {
         try await withProbing {
-            await shell.callWithIndependentEffects()
+            await interactor.callWithIndependentEffects()
         } dispatchedBy: { _ in
             await #expect(model.values.isEmpty)
         }
@@ -310,7 +310,7 @@ extension EffectTests.Independent {
     @Test
     func testRunningUntilExitOfBody() async throws {
         try await withProbing {
-            await shell.callWithIndependentEffects()
+            await interactor.callWithIndependentEffects()
         } dispatchedBy: { dispatcher in
             await #expect(model.values.isEmpty)
             try await dispatcher.runUntilExitOfBody()
@@ -321,7 +321,7 @@ extension EffectTests.Independent {
     @Test
     func testRunningUntilEverythingCompleted() async throws {
         try await withProbing {
-            await shell.callWithIndependentEffects()
+            await interactor.callWithIndependentEffects()
         } dispatchedBy: { dispatcher in
             await #expect(model.values.isEmpty)
             try await dispatcher.runUntilEverythingCompleted()
@@ -339,7 +339,7 @@ extension EffectTests.Independent {
     func testGettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -359,7 +359,7 @@ extension EffectTests.Independent {
     func testGettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -379,7 +379,7 @@ extension EffectTests.Independent {
     func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -398,7 +398,7 @@ extension EffectTests.Independent {
     func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -423,7 +423,7 @@ extension EffectTests.Independent {
     ) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithIndependentEffects()
+                await interactor.callWithIndependentEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -449,7 +449,7 @@ extension EffectTests {
         @Test
         func testRunningThroughProbes() async throws {
             try await withProbing {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 await #expect(model.values.isEmpty)
                 try await dispatcher.runUpToProbe("1")
@@ -535,7 +535,7 @@ extension EffectTests {
             withNumber number: Int
         ) async throws {
             try await withProbing {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 await #expect(model.values.isEmpty)
                 try await dispatcher.runUpToProbe("\(effect.parent).\(effect.child).\(number)")
@@ -588,7 +588,7 @@ extension EffectTests.Nested {
     @Test
     func testRunningWithoutDispatches() async throws {
         try await withProbing {
-            await shell.callWithNestedEffects()
+            await interactor.callWithNestedEffects()
         } dispatchedBy: { _ in
             await #expect(model.values.isEmpty)
         }
@@ -598,7 +598,7 @@ extension EffectTests.Nested {
     @Test
     func testRunningUntilExitOfBody() async throws {
         try await withProbing {
-            await shell.callWithNestedEffects()
+            await interactor.callWithNestedEffects()
         } dispatchedBy: { dispatcher in
             await #expect(model.values.isEmpty)
             try await dispatcher.runUntilExitOfBody()
@@ -609,7 +609,7 @@ extension EffectTests.Nested {
     @Test
     func testRunningUntilEverythingCompleted() async throws {
         try await withProbing {
-            await shell.callWithNestedEffects()
+            await interactor.callWithNestedEffects()
         } dispatchedBy: { dispatcher in
             await #expect(model.values.isEmpty)
             try await dispatcher.runUntilEverythingCompleted()
@@ -631,7 +631,7 @@ extension EffectTests.Nested {
     func testGettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -651,7 +651,7 @@ extension EffectTests.Nested {
     func testGettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -671,7 +671,7 @@ extension EffectTests.Nested {
     func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -693,7 +693,7 @@ extension EffectTests.Nested {
     func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -721,7 +721,7 @@ extension EffectTests.Nested {
     ) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithNestedEffects()
+                await interactor.callWithNestedEffects()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.values.isEmpty)
@@ -756,7 +756,7 @@ extension EffectTests {
     }
 
     @MainActor
-    private final class IsolatedShell {
+    private final class IsolatedInteractor {
 
         private let model: IsolatedModel
 

@@ -13,17 +13,17 @@ import Testing
 internal struct ProbeTests {
 
     private let model: NonSendableModel
-    private let shell: NonSendableShell
+    private let interactor: NonSendableInteractor
 
     init() {
         self.model = .init()
-        self.shell = .init(model: model)
+        self.interactor = .init(model: model)
     }
 
     @Test
     func testRunningThroughDefaultProbes() async throws {
         try await withProbing {
-            await shell.callWithDefaultProbes()
+            await interactor.callWithDefaultProbes()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUpToProbe()
@@ -38,7 +38,7 @@ internal struct ProbeTests {
     @Test
     func testRunningThroughNamedProbes() async throws {
         try await withProbing {
-            await shell.callWithNamedProbes()
+            await interactor.callWithNamedProbes()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUpToProbe("1")
@@ -53,7 +53,7 @@ internal struct ProbeTests {
     @Test(arguments: 1 ..< 3)
     func testRunningToNamedProbe(withNumber number: Int) async throws {
         try await withProbing {
-            await shell.callWithNamedProbes()
+            await interactor.callWithNamedProbes()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUpToProbe("\(number)")
@@ -69,7 +69,7 @@ extension ProbeTests {
     @Test
     func testRunningWithoutDispatches() async throws {
         try await withProbing {
-            await shell.callWithDefaultProbes()
+            await interactor.callWithDefaultProbes()
         } dispatchedBy: { _ in
             #expect(model.value == 0)
         }
@@ -79,7 +79,7 @@ extension ProbeTests {
     @Test
     func testRunningUntilExitOfBody() async throws {
         try await withProbing {
-            await shell.callWithDefaultProbes()
+            await interactor.callWithDefaultProbes()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUntilExitOfBody()
@@ -90,7 +90,7 @@ extension ProbeTests {
     @Test
     func testRunningUntilEverythingCompleted() async throws {
         try await withProbing {
-            await shell.callWithDefaultProbes()
+            await interactor.callWithDefaultProbes()
         } dispatchedBy: { dispatcher in
             #expect(model.value == 0)
             try await dispatcher.runUntilEverythingCompleted()
@@ -102,7 +102,7 @@ extension ProbeTests {
     func testGettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithDefaultProbes()
+                await interactor.callWithDefaultProbes()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -122,7 +122,7 @@ extension ProbeTests {
     func testGettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
-                await shell.callWithDefaultProbes()
+                await interactor.callWithDefaultProbes()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -142,7 +142,7 @@ extension ProbeTests {
     func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithNamedProbes()
+                await interactor.callWithNamedProbes()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -161,7 +161,7 @@ extension ProbeTests {
     func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithNamedProbes()
+                await interactor.callWithNamedProbes()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -186,7 +186,7 @@ extension ProbeTests {
     ) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
-                await shell.callWithNamedProbes()
+                await interactor.callWithNamedProbes()
             } dispatchedBy: { dispatcher in
                 do {
                     #expect(model.value == 0)
@@ -211,7 +211,7 @@ extension ProbeTests {
     func testThrowingLate() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
-                try await shell.throwingCall()
+                try await interactor.throwingCall()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
                 Issue.record()
@@ -233,7 +233,7 @@ extension ProbeTests {
         }
     }
 
-    private final class NonSendableShell {
+    private final class NonSendableInteractor {
 
         private let model: NonSendableModel
 

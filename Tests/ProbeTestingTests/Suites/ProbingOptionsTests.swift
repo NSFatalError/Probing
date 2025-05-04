@@ -15,17 +15,17 @@ import Testing
 internal struct ProbingOptionsTests {
 
     private let model: IsolatedModel
-    private let shell: IsolatedShell
+    private let interactor: IsolatedInteractor
 
     init() async {
         self.model = .init()
-        self.shell = await .init(model: model)
+        self.interactor = await .init(model: model)
     }
 
     @Test
     func testAttemptingProbingInInTask() async throws {
         try await withProbing(options: .attemptProbingInTasks) {
-            await shell.callWithTask()
+            await interactor.callWithTask()
         } dispatchedBy: { dispatcher in
             await #expect(model.value == 0)
             try await dispatcher.runUpToProbe()
@@ -68,7 +68,7 @@ extension ProbingOptionsTests {
     func testIgnoringProbesInTask(argument: Argument) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
-                await shell.callWithTask()
+                await interactor.callWithTask()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.value == 0)
@@ -88,7 +88,7 @@ extension ProbingOptionsTests {
     func testIgnoringProbesInTaskGroup(argument: Argument) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
-                await shell.callWithTaskGroup()
+                await interactor.callWithTaskGroup()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.value == 0)
@@ -108,7 +108,7 @@ extension ProbingOptionsTests {
     func testIgnoringProbesInAsyncLet(argument: Argument) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
-                await shell.callWithAsyncLet()
+                await interactor.callWithAsyncLet()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.value == 0)
@@ -134,7 +134,7 @@ extension ProbingOptionsTests {
     func testIgnoringEffectsInTask(withID id: EffectIdentifier) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
-                await shell.callWithTask()
+                await interactor.callWithTask()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.value == 0)
@@ -154,7 +154,7 @@ extension ProbingOptionsTests {
     func testIgnoringEffectsInTaskGroup(withID id: EffectIdentifier) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
-                await shell.callWithTaskGroup()
+                await interactor.callWithTaskGroup()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.value == 0)
@@ -174,7 +174,7 @@ extension ProbingOptionsTests {
     func testIgnoringEffectsInAsyncLet(withID id: EffectIdentifier) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
-                await shell.callWithAsyncLet()
+                await interactor.callWithAsyncLet()
             } dispatchedBy: { dispatcher in
                 do {
                     await #expect(model.value == 0)
@@ -241,7 +241,7 @@ extension ProbingOptionsTests {
     }
 
     @MainActor
-    private final class IsolatedShell {
+    private final class IsolatedInteractor {
 
         private let model: IsolatedModel
 

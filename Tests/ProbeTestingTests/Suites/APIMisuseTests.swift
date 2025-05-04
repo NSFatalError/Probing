@@ -12,13 +12,13 @@ import Testing
 
 internal struct APIMisuseTests {
 
-    private let shell = NonSendableShell()
+    private let interactor = NonSendableInteractor()
 
     @Test
     func testInstallingProbeInTask() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
-                shell.callWithProbeInTask()
+                interactor.callWithProbeInTask()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEverythingCompleted()
                 try await Task.sleep(for: .milliseconds(10))
@@ -32,7 +32,7 @@ internal struct APIMisuseTests {
     func testInstallingProbesInTaskGroup() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
-                await shell.callWithProbesInTaskGroup()
+                await interactor.callWithProbesInTaskGroup()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUpToProbe()
                 try await Task.sleep(for: .milliseconds(10))
@@ -47,7 +47,7 @@ internal struct APIMisuseTests {
     func testInstallingProbesInAsyncLet() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
-                await shell.callWithProbesInAsyncLet()
+                await interactor.callWithProbesInAsyncLet()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUpToProbe()
                 try await Task.sleep(for: .milliseconds(10))
@@ -65,7 +65,7 @@ extension APIMisuseTests {
     func testCreatingEffectInTask() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
-                shell.callWithEffectInTask()
+                interactor.callWithEffectInTask()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilEverythingCompleted()
                 try await Task.sleep(for: .milliseconds(10))
@@ -79,7 +79,7 @@ extension APIMisuseTests {
     func testCreatingEffectAfterInstallingProbeInTaskGroup() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
-                await shell.callWithProbeAndEffectInTaskGroup()
+                await interactor.callWithProbeAndEffectInTaskGroup()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUpToProbe()
                 try await Task.sleep(for: .milliseconds(10))
@@ -93,7 +93,7 @@ extension APIMisuseTests {
 
 extension APIMisuseTests {
 
-    private struct NonSendableShell {
+    private struct NonSendableInteractor {
 
         // swiftlint:disable no_empty_block
 
