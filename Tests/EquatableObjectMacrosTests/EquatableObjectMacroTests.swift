@@ -7,72 +7,72 @@
 //
 
 #if canImport(EquatableObjectMacros)
-import EquatableObjectMacros
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+    import EquatableObjectMacros
+    import SwiftSyntaxMacros
+    import SwiftSyntaxMacrosTestSupport
+    import XCTest
 
-internal final class EquatableObjectMacroTests: XCTestCase {
+    internal final class EquatableObjectMacroTests: XCTestCase {
 
-    private let macros: [String: any Macro.Type] = [
-        "EquatableObject": EquatableObjectMacro.self
-    ]
+        private let macros: [String: any Macro.Type] = [
+            "EquatableObject": EquatableObjectMacro.self
+        ]
 
-    func testExpansion() {
-        assertMacroExpansion(
-            #"""
-            @EquatableObject
-            public final class Person {
+        func testExpansion() {
+            assertMacroExpansion(
+                #"""
+                @EquatableObject
+                public final class Person {
 
-                static var user: Person?
+                    static var user: Person?
 
-                let id: UUID
-                var age: Int
-                var name: String
-                var surname: String
+                    let id: UUID
+                    var age: Int
+                    var name: String
+                    var surname: String
 
-                var fullName: String {
-                    "\(name) \(surname)"
+                    var fullName: String {
+                        "\(name) \(surname)"
+                    }
                 }
-            }
-            """#,
-            expandedSource:
-            #"""
-            public final class Person {
+                """#,
+                expandedSource:
+                #"""
+                public final class Person {
 
-                static var user: Person?
+                    static var user: Person?
 
-                let id: UUID
-                var age: Int
-                var name: String
-                var surname: String
+                    let id: UUID
+                    var age: Int
+                    var name: String
+                    var surname: String
 
-                var fullName: String {
-                    "\(name) \(surname)"
+                    var fullName: String {
+                        "\(name) \(surname)"
+                    }
+
+                    public static func == (lhs: Person, rhs: Person) -> Bool {
+                        guard lhs.id == rhs.id else {
+                            return false
+                        }
+                        guard lhs.age == rhs.age else {
+                            return false
+                        }
+                        guard lhs.name == rhs.name else {
+                            return false
+                        }
+                        guard lhs.surname == rhs.surname else {
+                            return false
+                        }
+                        return true
+                    }
                 }
 
-                public static func == (lhs: Person, rhs: Person) -> Bool {
-                    guard lhs.id == rhs.id else {
-                        return false
-                    }
-                    guard lhs.age == rhs.age else {
-                        return false
-                    }
-                    guard lhs.name == rhs.name else {
-                        return false
-                    }
-                    guard lhs.surname == rhs.surname else {
-                        return false
-                    }
-                    return true
+                extension Person: Equatable {
                 }
-            }
-
-            extension Person: Equatable {
-            }
-            """#,
-            macros: macros
-        )
+                """#,
+                macros: macros
+            )
+        }
     }
-}
 #endif
