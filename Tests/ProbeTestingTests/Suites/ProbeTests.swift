@@ -209,7 +209,7 @@ extension ProbeTests {
 
     @Test
     func testThrowingLate() async {
-        await #expect(throws: MockError.self) {
+        await #expect(throws: ErrorMock.self) {
             try await withProbing {
                 try await shell.throwingCall()
             } dispatchedBy: { dispatcher in
@@ -222,7 +222,7 @@ extension ProbeTests {
 
 extension ProbeTests {
 
-    private struct MockError: Error {}
+    private struct ErrorMock: Error {}
 
     private final class NonSendableModel {
 
@@ -259,7 +259,7 @@ extension ProbeTests {
 
         func throwingCall() async throws {
             await callWithDefaultProbes()
-            throw MockError()
+            throw ErrorMock()
         }
     }
 }
