@@ -31,4 +31,12 @@ internal struct ProbeTests {
         }
         await effect.value
     }
+
+    @Test
+    func testProbeInExplicitlyIsolatedEffect() async {
+        let effect = #Effect("test") { @MainActor in
+            await #probe()
+        }
+        await effect.value
+    }
 }
