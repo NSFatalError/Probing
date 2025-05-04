@@ -170,10 +170,6 @@ internal struct DeeplyCopyableTests {
 
     @Test
     func testRawRepresentable() {
-        struct PersonRepresentable: DeeplyCopyable, RawRepresentable {
-            let rawValue: Person
-        }
-
         let person = Person(id: 0)
         let source = PersonRepresentable(rawValue: person)
         let copy = source.deepCopy()
@@ -268,5 +264,13 @@ extension DeeplyCopyableTests {
         static func < (lhs: Person, rhs: Person) -> Bool {
             lhs.id < rhs.id
         }
+    }
+}
+
+extension DeeplyCopyableTests {
+
+    private struct PersonRepresentable: DeeplyCopyable, RawRepresentable {
+
+        let rawValue: Person
     }
 }
