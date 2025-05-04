@@ -10,6 +10,9 @@ extension RawRepresentable where Self: DeeplyCopyable, RawValue: DeeplyCopyable 
 
     public init(deeplyCopying other: Self) {
         let rawValue = other.rawValue.deepCopy()
-        self.init(rawValue: rawValue)! // swiftlint:disable:this force_unwrapping
+        guard let deepCopy = Self(rawValue: rawValue) else {
+            preconditionFailure("\(Self.self) cannot be initialized with raw value: \(rawValue).")
+        }
+        self = deepCopy
     }
 }
