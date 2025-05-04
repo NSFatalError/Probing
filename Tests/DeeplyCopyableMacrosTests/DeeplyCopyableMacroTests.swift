@@ -6,6 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+#if canImport(DeeplyCopyableMacros)
 import DeeplyCopyableMacros
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
@@ -160,3 +161,4 @@ internal final class DeeplyCopyableMacroTests: XCTestCase {
         )
     }
 }
+#endif

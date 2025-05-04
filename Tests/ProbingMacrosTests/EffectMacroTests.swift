@@ -6,6 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+#if canImport(ProbingMacros)
 import ProbingMacros
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
@@ -221,3 +222,4 @@ internal final class EffectMacroTests: XCTestCase {
         )
     }
 }
+#endif

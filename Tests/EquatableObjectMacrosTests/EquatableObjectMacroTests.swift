@@ -6,6 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+#if canImport(EquatableObjectMacros)
 import EquatableObjectMacros
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
@@ -74,3 +75,4 @@ internal final class EquatableObjectMacroTests: XCTestCase {
         )
     }
 }
+#endif
