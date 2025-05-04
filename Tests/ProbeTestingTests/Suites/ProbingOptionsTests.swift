@@ -206,7 +206,7 @@ extension ProbingOptionsTests {
                 await model.effectCompletions != expectation
             }
             while await keepSampling() {
-                try await Task.sleep(for: .milliseconds(1))
+                try await Task.sleep(for: .milliseconds(10))
             }
         }
 

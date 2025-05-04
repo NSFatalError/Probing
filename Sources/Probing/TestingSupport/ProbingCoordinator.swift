@@ -305,6 +305,7 @@ extension ProbingCoordinator {
                 guard !state.testPhase.isRunning else {
                     continuation.resume()
                     throw ProbingErrors.EffectAPIMisuse(backtrace: childEffect.backtrace)
+                    // Could be impossible since ProbingDispatcher: ~Escapable
                 }
 
                 state.preconditionTestPhase(precondition)
@@ -358,6 +359,7 @@ extension ProbingCoordinator {
 
             guard !state.testPhase.isRunning else {
                 throw ProbingErrors.EffectAPIMisuse(backtrace: childEffect.backtrace)
+                // Could be impossible since ProbingDispatcher: ~Escapable
             }
 
             state.preconditionTestPhase(precondition)
