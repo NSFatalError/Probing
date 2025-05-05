@@ -25,15 +25,15 @@
                 """#,
                 expandedSource:
                 #"""
-                { (isolation: isolated (any Actor)?) async -> Void in
+                { () async -> Void in
                     #if DEBUG
                     await _probe(
                         .default,
                         when: true,
-                        isolation: isolation
+                        isolation: #isolation
                     )
                     #endif
-                }(#isolation)
+                }()
                 """#,
                 macros: macros
             )
@@ -50,15 +50,15 @@
                 """#,
                 expandedSource:
                 #"""
-                { (isolation: isolated (any Actor)?) async -> Void in
+                { () async -> Void in
                     #if UNIT_TESTS
                     await _probe(
                         "myIdentifier",
                         when: false,
-                        isolation: isolation
+                        isolation: #isolation
                     )
                     #endif
-                }(#isolation)
+                }()
                 """#,
                 macros: macros
             )

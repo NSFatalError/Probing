@@ -19,15 +19,15 @@ public enum ProbeMacro: ExpressionMacro {
         let parameters = Parameters(from: node)
 
         return """
-        { (isolation: isolated (any Actor)?) async -> Void in
+        { () async -> Void in
             #if \(raw: parameters.preprocessorFlag)
             await _probe(
                 \(parameters.name),
                 when: \(parameters.precondition),
-                isolation: isolation
+                isolation: #isolation
             )
             #endif 
-        }(#isolation)
+        }()
         """
     }
 }
