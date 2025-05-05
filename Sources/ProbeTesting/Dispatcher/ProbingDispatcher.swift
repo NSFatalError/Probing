@@ -23,33 +23,48 @@ public struct ProbingDispatcher: ~Escapable, Sendable {
 
 extension ProbingDispatcher {
 
+    public typealias RuntimeManipulation<R> = @Sendable () async throws -> sending R
+
     private func withIssueRecording<R>(
         at sourceLocation: SourceLocation,
         isolation: isolated (any Actor)?,
-        perform dispatch: () async throws -> Void,
-        after operation: @escaping () async throws -> sending R
+        perform dispatch: @escaping (() -> Void) async throws -> Void,
+        after manipulation: @escaping RuntimeManipulation<R>
     ) async throws -> R {
+        let signal = AsyncSignal()
         var result: R?
 
-        let task = Task {
+        let manipulationTask = Task {
             _ = isolation
-            try Task.checkCancellation()
-            result = try await operation()
+            await signal.wait()
+            await Task.yield()
+
+            guard !Task.isCancelled else {
+                return
+            }
+
+            result = try await manipulation()
         }
 
-        do {
-            _ = isolation
-            try await dispatch()
-        } catch {
-            task.cancel()
-            throw RecordedError(
-                underlying: error,
-                sourceLocation: sourceLocation
-            )
+        let dispatchTask = Task {
+            do {
+                _ = isolation
+                try await dispatch {
+                    signal.finish()
+                }
+            } catch {
+                manipulationTask.cancel()
+                signal.finish()
+                throw RecordedError(
+                    underlying: error,
+                    sourceLocation: sourceLocation
+                )
+            }
         }
 
+        _ = try await manipulationTask.value
+        _ = try await dispatchTask.value
         try Task.checkCancellation()
-        try await task.value
 
         guard let result else {
             preconditionFailure("Task did not produce any result.")
@@ -81,18 +96,19 @@ extension ProbingDispatcher {
         _ id: ProbeIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
     ) async throws -> R {
         try await withIssueRecording(
             at: sourceLocation,
             isolation: isolation,
-            perform: {
+            perform: { [coordinator] startOperation in
                 try await coordinator.runUntilProbeInstalled(
                     withID: id,
-                    isolation: isolation
+                    isolation: isolation,
+                    after: startOperation
                 )
             },
-            after: operation
+            after: manipulation
         )
     }
 
@@ -100,26 +116,26 @@ extension ProbingDispatcher {
         inEffect effectID: EffectIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
     ) async throws -> R {
         try await runUpToProbe(
             .init(effect: effectID, name: .default),
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: operation
+            after: manipulation
         )
     }
 
     public func runUpToProbe<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
     ) async throws -> R {
         try await runUpToProbe(
             inEffect: .root,
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: operation
+            after: manipulation
         )
     }
 
@@ -135,47 +151,48 @@ extension ProbingDispatcher {
         includingDescendants includeDescendants: Bool = false,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
     ) async throws -> R {
         try await withIssueRecording(
             at: sourceLocation,
             isolation: isolation,
-            perform: {
+            perform: { [coordinator] startOperation in
                 try await coordinator.runUntilEffectCompleted(
                     withID: id,
                     includingDescendants: includeDescendants,
-                    isolation: isolation
+                    isolation: isolation,
+                    after: startOperation
                 )
             },
-            after: operation
+            after: manipulation
         )
     }
 
     public func runUntilEverythingCompleted<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
     ) async throws -> R {
         try await runUntilEffectCompleted(
             .root,
             includingDescendants: true,
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: operation
+            after: manipulation
         )
     }
 
     public func runUntilExitOfBody<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_implicitSelfCapture after operation: @escaping () async throws -> sending R = {}
+        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
     ) async throws -> R {
         try await runUntilEffectCompleted(
             .root,
             includingDescendants: false,
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: operation
+            after: manipulation
         )
     }
 
