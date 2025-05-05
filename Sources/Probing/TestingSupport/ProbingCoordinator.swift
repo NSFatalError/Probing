@@ -89,8 +89,9 @@ extension ProbingCoordinator {
             guard !state.testPhase.isFailed else {
                 return
             }
-
-            state.preconditionTestPhase(\.isRunning)
+            state.preconditionTestPhase { testPhase in
+                testPhase.isRunning || testPhase.isPaused
+            }
             try state.passTest()
         }
     }

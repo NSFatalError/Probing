@@ -208,10 +208,11 @@ extension ProbeTests {
 extension ProbeTests {
 
     @Test
-    func testThrowingLate() async {
+    func testThrowingLateInRuntime() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
-                try await interactor.throwingCall()
+                await interactor.callWithDefaultProbes()
+                throw ErrorMock()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
                 Issue.record()
@@ -255,11 +256,6 @@ extension ProbeTests {
             model.tick()
             await #probe("2")
             model.tick()
-        }
-
-        func throwingCall() async throws {
-            await callWithDefaultProbes()
-            throw ErrorMock()
         }
     }
 }

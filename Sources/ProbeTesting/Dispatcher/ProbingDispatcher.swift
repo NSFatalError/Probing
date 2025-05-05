@@ -62,12 +62,17 @@ extension ProbingDispatcher {
             }
         }
 
-        _ = try await manipulationTask.value
-        _ = try await dispatchTask.value
+        defer {
+            manipulationTask.cancel()
+            dispatchTask.cancel()
+        }
+
+        try await manipulationTask.value
+        try await dispatchTask.value
         try Task.checkCancellation()
 
         guard let result else {
-            preconditionFailure("Task did not produce any result.")
+            preconditionFailure("Runtime manipulation task did not produce any result.")
         }
 
         return result

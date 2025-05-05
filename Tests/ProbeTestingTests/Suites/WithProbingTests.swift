@@ -174,13 +174,26 @@ extension WithProbingTests {
     }
 
     @Test
-    func testThrowingEarly() async {
+    func testThrowingEarlyInRuntime() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
-                try interactor.throwingCall()
+                throw ErrorMock()
             } dispatchedBy: { dispatcher in
                 try await dispatcher.runUntilExitOfBody()
                 Issue.record()
+            }
+        }
+    }
+
+    @Test
+    func testThrowingWhileTesting() async {
+        await #expect(throws: ErrorMock.self) {
+            try await confirmation { confirmation in
+                try await withProbing {
+                    confirmation()
+                } dispatchedBy: { _ in
+                    throw ErrorMock()
+                }
             }
         }
     }
@@ -221,10 +234,6 @@ extension WithProbingTests {
 
         func call() {
             model.tick()
-        }
-
-        func throwingCall() throws {
-            throw ErrorMock()
         }
     }
 }

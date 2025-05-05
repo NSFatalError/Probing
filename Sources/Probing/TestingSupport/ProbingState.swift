@@ -55,13 +55,22 @@ extension ProbingState {
 extension ProbingState {
 
     mutating func passTest() throws {
-        if let firstError = errors.first {
-            failTest(with: firstError)
-            throw firstError
-        }
+        switch testPhase {
+        case let .paused(continuation):
+            let error = ProbingInterruptedError()
+            continuation.resume(throwing: error)
+            failTest(with: error)
+            throw error
 
-        testPhase = .passed
-        completeTest()
+        default:
+            if let firstError = errors.first {
+                failTest(with: firstError)
+                throw firstError
+            }
+
+            testPhase = .passed
+            completeTest()
+        }
     }
 
     private mutating func failTest(with error: any Error) {

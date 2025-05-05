@@ -170,9 +170,23 @@ extension RuntimeManipulationTests {
 
 extension RuntimeManipulationTests {
 
+    @Test
+    func testThrowingWhileManipulatingRuntime() async {
+        await #expect(throws: ErrorMock.self) {
+            try await withProbing {
+                await interactor.callWithAsyncStream()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUpToProbe("unknown") {
+                    throw ErrorMock()
+                }
+                Issue.record()
+            }
+        }
+    }
+
     @CustomActor
     @Test
-    func testManipulationClosureIsolation() async throws {
+    func testRuntimeManipulationIsolation() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
@@ -187,6 +201,8 @@ extension RuntimeManipulationTests {
 
 extension RuntimeManipulationTests {
 
+    private struct ErrorMock: Error {}
+
     @MainActor
     private final class IsolatedModel {
 
@@ -200,12 +216,14 @@ extension RuntimeManipulationTests {
     @MainActor
     private final class IsolatedInteractor {
 
-        private let stream: AsyncStream<Void>
-        private let continuation: AsyncStream<Void>.Continuation
+        private typealias Stream = AsyncStream<Void>
+
+        private let stream: Stream
+        private let continuation: Stream.Continuation
         private let model: IsolatedModel
 
         init(model: IsolatedModel) {
-            let (stream, continuation) = AsyncStream<Void>.makeStream(bufferingPolicy: .unbounded)
+            let (stream, continuation) = Stream.makeStream(bufferingPolicy: .unbounded)
             self.stream = stream
             self.continuation = continuation
             self.model = model

@@ -52,20 +52,40 @@ public func withProbing<R>(
     return try await ProbingCoordinator.$current.withValue(
         coordinator,
         operation: {
-            let result: R
+            var result: R?
+
+            let runtimeTask = Task {
+                do {
+                    _ = isolation
+                    await coordinator.willStartRootEffect(isolation: isolation)
+                    result = try await runtime()
+                    coordinator.didCompleteRootEffect()
+                } catch {
+                    testTask.cancel()
+                    coordinator.didCompleteRootEffect()
+                    throw error
+                }
+            }
+
+            defer {
+                testTask.cancel()
+                runtimeTask.cancel()
+            }
 
             do {
-                _ = isolation
-                await coordinator.willStartRootEffect(isolation: isolation)
-                result = try await runtime()
-                coordinator.didCompleteRootEffect()
+                try await testTask.value
+                try await runtimeTask.value
             } catch {
-                testTask.cancel()
-                coordinator.didCompleteRootEffect()
+                if testTask.isCancelled {
+                    try await runtimeTask.value
+                }
                 throw error
             }
 
-            try await testTask.value
+            guard let result else {
+                preconditionFailure("Runtime task did not produce any result.")
+            }
+
             return result
         },
         isolation: isolation

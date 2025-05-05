@@ -6,6 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+import Probing
 import Testing
 
 internal struct RecordedError: Error {
@@ -19,7 +20,10 @@ internal struct RecordedError: Error {
     ) {
         self.underlying = underlying
         self.sourceLocation = sourceLocation
-        Issue.record(self, sourceLocation: sourceLocation)
+
+        if !(underlying is ProbingInterruptedError) {
+            Issue.record(self, sourceLocation: sourceLocation)
+        }
     }
 }
 
