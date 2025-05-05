@@ -44,6 +44,16 @@ internal struct EffectTests {
                 await effect.value
             }
         }
+
+        @CustomActor
+        @Test
+        func testIsolation() async {
+            let effect = #Effect("Test") {
+                #expect(#isolation === CustomActor.shared)
+                CustomActor.shared.assertIsolated()
+            }
+            await effect.value
+        }
     }
 
     struct WithExecutorPreference {
@@ -80,6 +90,15 @@ internal struct EffectTests {
                 await effect.value
             }
         }
+
+        @CustomActor
+        @Test
+        func testIsolation() async {
+            let effect = #Effect("Test", executorPreference: globalConcurrentExecutor) {
+                #expect(#isolation == nil)
+            }
+            await effect.value
+        }
     }
 
     struct Concurrent {
@@ -114,6 +133,15 @@ internal struct EffectTests {
                 #expect(effect.erasedToAnyEffect().task == effect.task)
                 await effect.value
             }
+        }
+
+        @CustomActor
+        @Test
+        func testIsolation() async {
+            let effect = #ConcurrentEffect("Test") {
+                #expect(#isolation == nil)
+            }
+            await effect.value
         }
     }
 

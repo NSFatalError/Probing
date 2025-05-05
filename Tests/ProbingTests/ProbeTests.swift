@@ -25,6 +25,14 @@ internal struct ProbeTests {
     }
 
     @Test
+    func testProbeInExplicitlyIsolatedTask() async {
+        let task = Task { @CustomActor in
+            await #probe()
+        }
+        await task.value
+    }
+
+    @Test
     func testProbeInEffect() async {
         let effect = #Effect("test") {
             await #probe()
@@ -34,7 +42,7 @@ internal struct ProbeTests {
 
     @Test
     func testProbeInExplicitlyIsolatedEffect() async {
-        let effect = #Effect("test") { @MainActor in
+        let effect = #Effect("test") { @CustomActor in
             await #probe()
         }
         await effect.value
