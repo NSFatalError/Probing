@@ -8,8 +8,8 @@
 
 @testable import ProbeTesting
 @testable import Probing
-import Testing
 import Foundation
+import Testing
 
 internal struct WithProbingTests {
 
@@ -166,7 +166,7 @@ extension WithProbingTests {
     func testReturningValue() async throws {
         let id = UUID()
         let value = try await withProbing {
-            return id
+            id
         } dispatchedBy: { dispatcher in
             try await dispatcher.runUntilExitOfBody()
         }
