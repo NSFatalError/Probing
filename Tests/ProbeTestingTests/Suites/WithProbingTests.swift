@@ -9,6 +9,7 @@
 @testable import ProbeTesting
 @testable import Probing
 import Testing
+import Foundation
 
 internal struct WithProbingTests {
 
@@ -162,6 +163,17 @@ internal struct WithProbingTests {
 extension WithProbingTests {
 
     @Test
+    func testReturningValue() async throws {
+        let id = UUID()
+        let value = try await withProbing {
+            return id
+        } dispatchedBy: { dispatcher in
+            try await dispatcher.runUntilExitOfBody()
+        }
+        #expect(id == value)
+    }
+
+    @Test
     func testThrowingEarly() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
@@ -170,6 +182,18 @@ extension WithProbingTests {
                 try await dispatcher.runUntilExitOfBody()
                 Issue.record()
             }
+        }
+    }
+
+    @CustomActor
+    @Test
+    func testIsolation() async throws {
+        try await withProbing {
+            #expect(#isolation === CustomActor.shared)
+            CustomActor.shared.assertIsolated()
+        } dispatchedBy: { _ in
+            #expect(#isolation === CustomActor.shared)
+            CustomActor.shared.assertIsolated()
         }
     }
 }

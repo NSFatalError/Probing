@@ -65,7 +65,7 @@ public func withProbing<R>(
                 throw error
             }
 
-            _ = try await testTask.value
+            try await testTask.value
             return result
         },
         isolation: isolation

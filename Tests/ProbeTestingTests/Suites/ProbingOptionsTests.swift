@@ -249,7 +249,7 @@ extension ProbingOptionsTests {
             self.model = model
         }
 
-        private func call(_ id: Int) async {
+        private func makeCall(_ id: Int) async {
             model.tick()
             #Effect("\(id)-1") {
                 await #probe()
@@ -271,7 +271,7 @@ extension ProbingOptionsTests {
 
         func callWithTask() async {
             let task = Task {
-                await call(1)
+                await makeCall(1)
             }
             await task.value
         }
@@ -279,18 +279,18 @@ extension ProbingOptionsTests {
         func callWithTaskGroup() async {
             await withTaskGroup { group in
                 group.addTask {
-                    await self.call(1)
+                    await self.makeCall(1)
                 }
                 group.addTask {
-                    await self.call(2)
+                    await self.makeCall(2)
                 }
                 await group.waitForAll()
             }
         }
 
         func callWithAsyncLet() async {
-            async let first: Void = call(1)
-            async let second: Void = call(2)
+            async let first: Void = makeCall(1)
+            async let second: Void = makeCall(2)
             _ = await (first, second)
         }
     }
