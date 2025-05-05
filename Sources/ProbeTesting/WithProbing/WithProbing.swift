@@ -13,48 +13,51 @@ public func withProbing<R>(
     at sourceLocation: SourceLocation = #_sourceLocation,
     options: ProbingOptions = .ignoreProbingInTasks,
     isolation: isolated (any Actor)? = #isolation,
-    @_implicitSelfCapture of body: @escaping () async throws -> sending R,
+    @_implicitSelfCapture of runtime: @escaping () async throws -> sending R,
     @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> Void
 ) async throws -> R {
-    nonisolated(unsafe) let body = body
+    nonisolated(unsafe) let runtime = runtime
     nonisolated(unsafe) let test = test
 
-    return try await ProbingCoordinator.run(
+    let coordinator = ProbingCoordinator(
         options: options.underlying,
-        isolation: isolation,
         fileID: sourceLocation.fileID,
         line: sourceLocation.line,
-        column: sourceLocation.column,
-        body: { coordinator in
-            let testTask = Task {
-                do {
-                    _ = isolation
-                    var reference = coordinator
-                    let dispatcher = ProbingDispatcher(coordinator: &reference)
-                    await coordinator.willStartTest(isolation: isolation)
-                    try Task.checkCancellation()
-                    try await test(dispatcher)
-                } catch {
-                    try? coordinator.didCompleteTest()
-                    throw error
-                }
+        column: sourceLocation.column
+    )
 
-                do {
-                    try coordinator.didCompleteTest()
-                } catch {
-                    throw RecordedError(
-                        underlying: error,
-                        sourceLocation: sourceLocation
-                    )
-                }
-            }
+    let testTask = Task {
+        do {
+            _ = isolation
+            var reference = coordinator
+            let dispatcher = ProbingDispatcher(coordinator: &reference)
+            await coordinator.willStartTest(isolation: isolation)
+            try Task.checkCancellation()
+            try await test(dispatcher)
+        } catch {
+            try? coordinator.didCompleteTest()
+            throw error
+        }
 
+        do {
+            try coordinator.didCompleteTest()
+        } catch {
+            throw RecordedError(
+                underlying: error,
+                sourceLocation: sourceLocation
+            )
+        }
+    }
+
+    return try await ProbingCoordinator.$current.withValue(
+        coordinator,
+        operation: {
             let result: R
 
             do {
                 _ = isolation
                 await coordinator.willStartRootEffect(isolation: isolation)
-                result = try await body()
+                result = try await runtime()
                 coordinator.didCompleteRootEffect()
             } catch {
                 testTask.cancel()
@@ -64,6 +67,7 @@ public func withProbing<R>(
 
             _ = try await testTask.value
             return result
-        }
+        },
+        isolation: isolation
     )
 }
