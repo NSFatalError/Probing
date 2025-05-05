@@ -171,7 +171,7 @@ extension RuntimeManipulationTests {
 extension RuntimeManipulationTests {
 
     @Test
-    func testThrowingWhileManipulatingRuntime() async {
+    func testThrowing() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
                 await interactor.callWithAsyncStream()
@@ -186,7 +186,7 @@ extension RuntimeManipulationTests {
 
     @CustomActor
     @Test
-    func testRuntimeManipulationIsolation() async throws {
+    func testIsolation() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in

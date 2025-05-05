@@ -31,6 +31,9 @@ extension ProbingDispatcher {
         perform dispatch: @escaping (() -> Void) async throws -> Void,
         after manipulation: @escaping RuntimeManipulation<R>
     ) async throws -> sending R {
+        // https://github.com/swiftlang/swift/issues/77301
+        // I suspect `manipulation` should be `@Sendable` when `isolation` is nil
+
         let signal = AsyncSignal()
         var result: R?
 

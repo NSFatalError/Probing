@@ -197,13 +197,26 @@ extension WithProbingTests {
             }
         }
     }
+}
+
+extension WithProbingTests {
 
     @CustomActor
     @Test
-    func testIsolation() async throws {
+    func testIsolationInRuntime() async throws {
         try await withProbing {
             #expect(#isolation === CustomActor.shared)
             CustomActor.shared.assertIsolated()
+        } dispatchedBy: { _ in
+            // Void
+        }
+    }
+
+    @CustomActor
+    @Test
+    func testIsolationWhileTesting() async throws {
+        try await withProbing {
+            // Void
         } dispatchedBy: { _ in
             #expect(#isolation === CustomActor.shared)
             CustomActor.shared.assertIsolated()

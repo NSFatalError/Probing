@@ -16,6 +16,10 @@ public func withProbing<R>(
     @_implicitSelfCapture of runtime: @escaping () async throws -> sending R,
     @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> Void
 ) async throws -> sending R {
+    // https://github.com/swiftlang/swift/issues/77301
+    // nonisolated(unsafe) let runtime = runtime
+    // nonisolated(unsafe) let test = test
+
     let coordinator = ProbingCoordinator(
         options: options.underlying,
         fileID: sourceLocation.fileID,

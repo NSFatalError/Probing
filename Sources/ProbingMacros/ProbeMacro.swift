@@ -14,10 +14,7 @@ public enum ProbeMacro: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in _: some MacroExpansionContext
     ) throws -> ExprSyntax {
-        // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
-        // https://forums.swift.org/t/closure-isolation-control/70378
         let parameters = Parameters(from: node)
-
         return """
         { () async -> Void in
             #if \(raw: parameters.preprocessorFlag)
