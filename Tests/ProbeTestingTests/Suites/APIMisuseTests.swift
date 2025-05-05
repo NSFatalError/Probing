@@ -94,7 +94,7 @@ extension APIMisuseTests {
 extension APIMisuseTests {
 
     @Test
-    func testProbingFromTestClosure() async throws {
+    func testProbingWhileTesting() async throws {
         try await withProbing {
             // Void
         } dispatchedBy: { _ in
@@ -103,7 +103,7 @@ extension APIMisuseTests {
     }
 
     @Test
-    func testProbingFromManipulationClosure() async throws {
+    func testProbingWhileManipulatingRuntime() async throws {
         try await withProbing {
             // Void
         } dispatchedBy: { dispatcher in
