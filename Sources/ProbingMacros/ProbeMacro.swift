@@ -20,7 +20,6 @@ public enum ProbeMacro: ExpressionMacro {
             #if \(raw: parameters.preprocessorFlag)
             await _probe(
                 \(parameters.name),
-                when: \(parameters.precondition),
                 isolation: #isolation
             )
             #endif 
@@ -35,13 +34,11 @@ extension ProbeMacro {
 
         let name: ExprSyntax
         let preprocessorFlag: String
-        let precondition: ExprSyntax
 
         init(from node: some FreestandingMacroExpansionSyntax) {
             let extractor = ParameterExtractor(from: node)
             self.name = (try? extractor.expression(withLabel: nil)) ?? ".default"
             self.preprocessorFlag = (try? extractor.rawString(withLabel: "preprocessorFlag")) ?? "DEBUG"
-            self.precondition = (try? extractor.expression(withLabel: "when")) ?? "true"
         }
     }
 }

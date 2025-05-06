@@ -29,7 +29,6 @@
                     #if DEBUG
                     await _probe(
                         .default,
-                        when: true,
                         isolation: #isolation
                     )
                     #endif
@@ -44,7 +43,6 @@
                 #"""
                 #probe(
                     "myIdentifier",
-                    when: false,
                     preprocessorFlag: "UNIT_TESTS"
                 )
                 """#,
@@ -54,7 +52,6 @@
                     #if UNIT_TESTS
                     await _probe(
                         "myIdentifier",
-                        when: false,
                         isolation: #isolation
                     )
                     #endif
