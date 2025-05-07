@@ -12,7 +12,16 @@ internal enum TestPhase {
     case running
     case paused(TestContinuation)
     case passed
-    case failed(Error)
+    case failed(any Error)
+
+    var isCompleted: Bool {
+        switch self {
+        case .failed, .passed:
+            true
+        default:
+            false
+        }
+    }
 }
 
 extension TestPhase {
@@ -44,7 +53,7 @@ extension TestPhase {
         }
     }
 
-    var hasPassed: Bool {
+    var isPassed: Bool {
         switch self {
         case .passed:
             true
@@ -53,7 +62,7 @@ extension TestPhase {
         }
     }
 
-    var hasFailed: Bool {
+    var isFailed: Bool {
         switch self {
         case .failed:
             true
@@ -61,13 +70,24 @@ extension TestPhase {
             false
         }
     }
+}
 
-    var isCompleted: Bool {
-        switch self {
-        case .failed, .passed:
-            true
-        default:
-            false
+extension TestPhase {
+
+    struct Precondition {
+
+        let condition: @Sendable (TestPhase) -> Bool
+        let file: StaticString
+        let line: UInt
+
+        init(
+            _ condition: @Sendable @escaping (TestPhase) -> Bool,
+            file: StaticString = #file,
+            line: UInt = #line
+        ) {
+            self.condition = condition
+            self.file = file
+            self.line = line
         }
     }
 }

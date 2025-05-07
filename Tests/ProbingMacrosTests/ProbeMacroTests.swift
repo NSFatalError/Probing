@@ -6,60 +6,59 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import ProbingMacros
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
+#if canImport(ProbingMacros)
+    import ProbingMacros
+    import SwiftSyntaxMacros
+    import SwiftSyntaxMacrosTestSupport
+    import XCTest
 
-internal final class ProbeMacroTests: XCTestCase {
+    internal final class ProbeMacroTests: XCTestCase {
 
-    private let macros: [String: Macro.Type] = [
-        "probe": ProbeMacro.self
-    ]
+        private let macros: [String: any Macro.Type] = [
+            "probe": ProbeMacro.self
+        ]
 
-    func testExpansion() {
-        assertMacroExpansion(
-            #"""
-            #probe()
-            """#,
-            expandedSource:
-            #"""
-            { (isolation: isolated (any Actor)?) async -> Void in
-                #if DEBUG
-                await _probe(
-                    .default,
-                    when: true,
-                    isolation: isolation
-                )
-                #endif
-            }(#isolation)
-            """#,
-            macros: macros
-        )
-    }
-
-    func testExpansionWithParameters() {
-        assertMacroExpansion(
-            #"""
-            #probe(
-                "myIdentifier",
-                when: false,
-                preprocessorFlag: "UNIT_TESTS"
+        func testExpansion() {
+            assertMacroExpansion(
+                #"""
+                #probe()
+                """#,
+                expandedSource:
+                #"""
+                { () async -> Void in
+                    #if DEBUG
+                    await _probe(
+                        .default,
+                        isolation: #isolation
+                    )
+                    #endif
+                }()
+                """#,
+                macros: macros
             )
-            """#,
-            expandedSource:
-            #"""
-            { (isolation: isolated (any Actor)?) async -> Void in
-                #if UNIT_TESTS
-                await _probe(
+        }
+
+        func testExpansionWithParameters() {
+            assertMacroExpansion(
+                #"""
+                #probe(
                     "myIdentifier",
-                    when: false,
-                    isolation: isolation
+                    preprocessorFlag: "UNIT_TESTS"
                 )
-                #endif
-            }(#isolation)
-            """#,
-            macros: macros
-        )
+                """#,
+                expandedSource:
+                #"""
+                { () async -> Void in
+                    #if UNIT_TESTS
+                    await _probe(
+                        "myIdentifier",
+                        isolation: #isolation
+                    )
+                    #endif
+                }()
+                """#,
+                macros: macros
+            )
+        }
     }
-}
+#endif

@@ -6,5 +6,5 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@_exported import DeeplyCopyable
-@_exported import EquatableObject
+@_documentation(visibility: private) @_exported import DeeplyCopyable
+@_documentation(visibility: private) @_exported import EquatableObject

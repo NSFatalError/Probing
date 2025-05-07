@@ -1,13 +1,13 @@
 {
-  "originHash" : "b2843f579af8d94d4d78ad54a94e1038f8645139e4f07998c4eddec2478f2b07",
+  "originHash" : "cf9e9b2e390026dca11e218c86984cd1350fe349932bb490e0b0ea47ce66b64a",
   "pins" : [
     {
       "identity" : "principle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NSFatalError/Principle",
       "state" : {
-        "revision" : "3a0ce9bef0828a948b12dc6fb30589a4cfd85ef3",
-        "version" : "0.0.3"
+        "revision" : "b7b16cbd21972a675a3543bae2f37aa323dd786b",
+        "version" : "1.0.3"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NSFatalError/PrincipleMacros",
       "state" : {
-        "revision" : "db8a49d76742ed362b7a5d53ee56a5af9e641dc0",
-        "version" : "0.0.3"
+        "revision" : "e4b9e83001aa017f649e45e7657dee769eac7eef",
+        "version" : "1.0.3"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "0687f71944021d616d34d922343dcef086855920",
-        "version" : "600.0.1"
+        "revision" : "f99ae8aa18f0cf0d53481901f88a0991dc3bd4a2",
+        "version" : "601.0.1"
       }
     }
   ],

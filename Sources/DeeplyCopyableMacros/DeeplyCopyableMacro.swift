@@ -13,12 +13,12 @@ public enum DeeplyCopyableMacro {
     private enum ValidationResult {
 
         case enumDecl(EnumDeclSyntax, cases: EnumCasesList)
-        case statefulDecl(StatefulDeclSyntax, filteredProperties: PropertiesList)
+        case statefulDecl(any StatefulDeclSyntax, filteredProperties: PropertiesList)
     }
 
     private static func validate(
         _ declaration: some DeclGroupSyntax,
-        in context: MacroExpansionContext
+        in context: some MacroExpansionContext
     ) -> ValidationResult? {
         if let declaration = declaration as? EnumDeclSyntax {
             let cases = EnumCasesParser.parse(
@@ -28,7 +28,7 @@ public enum DeeplyCopyableMacro {
             return .enumDecl(declaration, cases: cases)
         }
 
-        if let declaration = declaration as? StatefulDeclSyntax, declaration.isFinal {
+        if let declaration = declaration as? (any StatefulDeclSyntax), declaration.isFinal {
             let filteredProperties = PropertiesParser
                 .parse(memberBlock: declaration.memberBlock, in: context)
                 .stored.instance
@@ -70,7 +70,7 @@ extension DeeplyCopyableMacro: MemberMacro {
             return []
         }
 
-        let builder: TypeDeclBuilder? = switch result {
+        let builder: (any TypeDeclBuilder)? = switch result {
         case let .enumDecl(declaration, cases):
             DeeplyCopyableEnumInitDeclBuilder(
                 declaration: declaration,
@@ -102,7 +102,7 @@ extension DeeplyCopyableMacro: ExtensionMacro {
             return []
         }
 
-        let builder: TypeDeclBuilder? = switch result {
+        let builder: DeeplyCopyableStatefulInitDeclBuilder? = switch result {
         case let .statefulDecl(declaration as StructDeclSyntax, filteredProperties):
             DeeplyCopyableStatefulInitDeclBuilder(
                 declaration: declaration,

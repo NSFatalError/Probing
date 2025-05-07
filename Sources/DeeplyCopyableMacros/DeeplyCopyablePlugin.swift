@@ -12,7 +12,7 @@ import SwiftCompilerPlugin
 @main
 internal struct DeeplyCopyablePlugin: CompilerPlugin {
 
-    let providingMacros: [Macro.Type] = [
+    let providingMacros: [any Macro.Type] = [
         DeeplyCopyableMacro.self
     ]
 }

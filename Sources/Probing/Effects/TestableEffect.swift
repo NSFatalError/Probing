@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import Principle
+import PrincipleConcurrency
 
 public struct TestableEffect<Success: Sendable>: Effect, Hashable {
 
@@ -34,27 +34,36 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
+        let name = name()
+        let id = EffectIdentifier.current.appending(name)
         let isolation = extractIsolation(operation)
-        let operation = unsafeSendable(operation)
+        var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
             line: line,
             column: column
         )
 
-        let task = EffectIdentifier.appending(name()) { id in
-            coordinator.willCreateEffect(
-                withID: id,
-                at: location
+        guard coordinator.willCreateEffect(withID: id, at: location) else {
+            return .init(
+                task: Task(
+                    priority: priority,
+                    operation: transfer.finalize()
+                )
             )
+        }
+
+        let task = EffectIdentifier.appending(name) { id in
+            var transfer = transfer.take()
 
             return Task(priority: priority) {
-                await coordinator.willStartEffect(
-                    withID: id,
-                    isolation: isolation
-                )
+                // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
+                // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0472-task-start-synchronously-on-caller-context.md
+                // https://forums.swift.org/t/closure-isolation-control/70378
+                // This closure would preferably be isolated to `isolation`
 
-                let value = await operation.perform()
+                await coordinator.willStartEffect(withID: id, isolation: isolation)
+                let value = await transfer.finalize()()
 
                 defer {
                     coordinator.didCompleteEffect(
@@ -91,26 +100,31 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
-        let operation = unsafeSendable(operation)
+        let name = name()
+        let id = EffectIdentifier.current.appending(name)
+        var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
             line: line,
             column: column
         )
 
-        let task = EffectIdentifier.appending(name()) { [taskExecutor] id in
-            coordinator.willCreateEffect(
-                withID: id,
-                at: location
+        guard coordinator.willCreateEffect(withID: id, at: location) else {
+            return .init(
+                task: Task(
+                    executorPreference: taskExecutor,
+                    priority: priority,
+                    operation: transfer.finalize()
+                )
             )
+        }
+
+        let task = EffectIdentifier.appending(name) { [taskExecutor] id in
+            var transfer = transfer.take()
 
             return Task(executorPreference: taskExecutor, priority: priority) {
-                await coordinator.willStartEffect(
-                    withID: id,
-                    isolation: #isolation
-                )
-
-                let value = await operation.perform()
+                await coordinator.willStartEffect(withID: id, isolation: nil)
+                let value = await transfer.finalize()()
 
                 defer {
                     coordinator.didCompleteEffect(

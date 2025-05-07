@@ -12,7 +12,8 @@ internal struct ProbingState {
 
     let rootEffect: EffectState
     private(set) var testPhase = TestPhase.scheduled
-    private(set) var errors = [Error]()
+    private(set) var taskIDs = Set<Int>()
+    private(set) var errors = [any Error]()
 
     var isTracking: Bool {
         !testPhase.isCompleted && errors.isEmpty
@@ -29,7 +30,7 @@ extension ProbingState {
         testPhase = .paused(continuation)
     }
 
-    mutating func resumeTestIfPossible(throwing error: Error?) {
+    mutating func resumeTestIfPossible(throwing error: (any Error)?) {
         if let error {
             errors.append(error)
         }
@@ -54,16 +55,25 @@ extension ProbingState {
 extension ProbingState {
 
     mutating func passTest() throws {
-        if let firstError = errors.first {
-            failTest(with: firstError)
-            throw firstError
-        }
+        switch testPhase {
+        case let .paused(continuation):
+            let error = ProbingInterruptedError()
+            continuation.resume(throwing: error)
+            failTest(with: error)
+            throw error
 
-        testPhase = .passed
-        completeTest()
+        default:
+            if let firstError = errors.first {
+                failTest(with: firstError)
+                throw firstError
+            }
+
+            testPhase = .passed
+            completeTest()
+        }
     }
 
-    private mutating func failTest(with error: Error) {
+    private mutating func failTest(with error: any Error) {
         testPhase = .failed(error)
         completeTest()
     }
@@ -73,6 +83,25 @@ extension ProbingState {
             withID: .root,
             includingDescendants: true
         )
+    }
+}
+
+extension ProbingState {
+
+    mutating func registerCurrentTask() {
+        guard let taskID = Task.id else {
+            return
+        }
+        let result = taskIDs.insert(taskID)
+        precondition(result.inserted, "Task was already registered.")
+    }
+
+    mutating func unregisterCurrentTask() {
+        guard let taskID = Task.id else {
+            return
+        }
+        let result = taskIDs.remove(taskID)
+        precondition(result != nil, "Task was never registered.")
     }
 }
 
@@ -98,6 +127,9 @@ extension ProbingState {
             return nil
         }
     }
+}
+
+extension ProbingState {
 
     func preconditionTestPhase(
         _ condition: (TestPhase) -> Bool,
@@ -111,19 +143,33 @@ extension ProbingState {
             line: line
         )
     }
+
+    func preconditionTestPhase(_ precondition: TestPhase.Precondition) {
+        preconditionTestPhase(
+            precondition.condition,
+            file: precondition.file,
+            line: precondition.line
+        )
+    }
 }
 
 extension Mutex<ProbingState> {
 
     func resumeTestIfPossible(
-        after operation: (inout ProbingState) throws -> Void
+        after operation: (inout sending ProbingState) throws -> Void
     ) {
         withLock { state in
+            // https://github.com/swiftlang/swift/issues/80489
+            // https://github.com/swiftlang/swift/issues/80490
+            // https://forums.swift.org/t/sending-inout-sending-mutex/76373/15
+            nonisolated(unsafe) var mutableState = consume state
+            defer { state = mutableState }
+
             do {
-                try operation(&state)
-                state.resumeTestIfPossible(throwing: nil)
+                try operation(&mutableState)
+                mutableState.resumeTestIfPossible(throwing: nil)
             } catch {
-                state.resumeTestIfPossible(throwing: error)
+                mutableState.resumeTestIfPossible(throwing: error)
             }
         }
     }

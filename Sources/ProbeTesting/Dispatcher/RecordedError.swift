@@ -6,20 +6,24 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+import Probing
 import Testing
 
 internal struct RecordedError: Error {
 
-    let underlying: Error
+    let underlying: any Error
     let sourceLocation: SourceLocation
 
     init(
-        underlying: Error,
+        underlying: some Error,
         sourceLocation: SourceLocation
     ) {
         self.underlying = underlying
         self.sourceLocation = sourceLocation
-        Issue.record(self, sourceLocation: sourceLocation)
+
+        if underlying is any RecordableProbingError {
+            Issue.record(self, sourceLocation: sourceLocation)
+        }
     }
 }
 

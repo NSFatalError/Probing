@@ -8,44 +8,14 @@
 
 public struct EffectIdentifier {
 
-    package static let root = Self(path: [])
+    public static let root = Self(path: [])
 
     public let rawValue: String
     public let path: [EffectName]
 
-    init(path: [EffectName]) {
+    public init(path: [EffectName]) {
         self.rawValue = ProbingIdentifiers.join(path)
         self.path = path
-    }
-}
-
-extension EffectIdentifier {
-
-    public static func effect(_ path: [EffectName]) -> Self {
-        ProbingIdentifiers.preconditionNotEmpty(path)
-        return .init(path: path)
-    }
-
-    public static func effect(_ path: EffectName...) -> Self {
-        ProbingIdentifiers.preconditionNotEmpty(path)
-        return .init(path: path)
-    }
-}
-
-extension EffectIdentifier: ProbingIdentifierProtocol {
-
-    public init(rawValue: String) {
-        let path = ProbingIdentifiers.split(rawValue).map(EffectName.init)
-        ProbingIdentifiers.preconditionNotEmpty(path)
-        self.init(path: path)
-    }
-}
-
-extension EffectIdentifier: ExpressibleByArrayLiteral {
-
-    public init(arrayLiteral elements: EffectName...) {
-        ProbingIdentifiers.preconditionNotEmpty(elements)
-        self.init(path: elements)
     }
 }
 
@@ -62,10 +32,37 @@ extension EffectIdentifier {
         _ childName: EffectName,
         operation: (EffectIdentifier) throws -> R
     ) rethrows -> R {
-        let childPath = current.path + CollectionOfOne(childName)
-        let childID = EffectIdentifier(path: childPath)
+        let childID = current.appending(childName)
         return try $_current.withValue(childID) {
             try operation(childID)
         }
+    }
+
+    func appending(_ childName: EffectName) -> EffectIdentifier {
+        let childPath = path + CollectionOfOne(childName)
+        return EffectIdentifier(path: childPath)
+    }
+}
+
+extension EffectIdentifier: ProbingIdentifierProtocol {
+
+    public var description: String {
+        if rawValue.isEmpty {
+            "(root)"
+        } else {
+            rawValue
+        }
+    }
+
+    public init(rawValue: String) {
+        let path = ProbingIdentifiers.split(rawValue).map(EffectName.init)
+        self.init(path: path)
+    }
+}
+
+extension EffectIdentifier: ExpressibleByArrayLiteral {
+
+    public init(arrayLiteral elements: EffectName...) {
+        self.init(path: elements)
     }
 }

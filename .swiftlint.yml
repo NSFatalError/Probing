@@ -166,6 +166,9 @@ file_length:
 identifier_name:
     excluded: [id, x, y, z]
 
+line_length:
+    ignores_comments: true
+
 nesting:
     type_level: 2
 

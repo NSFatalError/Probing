@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
@@ -81,15 +81,15 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/Principle",
-            from: "0.0.3"
+            from: "1.0.0"
         ),
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            from: "0.0.3"
+            from: "1.0.0"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
-            from: "600.0.0-latest"
+            "600.0.0" ..< "602.0.0"
         ),
         .package(
             url: "https://github.com/apple/swift-algorithms",
@@ -100,20 +100,42 @@ let package = Package(
         .target(
             name: "ProbeTesting",
             dependencies: [
-                "Principle",
                 "Probing"
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("LifetimeDependence")
             ]
         ),
         .testTarget(
             name: "ProbeTestingTests",
-            dependencies: ["ProbeTesting"]
+            dependencies: [
+                "ProbeTesting",
+                .product(
+                    name: "PrincipleConcurrency",
+                    package: "Principle"
+                ),
+                .product(
+                    name: "Algorithms",
+                    package: "swift-algorithms"
+                )
+            ],
+            swiftSettings: [
+                .enableExperimentalFeature("LifetimeDependence")
+            ]
         )
     ] + macroTargets(
         name: "Probing",
         dependencies: [
-            "Principle",
             "DeeplyCopyable",
             "EquatableObject",
+            .product(
+                name: "PrincipleConcurrency",
+                package: "Principle"
+            ),
+            .product(
+                name: "PrincipleCollections",
+                package: "Principle"
+            ),
             .product(
                 name: "Algorithms",
                 package: "swift-algorithms"
@@ -128,3 +150,10 @@ let package = Package(
         name: "EquatableObject"
     )
 )
+
+for target in package.targets {
+    target.swiftSettings = (target.swiftSettings ?? []) + [
+        .swiftLanguageMode(.v6),
+        .enableUpcomingFeature("ExistentialAny")
+    ]
+}
