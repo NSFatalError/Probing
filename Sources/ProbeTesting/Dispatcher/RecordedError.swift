@@ -21,7 +21,7 @@ internal struct RecordedError: Error {
         self.underlying = underlying
         self.sourceLocation = sourceLocation
 
-        if !(underlying is ProbingInterruptedError) {
+        if underlying is any ProbingError {
             Issue.record(self, sourceLocation: sourceLocation)
         }
     }

@@ -6,4 +6,4 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-package struct ProbingInterruptedError: Error {}
+internal struct ProbingInterruptedError: Error {}

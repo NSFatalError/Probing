@@ -15,7 +15,7 @@ internal enum ProbingErrors {}
 
 extension ProbingErrors {
 
-    struct EffectNotFound: Error, CustomStringConvertible {
+    struct EffectNotFound: ProbingError {
 
         let ancestor: EffectBacktrace
         let expectation: EffectIdentifier
@@ -33,7 +33,7 @@ extension ProbingErrors {
         }
     }
 
-    struct EffectIdentifierAmbiguous: Error, CustomStringConvertible {
+    struct EffectIdentifierAmbiguous: ProbingError {
 
         let backtrace: EffectBacktrace
         let preexisting: (location: ProbingLocation, phase: EffectPhase)
@@ -65,7 +65,7 @@ extension ProbingErrors {
 
 extension ProbingErrors {
 
-    struct FinishedValueNotMatching: Error, CustomStringConvertible {
+    struct FinishedValueNotMatching: ProbingError {
 
         let backtrace: EffectBacktrace
         let phase: EffectPhase
@@ -95,7 +95,7 @@ extension ProbingErrors {
         }
     }
 
-    struct CancelledValueNotMatching: Error, CustomStringConvertible {
+    struct CancelledValueNotMatching: ProbingError {
 
         let backtrace: EffectBacktrace
         let phase: EffectPhase
@@ -130,7 +130,7 @@ extension ProbingErrors {
 
 extension ProbingErrors {
 
-    struct ChildEffectNotCreated: Error, CustomStringConvertible {
+    struct ChildEffectNotCreated: ProbingError {
 
         let backtrace: EffectBacktrace
         let expectation: (id: EffectIdentifier, dispatch: EffectDispatch)
@@ -172,7 +172,7 @@ extension ProbingErrors {
         }
     }
 
-    struct ProbeNotInstalled: Error, CustomStringConvertible {
+    struct ProbeNotInstalled: ProbingError {
 
         let backtrace: EffectBacktrace
         let expectation: ProbeIdentifier
@@ -206,7 +206,7 @@ extension ProbingErrors {
 
 extension ProbingErrors {
 
-    struct ProbeAPIMisuse: Error, CustomStringConvertible {
+    struct ProbeAPIMisuse: ProbingError {
 
         let backtrace: ProbeBacktrace
         let preexisting: ProbeBacktrace?
@@ -220,7 +220,7 @@ extension ProbingErrors {
         }
     }
 
-    struct EffectAPIMisuse: Error, CustomStringConvertible {
+    struct EffectAPIMisuse: ProbingError {
 
         let backtrace: EffectBacktrace
 
