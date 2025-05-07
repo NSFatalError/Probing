@@ -1,5 +1,5 @@
 //
-//  RuntimeManipulationTests.swift
+//  InjectionTests.swift
 //  Probing
 //
 //  Created by Kamil Strzelecki on 26/04/2025.
@@ -10,7 +10,7 @@
 @testable import Probing
 import Testing
 
-internal struct RuntimeManipulationTests {
+internal struct InjectionTests {
 
     private let model: IsolatedModel
     private let interactor: IsolatedInteractor
@@ -83,7 +83,7 @@ internal struct RuntimeManipulationTests {
     }
 }
 
-extension RuntimeManipulationTests {
+extension InjectionTests {
 
     @Test
     func testRunningUpToProbe() async throws {
@@ -125,7 +125,7 @@ extension RuntimeManipulationTests {
     }
 }
 
-extension RuntimeManipulationTests {
+extension InjectionTests {
 
     @Test
     func testRunningUntilExitOfBody() async throws {
@@ -167,7 +167,7 @@ extension RuntimeManipulationTests {
     }
 }
 
-extension RuntimeManipulationTests {
+extension InjectionTests {
 
     @Test
     func testThrowing() async {
@@ -198,7 +198,7 @@ extension RuntimeManipulationTests {
     }
 }
 
-extension RuntimeManipulationTests {
+extension InjectionTests {
 
     private struct ErrorMock: Error {}
 

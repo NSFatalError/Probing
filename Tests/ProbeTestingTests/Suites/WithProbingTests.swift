@@ -174,7 +174,7 @@ extension WithProbingTests {
     }
 
     @Test
-    func testThrowingEarlyInRuntime() async {
+    func testThrowingEarlyInBody() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
                 throw ErrorMock()
@@ -203,7 +203,7 @@ extension WithProbingTests {
 
     @CustomActor
     @Test
-    func testIsolationInRuntime() async throws {
+    func testIsolationInBody() async throws {
         try await withProbing {
             #expect(#isolation === CustomActor.shared)
             CustomActor.shared.assertIsolated()

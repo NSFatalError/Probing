@@ -23,21 +23,21 @@ public struct ProbingDispatcher: ~Escapable, Sendable {
 
 extension ProbingDispatcher {
 
-    public typealias RuntimeManipulation<R> = @Sendable () async throws -> sending R
+    public typealias Injection<R> = @Sendable () async throws -> sending R
 
     private func withIssueRecording<R>(
         at sourceLocation: SourceLocation,
         isolation: isolated (any Actor)?,
         perform dispatch: @escaping (() -> Void) async throws -> Void,
-        after manipulation: @escaping RuntimeManipulation<R>
+        after injection: @escaping Injection<R>
     ) async throws -> sending R {
         // https://github.com/swiftlang/swift/issues/77301
-        // I suspect `manipulation` should be `@Sendable` when `isolation` is nil
+        // When `isolation` is nil `injection` must be `@Sendable`
 
         let signal = AsyncSignal()
         var result: R?
 
-        let manipulationTask = Task {
+        let injectionTask = Task {
             _ = isolation
             await signal.wait()
             await Task.yield()
@@ -46,7 +46,7 @@ extension ProbingDispatcher {
                 return
             }
 
-            result = try await manipulation()
+            result = try await injection()
         }
 
         let dispatchTask = Task {
@@ -56,7 +56,7 @@ extension ProbingDispatcher {
                     signal.finish()
                 }
             } catch {
-                manipulationTask.cancel()
+                injectionTask.cancel()
                 signal.finish()
                 throw RecordedError(
                     underlying: error,
@@ -66,16 +66,16 @@ extension ProbingDispatcher {
         }
 
         defer {
-            manipulationTask.cancel()
+            injectionTask.cancel()
             dispatchTask.cancel()
         }
 
-        try await manipulationTask.value
+        try await injectionTask.value
         try await dispatchTask.value
         try Task.checkCancellation()
 
         guard let result else {
-            preconditionFailure("Runtime manipulation task did not produce any result.")
+            preconditionFailure("Injection task did not produce any result.")
         }
 
         return result
@@ -104,7 +104,7 @@ extension ProbingDispatcher {
         _ id: ProbeIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
+        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
     ) async throws -> sending R {
         try await withIssueRecording(
             at: sourceLocation,
@@ -116,7 +116,7 @@ extension ProbingDispatcher {
                     after: startOperation
                 )
             },
-            after: manipulation
+            after: injection
         )
     }
 
@@ -124,26 +124,26 @@ extension ProbingDispatcher {
         inEffect effectID: EffectIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
+        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
     ) async throws -> sending R {
         try await runUpToProbe(
             .init(effect: effectID, name: .default),
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: manipulation
+            after: injection
         )
     }
 
     public func runUpToProbe<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
+        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
     ) async throws -> sending R {
         try await runUpToProbe(
             inEffect: .root,
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: manipulation
+            after: injection
         )
     }
 
@@ -159,7 +159,7 @@ extension ProbingDispatcher {
         includingDescendants includeDescendants: Bool = false,
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
+        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
     ) async throws -> sending R {
         try await withIssueRecording(
             at: sourceLocation,
@@ -172,35 +172,35 @@ extension ProbingDispatcher {
                     after: startOperation
                 )
             },
-            after: manipulation
+            after: injection
         )
     }
 
     public func runUntilEverythingCompleted<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
+        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
     ) async throws -> sending R {
         try await runUntilEffectCompleted(
             .root,
             includingDescendants: true,
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: manipulation
+            after: injection
         )
     }
 
     public func runUntilExitOfBody<R>(
         sourceLocation: SourceLocation = #_sourceLocation,
         isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after manipulation: @escaping RuntimeManipulation<R> = {}
+        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
     ) async throws -> sending R {
         try await runUntilEffectCompleted(
             .root,
             includingDescendants: false,
             sourceLocation: sourceLocation,
             isolation: isolation,
-            after: manipulation
+            after: injection
         )
     }
 

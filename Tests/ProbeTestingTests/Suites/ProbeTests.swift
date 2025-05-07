@@ -208,7 +208,7 @@ extension ProbeTests {
 extension ProbeTests {
 
     @Test
-    func testThrowingLateInRuntime() async {
+    func testThrowingLateInBody() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
                 await interactor.callWithDefaultProbes()

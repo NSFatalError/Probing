@@ -49,13 +49,31 @@ package final class ProbingCoordinator: Sendable {
 extension ProbingCoordinator {
 
     @TaskLocal
-    package static var current: ProbingCoordinator?
+    private static var _current: ProbingCoordinator?
+
+    internal static var current: ProbingCoordinator? {
+        _current
+    }
+
+    package func withProbing<R>(
+        isolation: isolated (any Actor)?,
+        operation: () async throws -> R
+    ) async rethrows -> R {
+        try await ProbingCoordinator.$_current.withValue(
+            self,
+            operation: operation,
+            isolation: isolation
+        )
+    }
+}
+
+extension ProbingCoordinator {
 
     private func pauseTest(
         isolation: isolated (any Actor)?,
         phasePrecondition precondition: TestPhase.Precondition,
         awaiting dispatches: (ProbingState) throws -> Void,
-        after operation: () -> Void
+        after injection: () -> Void
     ) async throws {
         try await withCheckedThrowingContinuation(isolation: isolation) { continuation in
             state.resumeTestIfPossible { state in
@@ -63,7 +81,7 @@ extension ProbingCoordinator {
                 state.pauseTest(using: continuation)
                 try dispatches(state)
             }
-            operation()
+            injection()
         }
     }
 
@@ -102,7 +120,7 @@ extension ProbingCoordinator {
     package func runUntilProbeInstalled(
         withID id: ProbeIdentifier,
         isolation: isolated (any Actor)?,
-        after operation: () -> Void
+        after injection: () -> Void
     ) async throws {
         try await pauseTest(
             isolation: isolation,
@@ -110,7 +128,7 @@ extension ProbingCoordinator {
             awaiting: { state in
                 try state.rootEffect.runUntilProbeInstalled(withID: id)
             },
-            after: operation
+            after: injection
         )
     }
 
@@ -118,7 +136,7 @@ extension ProbingCoordinator {
         withID id: EffectIdentifier,
         includingDescendants includeDescendants: Bool,
         isolation: isolated (any Actor)?,
-        after operation: () -> Void
+        after injection: () -> Void
     ) async throws {
         try await pauseTest(
             isolation: isolation,
@@ -129,7 +147,7 @@ extension ProbingCoordinator {
                     includingDescendants: includeDescendants
                 )
             },
-            after: operation
+            after: injection
         )
     }
 

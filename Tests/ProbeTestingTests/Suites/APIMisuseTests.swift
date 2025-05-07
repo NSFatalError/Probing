@@ -103,7 +103,7 @@ extension APIMisuseTests {
     }
 
     @Test
-    func testProbingWhileManipulatingRuntime() async throws {
+    func testProbingWhileInjecting() async throws {
         try await withProbing {
             // Void
         } dispatchedBy: { dispatcher in

@@ -13,11 +13,11 @@ public func withProbing<R>(
     options: ProbingOptions = .ignoreProbingInTasks,
     sourceLocation: SourceLocation = #_sourceLocation,
     isolation: isolated (any Actor)? = #isolation,
-    @_implicitSelfCapture of runtime: @escaping () async throws -> sending R,
+    @_implicitSelfCapture of body: @escaping () async throws -> sending R,
     @_implicitSelfCapture dispatchedBy test: @escaping (ProbingDispatcher) async throws -> Void
 ) async throws -> sending R {
     // https://github.com/swiftlang/swift/issues/77301
-    // nonisolated(unsafe) let runtime = runtime
+    // nonisolated(unsafe) let body = body
     // nonisolated(unsafe) let test = test
 
     let coordinator = ProbingCoordinator(
@@ -35,38 +35,34 @@ public func withProbing<R>(
     )
 
     var result: R?
-    let runtimeTask = Task {
-        result = try await ProbingCoordinator.$current.withValue(
-            coordinator,
-            operation: {
-                try await runRootEffect(
-                    using: runtime,
-                    testTask: testTask,
-                    coordinator: coordinator,
-                    isolation: isolation
-                )
-            },
-            isolation: isolation
-        )
+    let bodyTask = Task {
+        result = try await coordinator.withProbing(isolation: isolation) {
+            try await runRootEffect(
+                using: body,
+                testTask: testTask,
+                coordinator: coordinator,
+                isolation: isolation
+            )
+        }
     }
 
     defer {
         testTask.cancel()
-        runtimeTask.cancel()
+        bodyTask.cancel()
     }
 
     do {
         try await testTask.value
-        try await runtimeTask.value
+        try await bodyTask.value
     } catch {
         if testTask.isCancelled {
-            try await runtimeTask.value
+            try await bodyTask.value
         }
         throw error
     }
 
     guard let result else {
-        preconditionFailure("Runtime task did not produce any result.")
+        preconditionFailure("Body task did not produce any result.")
     }
 
     return result
@@ -103,15 +99,14 @@ private func makeTestTask(
 }
 
 private func runRootEffect<R>(
-    using runtime: @escaping () async throws -> sending R,
+    using body: @escaping () async throws -> sending R,
     testTask: Task<Void, any Error>,
     coordinator: ProbingCoordinator,
     isolation: isolated (any Actor)?
 ) async throws -> sending R {
     do {
-        _ = isolation
         await coordinator.willStartRootEffect(isolation: isolation)
-        let result = try await runtime()
+        let result = try await body()
         coordinator.didCompleteRootEffect()
         return result
     } catch {
