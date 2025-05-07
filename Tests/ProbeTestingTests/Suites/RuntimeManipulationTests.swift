@@ -10,15 +10,14 @@
 @testable import Probing
 import Testing
 
-@MainActor
 internal struct RuntimeManipulationTests {
 
     private let model: IsolatedModel
     private let interactor: IsolatedInteractor
 
-    init() {
+    init() async {
         self.model = .init()
-        self.interactor = .init(model: model)
+        self.interactor = await .init(model: model)
     }
 
     @Test
@@ -27,25 +26,25 @@ internal struct RuntimeManipulationTests {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
             let first = try await dispatcher.runUpToProbe {
-                interactor.yield()
+                await interactor.yield()
             }
             #expect(first == 0)
-            #expect(model.value == 1)
+            await #expect(model.value == 1)
 
             let second = try await dispatcher.runUpToProbe {
-                interactor.yield()
+                await interactor.yield()
             }
             #expect(second == 1)
-            #expect(model.value == 2)
+            await #expect(model.value == 2)
 
             let final = try await dispatcher.runUpToProbe("1") {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(final == 2)
-            #expect(model.value == 4)
+            await #expect(model.value == 4)
 
             try await dispatcher.runUntilExitOfBody()
-            #expect(model.value == 5)
+            await #expect(model.value == 5)
         }
     }
 
@@ -55,31 +54,31 @@ internal struct RuntimeManipulationTests {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
             try await dispatcher.runUpToProbe("2")
-            #expect(model.value == 2)
+            await #expect(model.value == 2)
 
             let first = try await dispatcher.runUpToProbe(inEffect: "stream") {
-                interactor.yield()
+                await interactor.yield()
             }
             #expect(first == 2)
-            #expect(model.value == 3)
+            await #expect(model.value == 3)
 
             let second = try await dispatcher.runUpToProbe(inEffect: "stream") {
-                interactor.yield()
+                await interactor.yield()
             }
             #expect(second == 3)
-            #expect(model.value == 4)
+            await #expect(model.value == 4)
 
             let final = try await dispatcher.runUpToProbe("stream.1") {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(final == 4)
-            #expect(model.value == 6)
+            await #expect(model.value == 6)
 
             try await dispatcher.runUntilEffectCompleted("stream")
-            #expect(model.value == 7)
+            await #expect(model.value == 7)
 
             try await dispatcher.runUntilEverythingCompleted()
-            #expect(model.value == 8)
+            await #expect(model.value == 8)
         }
     }
 }
@@ -92,10 +91,10 @@ extension RuntimeManipulationTests {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
             let result = try await dispatcher.runUpToProbe {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(result == 0)
-            #expect(model.value == 1)
+            await #expect(model.value == 1)
         }
     }
 
@@ -105,10 +104,10 @@ extension RuntimeManipulationTests {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
             let result = try await dispatcher.runUpToProbe("1") {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(result == 0)
-            #expect(model.value == 2)
+            await #expect(model.value == 2)
         }
     }
 
@@ -118,10 +117,10 @@ extension RuntimeManipulationTests {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
             let result = try await dispatcher.runUpToProbe(inEffect: "stream") {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(result <= 1)
-            #expect(model.value == 2)
+            await #expect(model.value == 2)
         }
     }
 }
@@ -134,10 +133,10 @@ extension RuntimeManipulationTests {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
             let result = try await dispatcher.runUntilExitOfBody {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(result == 0)
-            #expect(model.value == 3)
+            await #expect(model.value == 3)
         }
     }
 
@@ -147,10 +146,10 @@ extension RuntimeManipulationTests {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
             let result = try await dispatcher.runUntilEverythingCompleted {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(result <= 3)
-            #expect(model.value == 6)
+            await #expect(model.value == 6)
         }
     }
 
@@ -160,10 +159,10 @@ extension RuntimeManipulationTests {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
             let result = try await dispatcher.runUntilEffectCompleted("stream") {
-                interactor.finish()
+                await interactor.finish()
             }
             #expect(result <= 1)
-            #expect(model.value == 4)
+            await #expect(model.value == 4)
         }
     }
 }
