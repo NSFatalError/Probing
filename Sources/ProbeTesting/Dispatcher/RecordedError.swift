@@ -21,7 +21,7 @@ internal struct RecordedError: Error {
         self.underlying = underlying
         self.sourceLocation = sourceLocation
 
-        if underlying is any ProbingError {
+        if underlying is any RecordableProbingError {
             Issue.record(self, sourceLocation: sourceLocation)
         }
     }

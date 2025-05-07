@@ -15,7 +15,7 @@ internal enum ProbingErrors {}
 
 extension ProbingErrors {
 
-    struct EffectNotFound: ProbingError {
+    struct EffectNotFound: RecordableProbingError {
 
         let ancestor: EffectBacktrace
         let expectation: EffectIdentifier
@@ -33,7 +33,7 @@ extension ProbingErrors {
         }
     }
 
-    struct EffectIdentifierAmbiguous: ProbingError {
+    struct EffectIdentifierAmbiguous: RecordableProbingError {
 
         let backtrace: EffectBacktrace
         let preexisting: (location: ProbingLocation, phase: EffectPhase)
@@ -65,7 +65,7 @@ extension ProbingErrors {
 
 extension ProbingErrors {
 
-    struct FinishedValueNotMatching: ProbingError {
+    struct FinishedValueNotMatching: RecordableProbingError {
 
         let backtrace: EffectBacktrace
         let phase: EffectPhase
@@ -95,7 +95,7 @@ extension ProbingErrors {
         }
     }
 
-    struct CancelledValueNotMatching: ProbingError {
+    struct CancelledValueNotMatching: RecordableProbingError {
 
         let backtrace: EffectBacktrace
         let phase: EffectPhase
@@ -130,7 +130,7 @@ extension ProbingErrors {
 
 extension ProbingErrors {
 
-    struct ChildEffectNotCreated: ProbingError {
+    struct ChildEffectNotCreated: RecordableProbingError {
 
         let backtrace: EffectBacktrace
         let expectation: (id: EffectIdentifier, dispatch: EffectDispatch)
@@ -172,7 +172,7 @@ extension ProbingErrors {
         }
     }
 
-    struct ProbeNotInstalled: ProbingError {
+    struct ProbeNotInstalled: RecordableProbingError {
 
         let backtrace: EffectBacktrace
         let expectation: ProbeIdentifier
@@ -206,7 +206,7 @@ extension ProbingErrors {
 
 extension ProbingErrors {
 
-    struct ProbeAPIMisuse: ProbingError {
+    struct ProbeAPIMisuse: RecordableProbingError {
 
         let backtrace: ProbeBacktrace
         let preexisting: ProbeBacktrace?
@@ -220,7 +220,7 @@ extension ProbingErrors {
         }
     }
 
-    struct EffectAPIMisuse: ProbingError {
+    struct EffectAPIMisuse: RecordableProbingError {
 
         let backtrace: EffectBacktrace
 
