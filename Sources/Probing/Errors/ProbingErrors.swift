@@ -24,7 +24,7 @@ extension ProbingErrors {
             """
             Effect with identifier \"\(expectation)\" has not been created in this test run yet.
 
-            It's closest created ancestor is \(ancestor.afterword).
+            Its closest created ancestor is \(ancestor.afterword).
 
             Recovery suggestions:
             - Verify that the provided identifier is correct.
