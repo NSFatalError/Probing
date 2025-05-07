@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol DeeplyCopyableByAssignment: DeeplyCopyable {}
+internal protocol DeeplyCopyableByAssignment: DeeplyCopyable {}
 
 extension DeeplyCopyableByAssignment {
 
@@ -17,57 +17,57 @@ extension DeeplyCopyableByAssignment {
     }
 }
 
-extension Int: DeeplyCopyableByAssignment {}
-extension Int8: DeeplyCopyableByAssignment {}
-extension Int16: DeeplyCopyableByAssignment {}
-extension Int32: DeeplyCopyableByAssignment {}
-extension Int64: DeeplyCopyableByAssignment {}
-extension Int128: DeeplyCopyableByAssignment {}
+extension Int: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Int8: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Int16: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Int32: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Int64: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Int128: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension UInt: DeeplyCopyableByAssignment {}
-extension UInt8: DeeplyCopyableByAssignment {}
-extension UInt16: DeeplyCopyableByAssignment {}
-extension UInt32: DeeplyCopyableByAssignment {}
-extension UInt64: DeeplyCopyableByAssignment {}
-extension UInt128: DeeplyCopyableByAssignment {}
+extension UInt: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension UInt8: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension UInt16: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension UInt32: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension UInt64: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension UInt128: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension Double: DeeplyCopyableByAssignment {}
-extension Float: DeeplyCopyableByAssignment {}
-extension Float16: DeeplyCopyableByAssignment {}
-extension Decimal: DeeplyCopyableByAssignment {}
+extension Double: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Float: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Float16: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Decimal: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension Bool: DeeplyCopyableByAssignment {}
-extension Character: DeeplyCopyableByAssignment {}
-extension Duration: DeeplyCopyableByAssignment {}
-extension UUID: DeeplyCopyableByAssignment {}
+extension Bool: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Character: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Duration: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension UUID: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension URL: DeeplyCopyableByAssignment {}
-extension URLComponents: DeeplyCopyableByAssignment {}
-extension URLQueryItem: DeeplyCopyableByAssignment {}
+extension URL: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension URLComponents: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension URLQueryItem: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension Date: DeeplyCopyableByAssignment {}
-extension DateComponents: DeeplyCopyableByAssignment {}
-extension TimeZone: DeeplyCopyableByAssignment {}
-extension Calendar: DeeplyCopyableByAssignment {}
+extension Date: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension DateComponents: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension TimeZone: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension Calendar: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension Locale: DeeplyCopyableByAssignment {}
-extension PersonNameComponents: DeeplyCopyableByAssignment {}
+extension Locale: DeeplyCopyable, DeeplyCopyableByAssignment {}
+extension PersonNameComponents: DeeplyCopyable, DeeplyCopyableByAssignment {}
 
-extension Data: DeeplyCopyableByAssignment {
-
-    public init(deeplyCopying other: Self) {
-        self = other
-    }
-}
-
-extension String: DeeplyCopyableByAssignment {
+extension Data: DeeplyCopyable, DeeplyCopyableByAssignment {
 
     public init(deeplyCopying other: Self) {
         self = other
     }
 }
 
-extension Substring: DeeplyCopyableByAssignment {
+extension String: DeeplyCopyable, DeeplyCopyableByAssignment {
+
+    public init(deeplyCopying other: Self) {
+        self = other
+    }
+}
+
+extension Substring: DeeplyCopyable, DeeplyCopyableByAssignment {
 
     public init(deeplyCopying other: Self) {
         self = other
