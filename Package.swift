@@ -68,24 +68,16 @@ let package = Package(
         .library(
             name: "ProbeTesting",
             targets: ["ProbeTesting"]
-        ),
-        .library(
-            name: "DeeplyCopyable",
-            targets: ["DeeplyCopyable"]
-        ),
-        .library(
-            name: "EquatableObject",
-            targets: ["EquatableObject"]
         )
     ],
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/Principle",
-            from: "1.0.0"
+            from: "1.0.3"
         ),
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            from: "1.0.0"
+            from: "1.0.4"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
@@ -126,8 +118,6 @@ let package = Package(
     ] + macroTargets(
         name: "Probing",
         dependencies: [
-            "DeeplyCopyable",
-            "EquatableObject",
             .product(
                 name: "PrincipleConcurrency",
                 package: "Principle"
