@@ -93,29 +93,6 @@ extension APIMisuseTests {
 
 extension APIMisuseTests {
 
-    @Test
-    func testProbingWhileTesting() async throws {
-        try await withProbing {
-            // Void
-        } dispatchedBy: { _ in
-            await #probe()
-        }
-    }
-
-    @Test
-    func testProbingWhileInjecting() async throws {
-        try await withProbing {
-            // Void
-        } dispatchedBy: { dispatcher in
-            try await dispatcher.runUntilEverythingCompleted {
-                await #probe()
-            }
-        }
-    }
-}
-
-extension APIMisuseTests {
-
     private struct NonSendableInteractor {
 
         // swiftlint:disable no_empty_block

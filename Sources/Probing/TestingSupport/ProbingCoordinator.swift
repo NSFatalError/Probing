@@ -72,8 +72,7 @@ extension ProbingCoordinator {
     private func pauseTest(
         isolation: isolated (any Actor)?,
         phasePrecondition precondition: TestPhase.Precondition,
-        awaiting dispatches: (ProbingState) throws -> Void,
-        after injection: () -> Void
+        awaiting dispatches: (ProbingState) throws -> Void
     ) async throws {
         try await withCheckedThrowingContinuation(isolation: isolation) { continuation in
             state.resumeTestIfPossible { state in
@@ -81,7 +80,6 @@ extension ProbingCoordinator {
                 state.pauseTest(using: continuation)
                 try dispatches(state)
             }
-            injection()
         }
     }
 
@@ -92,8 +90,7 @@ extension ProbingCoordinator {
             try await pauseTest(
                 isolation: isolation,
                 phasePrecondition: .init(\.isScheduled),
-                awaiting: { _ in }, // swiftlint:disable:this no_empty_block
-                after: {} // swiftlint:disable:this no_empty_block
+                awaiting: { _ in } // swiftlint:disable:this no_empty_block
             )
         } catch {
             preconditionFailure("""
@@ -119,24 +116,21 @@ extension ProbingCoordinator {
 
     package func runUntilProbeInstalled(
         withID id: ProbeIdentifier,
-        isolation: isolated (any Actor)?,
-        after injection: () -> Void
+        isolation: isolated (any Actor)?
     ) async throws {
         try await pauseTest(
             isolation: isolation,
             phasePrecondition: .init(\.isRunning),
             awaiting: { state in
                 try state.rootEffect.runUntilProbeInstalled(withID: id)
-            },
-            after: injection
+            }
         )
     }
 
     package func runUntilEffectCompleted(
         withID id: EffectIdentifier,
         includingDescendants includeDescendants: Bool,
-        isolation: isolated (any Actor)?,
-        after injection: () -> Void
+        isolation: isolated (any Actor)?
     ) async throws {
         try await pauseTest(
             isolation: isolation,
@@ -146,8 +140,7 @@ extension ProbingCoordinator {
                     withID: id,
                     includingDescendants: includeDescendants
                 )
-            },
-            after: injection
+            }
         )
     }
 

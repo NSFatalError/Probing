@@ -219,6 +219,21 @@ extension ProbeTests {
             }
         }
     }
+
+    @Test
+    func testThrowingLateInTest() async {
+        await #expect(throws: ErrorMock.self) {
+            try await confirmation { confirmation in
+                try await withProbing {
+                    await interactor.callWithDefaultProbes()
+                    confirmation()
+                } dispatchedBy: { dispatcher in
+                    try await dispatcher.runUpToProbe()
+                    throw ErrorMock()
+                }
+            }
+        }
+    }
 }
 
 extension ProbeTests {

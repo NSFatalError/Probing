@@ -53,14 +53,16 @@ public func withProbing<R>(
 
     do {
         try await testTask.value
-        try await bodyTask.value
     } catch {
         if testTask.isCancelled {
             try await bodyTask.value
+        } else {
+            try? await bodyTask.value
         }
         throw error
     }
 
+    try await bodyTask.value
     guard let result else {
         preconditionFailure("Body task did not produce any result.")
     }
@@ -99,7 +101,7 @@ private func makeTestTask(
 }
 
 private func runRootEffect<R>(
-    using body: @escaping () async throws -> sending R,
+    using body: () async throws -> sending R,
     testTask: Task<Void, any Error>,
     coordinator: ProbingCoordinator,
     isolation: isolated (any Actor)?

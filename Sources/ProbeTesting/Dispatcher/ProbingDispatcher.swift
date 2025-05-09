@@ -23,62 +23,20 @@ public struct ProbingDispatcher: ~Escapable, Sendable {
 
 extension ProbingDispatcher {
 
-    public typealias Injection<R> = @Sendable () async throws -> sending R
-
-    private func withIssueRecording<R>(
+    private func withIssueRecording(
         at sourceLocation: SourceLocation,
         isolation: isolated (any Actor)?,
-        perform dispatch: @escaping (() -> Void) async throws -> Void,
-        after injection: @escaping Injection<R>
-    ) async throws -> sending R {
-        // https://github.com/swiftlang/swift/issues/77301
-        // When `isolation` is nil `injection` must be `@Sendable`
-
-        let signal = AsyncSignal()
-        var result: R?
-
-        let injectionTask = Task {
-            _ = isolation
-            await signal.wait()
-            await Task.yield()
-
-            guard !Task.isCancelled else {
-                return
-            }
-
-            result = try await injection()
+        perform dispatch: () async throws -> Void
+    ) async throws {
+        do {
+            try await dispatch()
+        } catch {
+            throw RecordedError(
+                underlying: error,
+                sourceLocation: sourceLocation
+            )
         }
-
-        let dispatchTask = Task {
-            do {
-                _ = isolation
-                try await dispatch {
-                    signal.finish()
-                }
-            } catch {
-                injectionTask.cancel()
-                signal.finish()
-                throw RecordedError(
-                    underlying: error,
-                    sourceLocation: sourceLocation
-                )
-            }
-        }
-
-        defer {
-            injectionTask.cancel()
-            dispatchTask.cancel()
-        }
-
-        try await injectionTask.value
-        try await dispatchTask.value
         try Task.checkCancellation()
-
-        guard let result else {
-            preconditionFailure("Injection task did not produce any result.")
-        }
-
-        return result
     }
 
     private func withIssueRecording<R>(
@@ -100,50 +58,42 @@ extension ProbingDispatcher {
 
     // swiftlint:disable no_empty_block
 
-    public func runUpToProbe<R>(
+    public func runUpToProbe(
         _ id: ProbeIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
-    ) async throws -> sending R {
+        isolation: isolated (any Actor)? = #isolation
+    ) async throws {
         try await withIssueRecording(
             at: sourceLocation,
             isolation: isolation,
-            perform: { [coordinator] startOperation in
+            perform: {
                 try await coordinator.runUntilProbeInstalled(
                     withID: id,
-                    isolation: isolation,
-                    after: startOperation
+                    isolation: isolation
                 )
-            },
-            after: injection
+            }
         )
     }
 
-    public func runUpToProbe<R>(
+    public func runUpToProbe(
         inEffect effectID: EffectIdentifier,
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
-    ) async throws -> sending R {
+        isolation: isolated (any Actor)? = #isolation
+    ) async throws {
         try await runUpToProbe(
             .init(effect: effectID, name: .default),
             sourceLocation: sourceLocation,
-            isolation: isolation,
-            after: injection
+            isolation: isolation
         )
     }
 
-    public func runUpToProbe<R>(
+    public func runUpToProbe(
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
-    ) async throws -> sending R {
+        isolation: isolated (any Actor)? = #isolation
+    ) async throws {
         try await runUpToProbe(
             inEffect: .root,
-            sourceLocation: sourceLocation,
-            isolation: isolation,
-            after: injection
+            sourceLocation: sourceLocation
         )
     }
 
@@ -154,53 +104,46 @@ extension ProbingDispatcher {
 
     // swiftlint:disable no_empty_block
 
-    public func runUntilEffectCompleted<R>(
+    public func runUntilEffectCompleted(
         _ id: EffectIdentifier,
         includingDescendants includeDescendants: Bool = false,
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
-    ) async throws -> sending R {
+        isolation: isolated (any Actor)? = #isolation
+    ) async throws {
         try await withIssueRecording(
             at: sourceLocation,
             isolation: isolation,
-            perform: { [coordinator] startOperation in
+            perform: {
                 try await coordinator.runUntilEffectCompleted(
                     withID: id,
                     includingDescendants: includeDescendants,
-                    isolation: isolation,
-                    after: startOperation
+                    isolation: isolation
                 )
-            },
-            after: injection
+            }
         )
     }
 
-    public func runUntilEverythingCompleted<R>(
+    public func runUntilEverythingCompleted(
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
-    ) async throws -> sending R {
+        isolation: isolated (any Actor)? = #isolation
+    ) async throws {
         try await runUntilEffectCompleted(
             .root,
             includingDescendants: true,
             sourceLocation: sourceLocation,
-            isolation: isolation,
-            after: injection
+            isolation: isolation
         )
     }
 
-    public func runUntilExitOfBody<R>(
+    public func runUntilExitOfBody(
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation,
-        @_inheritActorContext @_implicitSelfCapture after injection: @escaping Injection<R> = {}
-    ) async throws -> sending R {
+        isolation: isolated (any Actor)? = #isolation
+    ) async throws {
         try await runUntilEffectCompleted(
             .root,
             includingDescendants: false,
             sourceLocation: sourceLocation,
-            isolation: isolation,
-            after: injection
+            isolation: isolation
         )
     }
 
