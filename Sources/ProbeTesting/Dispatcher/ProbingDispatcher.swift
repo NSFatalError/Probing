@@ -25,7 +25,7 @@ extension ProbingDispatcher {
 
     private func withIssueRecording(
         at sourceLocation: SourceLocation,
-        isolation: isolated (any Actor)?,
+        isolation _: isolated (any Actor)?,
         perform dispatch: () async throws -> Void
     ) async throws {
         do {
@@ -89,7 +89,7 @@ extension ProbingDispatcher {
 
     public func runUpToProbe(
         sourceLocation: SourceLocation = #_sourceLocation,
-        isolation: isolated (any Actor)? = #isolation
+        isolation _: isolated (any Actor)? = #isolation
     ) async throws {
         try await runUpToProbe(
             inEffect: .root,
