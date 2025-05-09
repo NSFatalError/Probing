@@ -110,9 +110,6 @@ let package = Package(
                     name: "Algorithms",
                     package: "swift-algorithms"
                 )
-            ],
-            swiftSettings: [
-                .enableExperimentalFeature("LifetimeDependence")
             ]
         )
     ] + macroTargets(
