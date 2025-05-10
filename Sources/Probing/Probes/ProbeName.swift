@@ -12,6 +12,8 @@
 ///
 public struct ProbeName: ProbingIdentifierProtocol {
 
+    /// Non-empty string that does not contain any `.` characters.
+    /// 
     public let rawValue: String
 
     /// Creates a new probe name.

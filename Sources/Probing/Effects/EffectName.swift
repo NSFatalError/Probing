@@ -17,7 +17,10 @@
 ///
 public struct EffectName: ProbingIdentifierProtocol {
 
+    /// Non-empty string that does not contain any `.` characters.
+    ///
     public let rawValue: String
+
     private(set) var isEnumerated = false
 
     /// Creates a new effect name.
@@ -32,11 +35,11 @@ public struct EffectName: ProbingIdentifierProtocol {
 
 extension EffectName {
 
-    /// Prepares the given effect name for automatic indexing during tests, starting at zero.
+    /// Marks the given effect name as eligible for automatic indexing during tests, starting from zero.
     ///
-    /// - Parameter name: The effect name to append an index to.
+    /// - Parameter name: The effect name to append an index to during tests.
     ///
-    /// - Returns: A new effect name prepared for automatic indexing.
+    /// - Returns: A new effect name that will be automatically indexed during tests.
     ///
     /// The resulting ``rawValue`` during tests will be formatted as `name0`, `name1`, etc.
     ///
