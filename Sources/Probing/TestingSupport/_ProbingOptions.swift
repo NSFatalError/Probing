@@ -24,6 +24,6 @@ extension _ProbingOptions {
 extension _ProbingOptions {
 
     static var current: Self {
-        ProbingCoordinator.current?.options ?? .attemptProbingInTasks
+        ProbingCoordinator.current?.options ?? .ignoreProbingInTasks
     }
 }

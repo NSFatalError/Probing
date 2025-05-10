@@ -293,6 +293,20 @@ extension EffectTests {
             }
             await #expect(model.values[.root, default: 0] == 3)
         }
+
+        @Test
+        func testNameEnumeration() async throws {
+            try await withProbing {
+                await interactor.callWithIndependentEnumeratedEffects()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+                try await dispatcher.runUntilEffectCompleted("effect0")
+                await #expect(model.values == ["effect0": 3])
+
+                try await dispatcher.runUntilEffectCompleted("effect1")
+                await #expect(model.values == ["effect0": 3, "effect1": 3])
+            }
+        }
     }
 }
 
@@ -581,6 +595,44 @@ extension EffectTests {
             }
             await #expect(model.values[.root, default: 0] == 3)
         }
+
+        @Test
+        func testNameEnumeration() async throws {
+            try await withProbing {
+                await interactor.callWithNestedEnumeratedEffects()
+            } dispatchedBy: { dispatcher in
+                try await dispatcher.runUntilExitOfBody()
+                try await dispatcher.runUntilEffectCompleted("name0.effect0")
+                await #expect(model.values == ["name0.effect0": 3])
+
+                try await dispatcher.runUntilEffectCompleted("name1.effect1")
+                await #expect(
+                    model.values == [
+                        "name0.effect0": 3,
+                        "name1.effect1": 3
+                    ]
+                )
+
+                try await dispatcher.runUntilEffectCompleted("name0", includingDescendants: true)
+                await #expect(
+                    model.values == [
+                        "name0.effect0": 3,
+                        "name0.effect1": 3,
+                        "name1.effect1": 3
+                    ]
+                )
+
+                try await dispatcher.runUntilEffectCompleted("name1", includingDescendants: true)
+                await #expect(
+                    model.values == [
+                        "name0.effect0": 3,
+                        "name0.effect1": 3,
+                        "name1.effect0": 3,
+                        "name1.effect1": 3
+                    ]
+                )
+            }
+        }
     }
 }
 
@@ -801,6 +853,11 @@ extension EffectTests {
             model.tick()
         }
 
+        func callWithIndependentEnumeratedEffects() {
+            makeEffect(.enumerated("effect"))
+            makeEffect(.enumerated("effect"))
+        }
+
         func callWithNestedEffects() async {
             model.tick()
             #Effect("1") {
@@ -815,6 +872,15 @@ extension EffectTests {
 
             await #probe("2")
             model.tick()
+        }
+
+        func callWithNestedEnumeratedEffects() {
+            #Effect(.enumerated("name")) {
+                self.callWithIndependentEnumeratedEffects()
+            }
+            #ConcurrentEffect(.enumerated("name")) {
+                await self.callWithIndependentEnumeratedEffects()
+            }
         }
 
         func callWithAmbiguousEffects() async {

@@ -59,11 +59,14 @@ extension ProbingCoordinator {
         isolation: isolated (any Actor)?,
         operation: () async throws -> R
     ) async rethrows -> R {
-        try await ProbingCoordinator.$_current.withValue(
-            self,
-            operation: operation,
-            isolation: isolation
-        )
+        nonisolated(unsafe) let operation = operation
+        return try await EffectIdentifier.withRoot(isolation: isolation) {
+            try await ProbingCoordinator.$_current.withValue(
+                self,
+                operation: operation,
+                isolation: isolation
+            )
+        }
     }
 }
 
@@ -104,9 +107,7 @@ extension ProbingCoordinator {
             guard !state.testPhase.isFailed else {
                 return
             }
-            state.preconditionTestPhase { testPhase in
-                testPhase.isRunning || testPhase.isPaused
-            }
+            state.preconditionTestPhase(\.isRunning)
             try state.passTest()
         }
     }
@@ -136,7 +137,7 @@ extension ProbingCoordinator {
             isolation: isolation,
             phasePrecondition: .init(\.isRunning),
             awaiting: { state in
-                state.rootEffect.runUntilEffectCompleted(
+                try state.rootEffect.runUntilEffectCompleted(
                     withID: id,
                     includingDescendants: includeDescendants
                 )
