@@ -47,7 +47,7 @@ extension EffectName {
     }
 
     /// Appends the given index to the ``rawValue``.
-    /// 
+    ///
     /// - Parameter index: The index to append to the ``rawValue``.
     ///
     /// - Returns: A new effect name with the index appended.

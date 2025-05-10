@@ -32,28 +32,3 @@ public macro probe(
     module: "ProbingMacros",
     type: "ProbeMacro"
 )
-
-@_documentation(visibility: private)
-public func _probe( // swiftlint:disable:this identifier_name
-    _ name: @autoclosure () -> ProbeName,
-    isolation: isolated (any Actor)?,
-    fileID: String = #fileID,
-    line: Int = #line,
-    column: Int = #column
-) async {
-    guard let coordinator = ProbingCoordinator.current else {
-        return
-    }
-
-    let location = ProbingLocation(
-        fileID: fileID,
-        line: line,
-        column: column
-    )
-
-    await coordinator.installProbe(
-        withName: name(),
-        at: location,
-        isolation: isolation
-    )
-}
