@@ -43,14 +43,36 @@ public macro ConcurrentEffect<Success: Sendable>(
     type: "EffectMacro"
 )
 
+/// An interface shared by `Task` and types used by `Probing` to represent units of asynchronous work.
+///
+/// You do not need to conform your own types to this protocol.
+/// Types conforming to `Effect` are returned from effect macros such as ``Effect(_:preprocessorFlag:priority:operation:)``.
+///
+/// Unlike `Task`, the `Effect` protocol does not currently support throwing errors.
+/// Any error handling should be performed inside the operation executed by the effect itself.
+///
 public protocol Effect<Success>: Sendable {
 
+    /// The type of value returned by the effect.
+    ///
     associatedtype Success: Sendable
 
+    /// The underlying `Task` that performs the effect’s work.
+    ///
     var task: Task<Success, Never> { get }
+
+    /// The result from an effect, after it completes.
+    ///
     var value: Success { get async }
+
+    /// Indicates whether the effect has been cancelled.
+    ///
     var isCancelled: Bool { get }
 
+    /// Cancels the effect.
+    ///
+    /// If the effect was cancelled after completing successfully, `Probing` considers it finished, not cancelled.
+    ///
     func cancel()
 }
 

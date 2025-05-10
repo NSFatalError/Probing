@@ -6,6 +6,8 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+/// Type-erased wrapper for ``Effect``, providing conformance to `Equatable` and `Hashable`.
+///
 public struct AnyEffect<Success: Sendable>: Effect, Hashable {
 
     public let task: Task<Success, Never>
@@ -17,7 +19,11 @@ public struct AnyEffect<Success: Sendable>: Effect, Hashable {
 
 extension Effect {
 
-    public func erasedToAnyEffect() -> AnyEffect<Success> {
+    /// Wraps this effect with a type eraser, making it `Equatable` and `Hashable`.
+    ///
+    /// - Returns: An instance of ``AnyEffect`` wrapping this effect.
+    ///
+    public func eraseToAnyEffect() -> AnyEffect<Success> {
         AnyEffect(self)
     }
 }
