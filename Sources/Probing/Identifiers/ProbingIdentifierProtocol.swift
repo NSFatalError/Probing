@@ -6,6 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
+@_documentation(visibility: private)
 public protocol ProbingIdentifierProtocol:
     RawRepresentable<String>,
     Hashable,
@@ -29,5 +30,16 @@ extension ProbingIdentifierProtocol {
 
     public init(stringInterpolation: DefaultStringInterpolation) {
         self.init(rawValue: .init(stringInterpolation: stringInterpolation))
+    }
+}
+
+extension ProbingIdentifierProtocol {
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.rawValue == rhs.rawValue
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
     }
 }
