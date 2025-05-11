@@ -59,7 +59,11 @@ public func withProbing<R>(
         } else {
             try? await bodyTask.value
         }
-        throw error
+        if error is RecordedError {
+            throw ProbingTerminatedError()
+        } else {
+            throw error
+        }
     }
 
     try await bodyTask.value
@@ -91,7 +95,7 @@ private func makeTestTask(
 
         do {
             try coordinator.didCompleteTest()
-        } catch {
+        } catch let error as any RecordableProbingError {
             throw RecordedError(
                 underlying: error,
                 sourceLocation: sourceLocation

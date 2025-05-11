@@ -15,7 +15,7 @@
 ///
 /// Think of a probe as a conditional “breakpoint” for tests, with two key differences:
 /// - It suspends only the current effect/task, not the entire program.
-/// - It enables you to run test assertions at that point in execution, rather than debugging.
+/// - It enables you to run test expectations at that point in execution, rather than debugging.
 ///
 /// When a probe is installed, it is uniquely identified at that point in execution by a ``ProbeIdentifier``.
 /// Subsequent probes with the same `name` in the same effect will be assigned the same identifier.

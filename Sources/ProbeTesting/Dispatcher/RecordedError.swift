@@ -11,19 +11,16 @@ import Testing
 
 internal struct RecordedError: Error {
 
-    let underlying: any Error
+    let underlying: any RecordableProbingError
     let sourceLocation: SourceLocation
 
     init(
-        underlying: some Error,
+        underlying: some RecordableProbingError,
         sourceLocation: SourceLocation
     ) {
         self.underlying = underlying
         self.sourceLocation = sourceLocation
-
-        if underlying is any RecordableProbingError {
-            Issue.record(self, sourceLocation: sourceLocation)
-        }
+        Issue.record(self, sourceLocation: sourceLocation)
     }
 }
 
