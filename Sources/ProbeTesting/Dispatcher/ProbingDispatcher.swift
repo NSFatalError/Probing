@@ -72,7 +72,7 @@ extension ProbingDispatcher {
 extension ProbingDispatcher {
 
     // swiftlint:disable no_empty_block
-    
+
     /// Resumes execution of `body`, performing the minimal necessary work to install the specified probe, and suspends `body` again before returning.
     ///
     /// - Parameter id: Identifier of the probe, which is guaranteed to be installed when this function returns.
@@ -374,7 +374,7 @@ extension ProbingDispatcher {
 }
 
 extension ProbingDispatcher {
-    
+
     /// Retrieves the return value of the specified effect, ensuring it has completed successfully.
     ///
     /// - Parameters:
