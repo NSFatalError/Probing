@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-/// The name of an effect, forming the last component of an ``EffectIdentifier``.
+/// The name of an effect, forming the elements of ``EffectIdentifier/path`` of an ``EffectIdentifier``.
 ///
 /// An `EffectName` must be unique within the scope of its parent effect while the effect is still running.
 /// Once the effect has completed, the same name may be reused by another effect.
@@ -17,7 +17,7 @@
 ///
 public struct EffectName: ProbingIdentifierProtocol {
 
-    /// Non-empty string that does not contain any `.` characters.
+    /// A non-empty string that does not contain any `.` characters.
     ///
     public let rawValue: String
 
@@ -25,7 +25,7 @@ public struct EffectName: ProbingIdentifierProtocol {
 
     /// Creates a new effect name.
     ///
-    /// - Parameter rawValue: Non-empty string that must not contain any `.` characters.
+    /// - Parameter rawValue: A non-empty string that must not contain any `.` characters.
     ///
     public init(rawValue: String) {
         ProbingNames.preconditionValid(rawValue)

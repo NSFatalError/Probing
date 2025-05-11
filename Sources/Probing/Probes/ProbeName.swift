@@ -12,13 +12,13 @@
 ///
 public struct ProbeName: ProbingIdentifierProtocol {
 
-    /// Non-empty string that does not contain any `.` characters.
+    /// A non-empty string that does not contain any `.` characters.
     ///
     public let rawValue: String
 
     /// Creates a new probe name.
     ///
-    /// - Parameter rawValue: Non-empty string that must not contain any `.` characters.
+    /// - Parameter rawValue: A non-empty string that must not contain any `.` characters.
     ///
     public init(rawValue: String) {
         ProbingNames.preconditionValid(rawValue)
@@ -30,7 +30,7 @@ extension ProbeName {
 
     /// The default probe name, used by ``probe(_:preprocessorFlag:)`` when no `name` argument  is provided.
     ///
-    /// It's ``rawValue`` is `"probe"`.
+    /// Its ``rawValue`` is `"probe"`.
     ///
     public static let `default`: Self = "probe"
 }
