@@ -51,7 +51,7 @@ extension ProbingCoordinator {
     @TaskLocal
     private static var _current: ProbingCoordinator?
 
-    internal static var current: ProbingCoordinator? {
+    static var current: ProbingCoordinator? {
         _current
     }
 
