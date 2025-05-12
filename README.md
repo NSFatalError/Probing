@@ -90,7 +90,9 @@ guiding you toward a solution and making it easier to get started with the API.
 
 ## Documentation & Sample Project
 
-The public interface of `Probing` and `ProbeTesting` is relatively small, yet powerful.
+Full documentation is available on the Swift Package Index:
+- [Probing](https://swiftpackageindex.com/NSFatalError/Probing/documentation/probing)
+- [ProbeTesting](https://swiftpackageindex.com/NSFatalError/Probing/documentation/probetesting)
 
 You can download the `ProbingPlayground` sample project from its [GitHub page](https://github.com/NSFatalError/ProbingPlayground).
 
