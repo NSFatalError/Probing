@@ -4,3 +4,5 @@ builder:
     - documentation_targets:
       - Probing
       - ProbeTesting
+      - DeeplyCopyable
+      - EquatableObject

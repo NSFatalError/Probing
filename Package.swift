@@ -68,6 +68,14 @@ let package = Package(
         .library(
             name: "ProbeTesting",
             targets: ["ProbeTesting"]
+        ),
+        .library(
+            name: "DeeplyCopyable",
+            targets: ["DeeplyCopyable"]
+        ),
+        .library(
+            name: "EquatableObject",
+            targets: ["EquatableObject"]
         )
     ],
     dependencies: [
