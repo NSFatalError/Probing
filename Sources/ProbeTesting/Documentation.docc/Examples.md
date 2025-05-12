@@ -37,7 +37,7 @@ func testUploadingImage() async throws {
 
 This lets you reliably verify the `uploadState`, reproducing the exact sequence of events users experience in your app.
 
-## Controlling Mocks During Tests
+## Interacting with Mocks During Tests
 
 When testing asynchronous functions or side effects, you often have to set up mocks far in advance.
 This can be problematic, as it decouples the setup from the actual invocation, obscuring its purpose.
