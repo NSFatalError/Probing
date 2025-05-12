@@ -6,24 +6,22 @@
 <p align="center">Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.</p>
 
 <p align="center">
-    <a href="https://swiftpackageindex.com/NSFatalError/Probing" style="display:inline-block;">
+    <a href="https://swiftpackageindex.com/NSFatalError/Probing">
         <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dswift-versions" />
     </a>
-    <a href="https://swiftpackageindex.com/NSFatalError/Probing" style="display:inline-block;">
+    <a href="https://swiftpackageindex.com/NSFatalError/Probing">
         <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dplatforms" />
     </a>
-    <a href="https://codecov.io/gh/NSFatalError/Probing" style="display:inline-block;">
+    <a href="https://codecov.io/gh/NSFatalError/Probing">
         <img src="https://codecov.io/gh/NSFatalError/Probing/graph/badge.svg?token=CDPR2O8BZO" />
     </a>
 </p>
 
-<div align="center">
-
-[![Swift Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/NSFatalError/Probing)
-[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/NSFatalError/Probing)
-[![Codecov](https://codecov.io/gh/NSFatalError/Probing/graph/badge.svg?token=CDPR2O8BZO)](https://codecov.io/gh/NSFatalError/Probing)
-
-</div>
+<p align="center">
+<a href="https://swiftpackageindex.com/NSFatalError/Probing"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dswift-versions" /></a>
+<a href="https://swiftpackageindex.com/NSFatalError/Probing"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dplatforms" /></a>
+<a href="https://codecov.io/gh/NSFatalError/Probing"><img src="https://codecov.io/gh/NSFatalError/Probing/graph/badge.svg?token=CDPR2O8BZO" /></a>
+</p>
 
 ---
 
