@@ -30,7 +30,7 @@ func uploadImage(_ item: ImageItem) async {
 }
 ```
 
-This lets you reliably check the `uploadState` before the image is processed and uploaded,
+This lets you reliably verify the `uploadState` before the image is processed and uploaded,
 and before the presentation timer fires, reproducing the exact sequence of events users experience in your app.
 
 Similarly, you can install probes after each iteration of an `AsyncSequence` loop:
@@ -59,7 +59,7 @@ func updateLocation() async {
 }
 ```
 
-This allows you to reliably verify `locationState` before entering the loop,
+This allows you to reliably verify the `locationState` before entering the loop,
 after each iteration, or after an error is thrown.
 
 ## Probing with Tasks
@@ -97,7 +97,7 @@ private func downloadImage(withQuality quality: ImageQuality) {
 }
 ```
 
-This enables you to reliably check the `downloadState` before the downloads start. 
+This enables you to reliably verify the `downloadState` before the downloads start. 
 You can also precisely recreate various runtime scenarios, putting your objects into different states
 that users might experience, such as:
 - low quality download succeeded, while high quality download is pending
