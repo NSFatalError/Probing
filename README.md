@@ -52,7 +52,7 @@ The `Probing` package consists of two main modules:
 - `Probing`, which you add as a dependency to the targets you want to test
 - `ProbeTesting`, which you add as a dependency to your test targets
 
-With `Probing`, you can define **probes** — suspension points typically placed after a state change,
+With `Probing`, you can define **probes** - suspension points typically placed after a state change,
 conceptually similar to breakpoints, but accessible and targetable from your tests.
 You can also define **effects**, which make `Task` instances controllable and predictable.
 
@@ -118,7 +118,7 @@ let package = Package(
         .testTarget(
             name: "MyModuleTests",
             dependencies: [
-                "ModuleA",
+                "MyModule",
                 .product(name: "ProbeTesting", package: "Probing")
             ]
         )
