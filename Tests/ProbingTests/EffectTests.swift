@@ -22,7 +22,7 @@ internal struct EffectTests {
                 }
 
                 #expect(effect is TestableEffect<Void>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value
             }
         }
@@ -40,7 +40,7 @@ internal struct EffectTests {
                 )
 
                 #expect(effect is Task<Void, Never>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value
             }
         }
@@ -67,7 +67,7 @@ internal struct EffectTests {
                 }
 
                 #expect(effect is TestableEffect<Void>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value
             }
         }
@@ -86,7 +86,7 @@ internal struct EffectTests {
                 )
 
                 #expect(effect is Task<Void, Never>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value
             }
         }
@@ -112,7 +112,7 @@ internal struct EffectTests {
                 }
 
                 #expect(effect is TestableEffect<Void>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value
             }
         }
@@ -130,7 +130,7 @@ internal struct EffectTests {
                 )
 
                 #expect(effect is Task<Void, Never>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value
             }
         }
@@ -159,7 +159,7 @@ internal struct EffectTests {
                 }
 
                 #expect(effect is TestableEffect<any Effect<any Effect<Void>>>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value.value.value
             }
         }
@@ -176,7 +176,7 @@ internal struct EffectTests {
                 }
 
                 #expect(effect is Task<any Effect<any Effect<Void>>, Never>)
-                #expect(effect.erasedToAnyEffect().task == effect.task)
+                #expect(effect.eraseToAnyEffect().task == effect.task)
                 await effect.value.value.value
             }
         }

@@ -10,8 +10,8 @@ import Synchronization
 
 package final class ProbingCoordinator: Sendable {
 
-    private let state: Mutex<ProbingState>
     let options: _ProbingOptions
+    private let state: Mutex<ProbingState>
 
     package init(
         options: _ProbingOptions,
@@ -20,14 +20,16 @@ package final class ProbingCoordinator: Sendable {
         column: Int
     ) {
         let initialState = ProbingState(
+            options: options,
             rootEffectLocation: ProbingLocation(
                 fileID: fileID,
                 line: line,
                 column: column
             )
         )
-        self.state = .init(initialState)
+
         self.options = options
+        self.state = .init(initialState)
     }
 
     deinit {
@@ -51,7 +53,7 @@ extension ProbingCoordinator {
     @TaskLocal
     private static var _current: ProbingCoordinator?
 
-    internal static var current: ProbingCoordinator? {
+    static var current: ProbingCoordinator? {
         _current
     }
 
@@ -59,11 +61,14 @@ extension ProbingCoordinator {
         isolation: isolated (any Actor)?,
         operation: () async throws -> R
     ) async rethrows -> R {
-        try await ProbingCoordinator.$_current.withValue(
-            self,
-            operation: operation,
-            isolation: isolation
-        )
+        nonisolated(unsafe) let operation = operation
+        return try await EffectIdentifier.withRoot(isolation: isolation) {
+            try await ProbingCoordinator.$_current.withValue(
+                self,
+                operation: operation,
+                isolation: isolation
+            )
+        }
     }
 }
 
@@ -72,8 +77,7 @@ extension ProbingCoordinator {
     private func pauseTest(
         isolation: isolated (any Actor)?,
         phasePrecondition precondition: TestPhase.Precondition,
-        awaiting dispatches: (ProbingState) throws -> Void,
-        after injection: () -> Void
+        awaiting dispatches: (ProbingState) throws -> Void
     ) async throws {
         try await withCheckedThrowingContinuation(isolation: isolation) { continuation in
             state.resumeTestIfPossible { state in
@@ -81,7 +85,6 @@ extension ProbingCoordinator {
                 state.pauseTest(using: continuation)
                 try dispatches(state)
             }
-            injection()
         }
     }
 
@@ -92,8 +95,7 @@ extension ProbingCoordinator {
             try await pauseTest(
                 isolation: isolation,
                 phasePrecondition: .init(\.isScheduled),
-                awaiting: { _ in }, // swiftlint:disable:this no_empty_block
-                after: {} // swiftlint:disable:this no_empty_block
+                awaiting: { _ in } // swiftlint:disable:this no_empty_block
             )
         } catch {
             preconditionFailure("""
@@ -107,9 +109,7 @@ extension ProbingCoordinator {
             guard !state.testPhase.isFailed else {
                 return
             }
-            state.preconditionTestPhase { testPhase in
-                testPhase.isRunning || testPhase.isPaused
-            }
+            state.preconditionTestPhase(\.isRunning)
             try state.passTest()
         }
     }
@@ -119,35 +119,31 @@ extension ProbingCoordinator {
 
     package func runUntilProbeInstalled(
         withID id: ProbeIdentifier,
-        isolation: isolated (any Actor)?,
-        after injection: () -> Void
+        isolation: isolated (any Actor)?
     ) async throws {
         try await pauseTest(
             isolation: isolation,
             phasePrecondition: .init(\.isRunning),
             awaiting: { state in
                 try state.rootEffect.runUntilProbeInstalled(withID: id)
-            },
-            after: injection
+            }
         )
     }
 
     package func runUntilEffectCompleted(
         withID id: EffectIdentifier,
         includingDescendants includeDescendants: Bool,
-        isolation: isolated (any Actor)?,
-        after injection: () -> Void
+        isolation: isolated (any Actor)?
     ) async throws {
         try await pauseTest(
             isolation: isolation,
             phasePrecondition: .init(\.isRunning),
             awaiting: { state in
-                state.rootEffect.runUntilEffectCompleted(
+                try state.rootEffect.runUntilEffectCompleted(
                     withID: id,
                     includingDescendants: includeDescendants
                 )
-            },
-            after: injection
+            }
         )
     }
 
@@ -178,16 +174,6 @@ extension ProbingCoordinator {
 
 extension ProbingCoordinator {
 
-    private func shouldProbeCurrentTask(state: ProbingState) -> Bool {
-        guard options.contains(.ignoreProbingInTasks) else {
-            return true
-        }
-        guard let taskID = Task.id else {
-            return false
-        }
-        return state.taskIDs.contains(taskID)
-    }
-
     func installProbe(
         withName name: ProbeName,
         at location: ProbingLocation,
@@ -207,6 +193,7 @@ extension ProbingCoordinator {
                 )
 
                 guard state.isTracking,
+                      state.shouldProbeCurrentTask(),
                       let childEffect = state.childEffect(withID: id.effect)
                 else {
                     continuation.resume()
@@ -228,11 +215,6 @@ extension ProbingCoordinator {
                             backtrace: continuation.backtrace,
                             preexisting: nil
                         )
-                    }
-
-                    guard shouldProbeCurrentTask(state: state) else {
-                        continuation.resume()
-                        return
                     }
 
                     state.preconditionTestPhase(\.isPaused)
@@ -262,13 +244,13 @@ extension ProbingCoordinator {
                 return
             }
 
-            guard !state.testPhase.isRunning else {
-                throw ProbingErrors.EffectAPIMisuse(backtrace: backtrace)
-            }
-
-            guard shouldProbeCurrentTask(state: state) else {
+            guard state.shouldProbeCurrentTask() else {
                 shouldProbe = false
                 return
+            }
+
+            guard !state.testPhase.isRunning else {
+                throw ProbingErrors.EffectAPIMisuse(backtrace: backtrace)
             }
 
             state.preconditionTestPhase(\.isPaused)
@@ -288,9 +270,7 @@ extension ProbingCoordinator {
     ) async {
         await withCheckedContinuation(isolation: isolation) { underlying in
             state.resumeTestIfPossible { state in
-                if options.contains(.ignoreProbingInTasks) {
-                    state.registerCurrentTask()
-                }
+                state.registerCurrentTaskIfNeeded()
 
                 guard state.isTracking,
                       let childEffect = state.childEffect(withID: id)
@@ -349,9 +329,7 @@ extension ProbingCoordinator {
         testPhasePrecondition precondition: TestPhase.Precondition
     ) {
         state.resumeTestIfPossible { state in
-            if options.contains(.ignoreProbingInTasks) {
-                state.unregisterCurrentTask()
-            }
+            state.unregisterCurrentTaskIfNeeded()
 
             guard state.isTracking,
                   let childEffect = state.childEffect(withID: id)

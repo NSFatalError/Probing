@@ -14,7 +14,9 @@ extension Issue {
     func didRecordError<Underlying: Error>(
         _: Underlying.Type
     ) -> Bool {
-        let recordedError = error as? RecordedError
-        return recordedError?.underlying is Underlying
+        guard let recordedError = error as? RecordedError else {
+            return error is ProbingTerminatedError
+        }
+        return recordedError.underlying is Underlying
     }
 }

@@ -23,14 +23,6 @@ internal indirect enum EffectDispatch: Sendable {
                 preconditionFailure("Child dispatches cannot be nested.")
             }
 
-            precondition(
-                childID.path.count <= id.path.count,
-                """
-                Dispatch for effect with identifier \"\(id)\" was relayed \
-                to unrelated descendant with identifier \"\(childID)\".
-                """
-            )
-
             if childID == id {
                 self = .suspendWhenPossible
                 return dispatch

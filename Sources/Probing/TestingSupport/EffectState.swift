@@ -166,9 +166,9 @@ extension EffectState {
     func runUntilEffectCompleted(
         withID effectID: EffectIdentifier,
         includingDescendants includeDescendants: Bool
-    ) {
+    ) throws {
         preconditionRoot()
-        runUntilEffectCompleted(
+        try runUntilEffectCompleted(
             withID: effectID,
             path: effectID.path[...],
             includingDescendants: includeDescendants
@@ -179,10 +179,10 @@ extension EffectState {
         withID effectID: EffectIdentifier,
         path: ArraySlice<EffectName>,
         includingDescendants includeDescendants: Bool
-    ) {
+    ) throws {
         if let descendantName = path.first {
             if let descendant = children[descendantName] {
-                descendant.runUntilEffectCompleted(
+                try descendant.runUntilEffectCompleted(
                     withID: effectID,
                     path: path.dropFirst(),
                     includingDescendants: includeDescendants
@@ -204,7 +204,7 @@ extension EffectState {
 
             if includeDescendants {
                 for child in children.values {
-                    child.runUntilEffectCompleted(
+                    try child.runUntilEffectCompleted(
                         withID: effectID,
                         path: path,
                         includingDescendants: true
@@ -213,11 +213,7 @@ extension EffectState {
             }
         }
 
-        do {
-            try resumeIfNeeded()
-        } catch {
-            preconditionFailure("Effect would never complete: \(error)")
-        }
+        try resumeIfNeeded()
     }
 }
 

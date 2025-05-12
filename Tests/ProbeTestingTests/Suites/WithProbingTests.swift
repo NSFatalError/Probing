@@ -186,7 +186,7 @@ extension WithProbingTests {
     }
 
     @Test
-    func testThrowingWhileTesting() async {
+    func testThrowingEarlyInTest() async {
         await #expect(throws: ErrorMock.self) {
             try await confirmation { confirmation in
                 try await withProbing {
@@ -197,9 +197,15 @@ extension WithProbingTests {
             }
         }
     }
-}
 
-extension WithProbingTests {
+    @Test
+    func testProbingInTest() async throws {
+        try await withProbing {
+            // Void
+        } dispatchedBy: { _ in
+            await #probe()
+        }
+    }
 
     @CustomActor
     @Test
@@ -214,7 +220,7 @@ extension WithProbingTests {
 
     @CustomActor
     @Test
-    func testIsolationWhileTesting() async throws {
+    func testIsolationInTest() async throws {
         try await withProbing {
             // Void
         } dispatchedBy: { _ in

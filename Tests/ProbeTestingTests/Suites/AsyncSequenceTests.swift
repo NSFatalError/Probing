@@ -1,5 +1,5 @@
 //
-//  InjectionTests.swift
+//  AsyncSequenceTests.swift
 //  Probing
 //
 //  Created by Kamil Strzelecki on 26/04/2025.
@@ -10,7 +10,7 @@
 @testable import Probing
 import Testing
 
-internal struct InjectionTests {
+internal struct AsyncSequenceTests {
 
     private let model: IsolatedModel
     private let interactor: IsolatedInteractor
@@ -25,21 +25,18 @@ internal struct InjectionTests {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
-            let first = try await dispatcher.runUpToProbe {
-                await interactor.yield()
-            }
+            let first = await interactor.yield()
+            try await dispatcher.runUpToProbe()
             #expect(first == 0)
             await #expect(model.value == 1)
 
-            let second = try await dispatcher.runUpToProbe {
-                await interactor.yield()
-            }
+            let second = await interactor.yield()
+            try await dispatcher.runUpToProbe()
             #expect(second == 1)
             await #expect(model.value == 2)
 
-            let final = try await dispatcher.runUpToProbe("1") {
-                await interactor.finish()
-            }
+            let final = await interactor.finish()
+            try await dispatcher.runUpToProbe("1")
             #expect(final == 2)
             await #expect(model.value == 4)
 
@@ -56,21 +53,18 @@ internal struct InjectionTests {
             try await dispatcher.runUpToProbe("2")
             await #expect(model.value == 2)
 
-            let first = try await dispatcher.runUpToProbe(inEffect: "stream") {
-                await interactor.yield()
-            }
+            let first = await interactor.yield()
+            try await dispatcher.runUpToProbe(inEffect: "stream")
             #expect(first == 2)
             await #expect(model.value == 3)
 
-            let second = try await dispatcher.runUpToProbe(inEffect: "stream") {
-                await interactor.yield()
-            }
+            let second = await interactor.yield()
+            try await dispatcher.runUpToProbe(inEffect: "stream")
             #expect(second == 3)
             await #expect(model.value == 4)
 
-            let final = try await dispatcher.runUpToProbe("stream.1") {
-                await interactor.finish()
-            }
+            let final = await interactor.finish()
+            try await dispatcher.runUpToProbe("stream.1")
             #expect(final == 4)
             await #expect(model.value == 6)
 
@@ -83,16 +77,15 @@ internal struct InjectionTests {
     }
 }
 
-extension InjectionTests {
+extension AsyncSequenceTests {
 
     @Test
     func testRunningUpToProbe() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
-            let result = try await dispatcher.runUpToProbe {
-                await interactor.finish()
-            }
+            let result = await interactor.finish()
+            try await dispatcher.runUpToProbe()
             #expect(result == 0)
             await #expect(model.value == 1)
         }
@@ -103,9 +96,8 @@ extension InjectionTests {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
-            let result = try await dispatcher.runUpToProbe("1") {
-                await interactor.finish()
-            }
+            let result = await interactor.finish()
+            try await dispatcher.runUpToProbe("1")
             #expect(result == 0)
             await #expect(model.value == 2)
         }
@@ -116,25 +108,23 @@ extension InjectionTests {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
-            let result = try await dispatcher.runUpToProbe(inEffect: "stream") {
-                await interactor.finish()
-            }
-            #expect(result <= 1)
+            let result = await interactor.finish()
+            try await dispatcher.runUpToProbe(inEffect: "stream")
+            #expect(result == 0)
             await #expect(model.value == 2)
         }
     }
 }
 
-extension InjectionTests {
+extension AsyncSequenceTests {
 
     @Test
     func testRunningUntilExitOfBody() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
-            let result = try await dispatcher.runUntilExitOfBody {
-                await interactor.finish()
-            }
+            let result = await interactor.finish()
+            try await dispatcher.runUntilExitOfBody()
             #expect(result == 0)
             await #expect(model.value == 3)
         }
@@ -145,10 +135,9 @@ extension InjectionTests {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
-            let result = try await dispatcher.runUntilEverythingCompleted {
-                await interactor.finish()
-            }
-            #expect(result <= 3)
+            let result = await interactor.finish()
+            try await dispatcher.runUntilEverythingCompleted()
+            #expect(result == 0)
             await #expect(model.value == 6)
         }
     }
@@ -158,47 +147,15 @@ extension InjectionTests {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
-            let result = try await dispatcher.runUntilEffectCompleted("stream") {
-                await interactor.finish()
-            }
-            #expect(result <= 1)
+            let result = await interactor.finish()
+            try await dispatcher.runUntilEffectCompleted("stream")
+            #expect(result == 0)
             await #expect(model.value == 4)
         }
     }
 }
 
-extension InjectionTests {
-
-    @Test
-    func testThrowing() async {
-        await #expect(throws: ErrorMock.self) {
-            try await withProbing {
-                await interactor.callWithAsyncStream()
-            } dispatchedBy: { dispatcher in
-                try await dispatcher.runUpToProbe("unknown") {
-                    throw ErrorMock()
-                }
-                Issue.record()
-            }
-        }
-    }
-
-    @CustomActor
-    @Test
-    func testIsolation() async throws {
-        try await withProbing {
-            await interactor.callWithAsyncStream()
-        } dispatchedBy: { dispatcher in
-            try await dispatcher.runUpToProbe {
-                #expect(#isolation === CustomActor.shared)
-                CustomActor.shared.assertIsolated()
-                _ = await interactor.finish()
-            }
-        }
-    }
-}
-
-extension InjectionTests {
+extension AsyncSequenceTests {
 
     private struct ErrorMock: Error {}
 

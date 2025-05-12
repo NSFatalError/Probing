@@ -55,6 +55,7 @@ extension ProbingErrors {
 
             Recovery suggestions:
             - If effects have distinct purposes assign unique identifiers to each of them.
+            - Use EffectName.enumerated(_:) to automatically append an index to the name, making it unique.
             - Ensure preexisting effect and its children have completed before a new one is created.
             """
         }

@@ -8,6 +8,7 @@
 
 import PrincipleConcurrency
 
+@_documentation(visibility: private)
 public struct TestableEffect<Success: Sendable>: Effect, Hashable {
 
     public let task: Task<Success, Never>
@@ -35,7 +36,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         }
 
         let name = name()
-        let id = EffectIdentifier.current.appending(name)
+        let id = EffectIdentifier.current(appending: name)
         let isolation = extractIsolation(operation)
         var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
@@ -53,7 +54,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
-        let task = EffectIdentifier.appending(name) { id in
+        let task = EffectIdentifier.withChild(id) {
             var transfer = transfer.take()
 
             return Task(priority: priority) {
@@ -101,7 +102,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         }
 
         let name = name()
-        let id = EffectIdentifier.current.appending(name)
+        let id = EffectIdentifier.current(appending: name)
         var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
@@ -119,7 +120,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
-        let task = EffectIdentifier.appending(name) { [taskExecutor] id in
+        let task = EffectIdentifier.withChild(id) { [taskExecutor] in
             var transfer = transfer.take()
 
             return Task(executorPreference: taskExecutor, priority: priority) {

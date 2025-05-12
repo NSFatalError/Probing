@@ -10,7 +10,9 @@ import Synchronization
 
 internal struct ProbingState {
 
+    let options: _ProbingOptions
     let rootEffect: EffectState
+
     private(set) var testPhase = TestPhase.scheduled
     private(set) var taskIDs = Set<Int>()
     private(set) var errors = [any Error]()
@@ -19,7 +21,11 @@ internal struct ProbingState {
         !testPhase.isCompleted && errors.isEmpty
     }
 
-    init(rootEffectLocation: ProbingLocation) {
+    init(
+        options: _ProbingOptions,
+        rootEffectLocation: ProbingLocation
+    ) {
+        self.options = options
         self.rootEffect = .root(location: rootEffectLocation)
     }
 }
@@ -55,31 +61,27 @@ extension ProbingState {
 extension ProbingState {
 
     mutating func passTest() throws {
-        switch testPhase {
-        case let .paused(continuation):
-            let error = ProbingInterruptedError()
-            continuation.resume(throwing: error)
-            failTest(with: error)
-            throw error
+        if let firstError = errors.first {
+            failTest(with: firstError)
+            throw firstError
+        }
 
-        default:
-            if let firstError = errors.first {
-                failTest(with: firstError)
-                throw firstError
-            }
-
+        do {
+            try unblockRootEffect()
             testPhase = .passed
-            completeTest()
+        } catch {
+            testPhase = .failed(error)
+            throw error
         }
     }
 
     private mutating func failTest(with error: any Error) {
         testPhase = .failed(error)
-        completeTest()
+        try? unblockRootEffect()
     }
 
-    private func completeTest() {
-        rootEffect.runUntilEffectCompleted(
+    private func unblockRootEffect() throws {
+        try rootEffect.runUntilEffectCompleted(
             withID: .root,
             includingDescendants: true
         )
@@ -88,20 +90,34 @@ extension ProbingState {
 
 extension ProbingState {
 
-    mutating func registerCurrentTask() {
-        guard let taskID = Task.id else {
+    mutating func registerCurrentTaskIfNeeded() {
+        guard options.contains(.ignoreProbingInTasks),
+              let taskID = Task.id
+        else {
             return
         }
         let result = taskIDs.insert(taskID)
         precondition(result.inserted, "Task was already registered.")
     }
 
-    mutating func unregisterCurrentTask() {
-        guard let taskID = Task.id else {
+    mutating func unregisterCurrentTaskIfNeeded() {
+        guard options.contains(.ignoreProbingInTasks),
+              let taskID = Task.id
+        else {
             return
         }
         let result = taskIDs.remove(taskID)
         precondition(result != nil, "Task was never registered.")
+    }
+
+    func shouldProbeCurrentTask() -> Bool {
+        guard options.contains(.ignoreProbingInTasks) else {
+            return true
+        }
+        guard let taskID = Task.id else {
+            return false
+        }
+        return taskIDs.contains(taskID)
     }
 }
 
