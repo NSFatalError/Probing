@@ -16,7 +16,7 @@ internal struct TaskGroupTests {
 
     @Test
     func testCollectingChildResults() async throws {
-        try await withProbing(options: .ignoreProbingInTasks) {
+        try await withProbing {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0 ..< childrenCount {
                     group.addTask {
