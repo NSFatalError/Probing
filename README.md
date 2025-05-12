@@ -14,6 +14,12 @@
 
 ---
 
+#### Contents
+- [What Problem Probing Solves?](#what-problem-probing-solves)
+- [How Probing Works?](#how-probing-works)
+- [Documentation & Sample Project](#documentation--sample-project)
+- [Installation](#installation)
+
 ## What Problem Probing Solves?
 
 Testing asynchronous code remains challenging, even with Swift Concurrency and Swift Testing. 
@@ -22,7 +28,7 @@ Some of the persistent difficulties include:
 - **Hidden states**: When invoking methods on objects, often with complex dependencies between them, it’s not enough 
 to inspect just the final output of the function. Inspecting the internal state changes during execution, such as loading states in view models, 
 is equally important but notoriously difficult.
-- **Non-determinism**: `Task`s run concurrently and may complete in different orders each time, leading to unpredictable states. 
+- **Non-determinism**: `Task` instances run concurrently and may complete in different orders each time, leading to unpredictable states. 
 Even with full code coverage, there’s no guarantee that all execution paths have been reached, and it's' difficult to reason about what remains untested.
 - **Limited runtime control**: Once an asynchronous function is running, influencing its behavior becomes nearly impossible. 
 This limitation pushes developers to rely on ahead-of-time setups, like intricate mocks, which add complexity and reduce clarity of the test.
