@@ -44,6 +44,8 @@ extension ProbingOptions {
     ///
     /// In the simplest case, this means you would need to serialize calls to `Task` APIs and `await` each of them sequentially.
     ///
+    /// - SeeAlso: Refer to `Probing` documentation to learn more on interactions with Swift Concurrency.
+    ///
     public static let attemptProbingInTasks = Self(.attemptProbingInTasks)
 
     /// Ignores probes and effects created from `Task` APIs.
@@ -52,6 +54,8 @@ extension ProbingOptions {
     ///
     /// When this option is enabled, probes created within `Task` APIs resume immediately,
     /// and effects run as standard Swift `Task` instances, without any custom scheduling.
+    ///
+    /// - SeeAlso: Refer to `Probing` documentation to learn more on interactions with Swift Concurrency.
     ///
     public static let ignoreProbingInTasks = Self(.ignoreProbingInTasks)
 }
