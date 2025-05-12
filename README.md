@@ -6,10 +6,9 @@
 <p align="center">Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.</p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/Swift-6.1-EF5239?logo=swift&labelColor=white" />
-    <a href="https://codecov.io/gh/NSFatalError/Probing">
-        <img src="https://codecov.io/gh/NSFatalError/Probing/graph/badge.svg?token=CDPR2O8BZO" />
-    </a>
+<a href="https://swiftpackageindex.com/NSFatalError/Probing"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dswift-versions" /></a>
+<a href="https://swiftpackageindex.com/NSFatalError/Probing"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dplatforms" /></a>
+<a href="https://codecov.io/gh/NSFatalError/Probing"><img src="https://codecov.io/gh/NSFatalError/Probing/graph/badge.svg?token=CDPR2O8BZO" /></a>
 </p>
 
 ---
@@ -90,7 +89,9 @@ guiding you toward a solution and making it easier to get started with the API.
 
 ## Documentation & Sample Project
 
-The public interface of `Probing` and `ProbeTesting` is relatively small, yet powerful.
+Full documentation is available on the Swift Package Index:
+- [Probing](https://swiftpackageindex.com/NSFatalError/Probing/documentation/probing)
+- [ProbeTesting](https://swiftpackageindex.com/NSFatalError/Probing/documentation/probetesting)
 
 You can download the `ProbingPlayground` sample project from its [GitHub page](https://github.com/NSFatalError/ProbingPlayground).
 
