@@ -79,8 +79,8 @@ struct MyView: View {
 }
 ```
 
-- SeeAlso: Refer to the `ProbeTesting.ProbingOptions.attemptProbingFromTasks` documentation 
-if you need to control tasks using the `Probing` library. As the name of the option suggests, this is not always possible, 
+- SeeAlso: Refer to the `ProbeTesting.ProbingOptions.attemptProbingFromTasks` documentation if you need to control 
+the execution of probes and effects created from `Task` APIs. As the name of the option suggests, this is not always possible
 and is generally discouraged.
 
 ## Parallel Processing

@@ -1,6 +1,12 @@
 # ``ProbeTesting``
 
+Control the execution of asynchronous code during tests using a sequence of dispatches.
+
 ## Overview
+
+To use `ProbeTesting`, you first need to prepare your codebase using the `Probing` library.
+
+- SeeAlso: Refer to the `Probing` documentation for details on how to make your code controllable during tests.
 
 `ProbeTesting` gives you precise control over the execution of asynchronous code,  
 making it fully predictable and testable. It also lets you reason about the flow 
@@ -33,8 +39,6 @@ func testLoading() async throws {
     }
 }
 ```
-
-- SeeAlso: Refer to the `Probing` documentation for details on how to make your code controllable during tests.
 
 ## Topics
 

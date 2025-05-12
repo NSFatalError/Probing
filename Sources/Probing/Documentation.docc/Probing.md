@@ -4,10 +4,9 @@ Define suspension points accessible from tests with probes, and make side effect
 
 ## Overview
 
-To use `ProbeTesting`, you first need to prepare your codebase using the `Probing` library.
-
-The `Probing` library lets you define suspension points using the ``probe(_:preprocessorFlag:)`` macro. 
-These are typically placed after a state change and before `await` statements, for example:
+`Probing` lets you define suspension points for your test expectations
+using the ``probe(_:preprocessorFlag:)`` macro. These are typically placed after a state change 
+and before `await` statements, for example:
 
 ```swift
 func load() async {
@@ -22,8 +21,9 @@ func load() async {
 }
 ```
 
-If your code uses `Task` to create side effects, you can replace them with the ``Effect(_:preprocessorFlag:priority:operation:)`` 
-macro or one of its variants. For example:
+If your code uses `Task` instances to create side effects, you can replace them with 
+the ``Effect(_:preprocessorFlag:priority:operation:)`` macro or one of its variants to make them 
+controllable during tests. For example:
 
 ```swift
 func load() {
