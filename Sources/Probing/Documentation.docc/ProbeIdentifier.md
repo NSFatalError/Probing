@@ -2,7 +2,7 @@
 
 ## Topics
 
-### Creating Identifiers For Lookup During Tests
+### Creating Identifiers for Lookup During Tests
 
 - ``init(effect:name:)``
 - ``init(rawValue:)``
