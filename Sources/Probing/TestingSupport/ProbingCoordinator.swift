@@ -10,8 +10,8 @@ import Synchronization
 
 package final class ProbingCoordinator: Sendable {
 
-    private let state: Mutex<ProbingState>
     let options: _ProbingOptions
+    private let state: Mutex<ProbingState>
 
     package init(
         options: _ProbingOptions,
@@ -20,14 +20,16 @@ package final class ProbingCoordinator: Sendable {
         column: Int
     ) {
         let initialState = ProbingState(
+            options: options,
             rootEffectLocation: ProbingLocation(
                 fileID: fileID,
                 line: line,
                 column: column
             )
         )
-        self.state = .init(initialState)
+
         self.options = options
+        self.state = .init(initialState)
     }
 
     deinit {
@@ -172,16 +174,6 @@ extension ProbingCoordinator {
 
 extension ProbingCoordinator {
 
-    private func shouldProbeCurrentTask(state: ProbingState) -> Bool {
-        guard options.contains(.ignoreProbingInTasks) else {
-            return true
-        }
-        guard let taskID = Task.id else {
-            return false
-        }
-        return state.taskIDs.contains(taskID)
-    }
-
     func installProbe(
         withName name: ProbeName,
         at location: ProbingLocation,
@@ -201,6 +193,7 @@ extension ProbingCoordinator {
                 )
 
                 guard state.isTracking,
+                      state.shouldProbeCurrentTask(),
                       let childEffect = state.childEffect(withID: id.effect)
                 else {
                     continuation.resume()
@@ -222,11 +215,6 @@ extension ProbingCoordinator {
                             backtrace: continuation.backtrace,
                             preexisting: nil
                         )
-                    }
-
-                    guard shouldProbeCurrentTask(state: state) else {
-                        continuation.resume()
-                        return
                     }
 
                     state.preconditionTestPhase(\.isPaused)
@@ -256,13 +244,13 @@ extension ProbingCoordinator {
                 return
             }
 
-            guard !state.testPhase.isRunning else {
-                throw ProbingErrors.EffectAPIMisuse(backtrace: backtrace)
-            }
-
-            guard shouldProbeCurrentTask(state: state) else {
+            guard state.shouldProbeCurrentTask() else {
                 shouldProbe = false
                 return
+            }
+
+            guard !state.testPhase.isRunning else {
+                throw ProbingErrors.EffectAPIMisuse(backtrace: backtrace)
             }
 
             state.preconditionTestPhase(\.isPaused)
@@ -282,9 +270,7 @@ extension ProbingCoordinator {
     ) async {
         await withCheckedContinuation(isolation: isolation) { underlying in
             state.resumeTestIfPossible { state in
-                if options.contains(.ignoreProbingInTasks) {
-                    state.registerCurrentTask()
-                }
+                state.registerCurrentTaskIfNeeded()
 
                 guard state.isTracking,
                       let childEffect = state.childEffect(withID: id)
@@ -343,9 +329,7 @@ extension ProbingCoordinator {
         testPhasePrecondition precondition: TestPhase.Precondition
     ) {
         state.resumeTestIfPossible { state in
-            if options.contains(.ignoreProbingInTasks) {
-                state.unregisterCurrentTask()
-            }
+            state.unregisterCurrentTaskIfNeeded()
 
             guard state.isTracking,
                   let childEffect = state.childEffect(withID: id)
