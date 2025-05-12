@@ -3,6 +3,7 @@
 </p>
 
 <h1 align="center">Probing</h1>
+<p align="center">Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.</p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.1-EF5239?logo=swift&labelColor=white" />
@@ -11,7 +12,7 @@
     </a>
 </p>
 
-<p align="center">Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.</p>
+---
 
 ## What Problem Probing Solves?
 
