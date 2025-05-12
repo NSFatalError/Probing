@@ -12,7 +12,7 @@ import Algorithms
 import Testing
 
 internal final class NestedEffectsTests: EffectTests {
-    
+
     @Test
     func testRunningThroughProbes() async throws {
         try await withProbing {
