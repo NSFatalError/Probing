@@ -11,7 +11,7 @@
     </a>
 </p>
 
-Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.
+<p align="center">Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.</p>
 
 ## What Problem Probing Solves?
 

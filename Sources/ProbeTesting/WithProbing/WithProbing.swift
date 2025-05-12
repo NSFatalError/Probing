@@ -12,7 +12,7 @@ import Testing
 /// Enables control over probes and effects, making asynchronous code testable.
 ///
 /// - Parameters:
-///   - options: Controls testability of probes and effects created from `Task` APIs.  Defaults to ``ProbingOptions/ignoreProbingInTasks``.
+///   - options: Controls testability of probes and effects created from `Task` APIs. Defaults to ``ProbingOptions/ignoreProbingInTasks``.
 ///   - body: A closure containing the code under test. Probes and effects invoked from this closure become controllable in `test`.
 ///   - test: A closure used to control the execution of `body` via ``ProbingDispatcher``, verify expectations, and interact with the system under test.
 ///
@@ -118,9 +118,8 @@ public func withProbing<R>(
         }
         if error is RecordedError {
             throw ProbingTerminatedError()
-        } else {
-            throw error
         }
+        throw error
     }
 
     try await bodyTask.value
