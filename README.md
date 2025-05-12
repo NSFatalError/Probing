@@ -25,7 +25,7 @@
 Testing asynchronous code remains challenging, even with Swift Concurrency and Swift Testing. 
 Some of the persistent difficulties include:
 
-- **Hidden states**: When invoking methods on objects, often with complex dependencies between them, it’s not enough 
+- **Unobservable state transitions**: When invoking methods on objects, often with complex dependencies between them, it’s not enough 
 to inspect just the final output of the function. Inspecting the internal state changes during execution, such as loading states in view models, 
 is equally important but notoriously difficult.
 - **Non-determinism**: `Task` instances run concurrently and may complete in different orders each time, leading to unpredictable states. 
@@ -35,7 +35,7 @@ This limitation pushes developers to rely on ahead-of-time setups, like intricat
 
 Over the years, the Swift community has introduced a number of tools to address these challenges, each with its own strengths:
 
-- **Quick/Nimble**: Polling with the designated matchers allows checking changes to hidden states, 
+- **Quick/Nimble**: Polling with the designated matchers allows checking changes to object state, 
 but it can lead to flaky tests and is generally not concurrency-safe.
 - **Combine/RxSwift**: Reactive paradigms are powerful, but they can be difficult to set up and may introduce unnecessary abstraction, 
 especially now that `AsyncSequence` covers many use cases natively.
