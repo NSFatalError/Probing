@@ -139,7 +139,7 @@ internal final class IndependentEffectsTests: EffectTests {
     }
 }
 
-extension IndependentEffectTests {
+extension IndependentEffectsTests {
 
     @Test
     func testRunningWithoutDispatches() async throws {
