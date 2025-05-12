@@ -1,5 +1,5 @@
 //
-//  EffectTests.swift
+//  IndependentEffectsTests.swift
 //  Probing
 //
 //  Created by Kamil Strzelecki on 26/04/2025.
@@ -11,7 +11,7 @@
 import Algorithms
 import Testing
 
-internal final class IndependentEffectTests: EffectTests {
+internal final class IndependentEffectsTests: EffectTests {
 
     @Test
     func testRunningThroughProbes() async throws {

@@ -1,5 +1,5 @@
 //
-//  EffectTests.swift
+//  NestedEffectsTests.swift
 //  Probing
 //
 //  Created by Kamil Strzelecki on 26/04/2025.
