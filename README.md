@@ -17,6 +17,14 @@
     </a>
 </p>
 
+<div align="center">
+
+[![Swift Version](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/NSFatalError/Probing)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/NSFatalError/Probing)
+[![Codecov](https://codecov.io/gh/NSFatalError/Probing/graph/badge.svg?token=CDPR2O8BZO)](https://codecov.io/gh/NSFatalError/Probing)
+
+</div>
+
 ---
 
 #### Contents
