@@ -11,7 +11,7 @@ To use these features, wrap your test code with the
 
 ```swift
 @Test
-func testLoading() {
+func testLoading() async throws {
     try await withProbing {
         await viewModel.load()
     } dispatchedBy: { dispatcher in

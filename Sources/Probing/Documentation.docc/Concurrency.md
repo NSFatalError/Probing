@@ -48,7 +48,7 @@ func example() async {
 - Important: Wherever applicable, use effect macros instead of `Task` APIs to ensure full test support.
 
 That said, calling `Probing` APIs from within `Task` APIs is completely safe — and vice versa.
-Using `Task` APIs only affects testing support - it does not alter the runtime behavior of your app.
+Using `Task` APIs only affects testing support, as it does not alter the runtime behavior of your app.
 
 It is fully supported and recommended to use `Task` APIs in non-testable contexts, even if those tasks invoke `Probing` APIs.
 For example, you can continue using `Task.init` in a SwiftUI `View`:
@@ -85,8 +85,8 @@ and is generally discouraged.
 
 ## Parallel Processing
 
-While Probing offers macro equivalents to `Task.init`, it currently lacks counterparts for 
-`TaskGroup.addTask` functions. This is intentional - APIs like `withTaskGroup` are meant to introduce parallelism to your code. 
+While `Probing` offers macro equivalents to `Task.init`, it currently lacks counterparts for `TaskGroup.addTask` 
+functions. This is intentional, as APIs like `withTaskGroup` are meant to introduce parallelism to your code. 
 Since one of `Probing`’s goals is to help you reason about execution flow as a sequence of events, 
 flattening parallel hierarchies provides limited value in such cases.
 
