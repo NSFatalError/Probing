@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Probing</h1>
-<p align="center">Breakpoints for Swift Testing - precise control over side effects and execution suspension at any point.</p>
+<p align="center">Breakpoints for Swift Testing - precise control over side effects and fully observable state transitions in asynchronous functions</p>
 
 <p align="center">
 <a href="https://swiftpackageindex.com/NSFatalError/Probing"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FProbing%2Fbadge%3Ftype%3Dswift-versions" /></a>
@@ -29,7 +29,7 @@ to inspect just the final output of the function. Inspecting the internal state 
 is equally important but notoriously difficult.
 - **Non-determinism**: `Task` instances run concurrently and may complete in different orders each time, leading to unpredictable states. 
 Even with full code coverage, there’s no guarantee that all execution paths have been reached, and it's' difficult to reason about what remains untested.
-- **Limited runtime control**: Once an asynchronous function is running, influencing its behavior becomes nearly impossible. 
+- **Limited runtime control**: Once an asynchronous function is running, influencing its behavior becomes hard. 
 This limitation pushes developers to rely on ahead-of-time setups, like intricate mocks, which add complexity and reduce clarity of the test.
 
 Over the years, the Swift community has introduced a number of tools to address these challenges, each with its own strengths:

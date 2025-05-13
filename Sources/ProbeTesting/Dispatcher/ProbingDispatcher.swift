@@ -19,7 +19,8 @@ import Testing
 /// - Explicitly, at declared `#probe()` macros within the `body` and nested effects
 /// - Implicitly, immediately after initializing effects with `#Effect` macros, preventing them from starting until required
 ///
-/// This ensures that no part of the tested code runs concurrently with the expectations defined in the `test`.
+/// This ensures that no part of the tested code runs concurrently with the expectations defined in the `test`,
+/// as long as your code uses `#Effect` macros instead of the `Task` APIs.
 ///
 /// - SeeAlso: For details on how probe and effect identifiers are constructed, see the `Probing` documentation.
 ///
