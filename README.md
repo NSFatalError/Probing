@@ -270,51 +270,13 @@ func testDownloadingImage() async throws {
 }
 
 @Test
-func testDownloadingImageWhenLowQualityDownloadFailsAfterHighQualityDownloadSucceeds() async throws {
-    try await withProbing {
-        viewModel.downloadImage()
-    } dispatchedBy: { dispatcher in
-        #expect(viewModel.downloadState == nil)
-
-        try await dispatcher.runUntilExitOfBody()
-        #expect(viewModel.downloadState?.isDownloading == true)
-
-        try await dispatcher.runUntilEffectCompleted("high")
-        #expect(viewModel.downloadState?.quality == .high)
-
-        downloader.shouldFailDownload = true
-        try await dispatcher.runUntilEffectCompleted("low")
-        try dispatcher.getCancelledValue(fromEffect: "low", as: Void.self)
-        #expect(viewModel.downloadState?.quality == .high)
-    }
-}
+func testDownloadingImageWhenHighQualityDownloadSucceedsFirst() async throws { ... }
 
 @Test
-func testDownloadingImageRepeatedly() async throws {
-    try await withProbing {
-        viewModel.downloadImage()
-        viewModel.downloadImage()
-    } dispatchedBy: { dispatcher in
-        #expect(viewModel.downloadState == nil)
+func testDownloadingImageWhenHighQualityDownloadFailsAfterLowQualityDownloadSucceeds() async throws { ... }
 
-        try await dispatcher.runUntilExitOfBody()
-        #expect(viewModel.downloadState?.isDownloading == true)
-
-        try await dispatcher.runUntilEffectCompleted("low0")
-        try dispatcher.getCancelledValue(fromEffect: "low0", as: Void.self)
-        #expect(viewModel.downloadState?.isDownloading == true)
-
-        try await dispatcher.runUntilEffectCompleted("high0")
-        try dispatcher.getCancelledValue(fromEffect: "high0", as: Void.self)
-        #expect(viewModel.downloadState?.isDownloading == true)
-
-        try await dispatcher.runUntilEffectCompleted("low1")
-        #expect(viewModel.downloadState?.quality == .low)
-
-        try await dispatcher.runUntilEffectCompleted("high1")
-        #expect(viewModel.downloadState?.quality == .high)
-    }
-}
+@Test
+func testDownloadingImageRepeatedly() async throws { ... }
 
 // ...
 ```
