@@ -98,9 +98,8 @@ You can download the `ProbingPlayground` sample project from its [GitHub page](h
 
 ## Examples
 
-The `CHANGED` and `ADDED` comments highlight how the view model in the examples
-has been adapted to support testing with `ProbeTesting`. As you can see, the required changes 
-are small and don’t require any architectural shift.
+The `CHANGED` and `ADDED` comments highlight how the view model in the examples has been adapted 
+to support testing with `ProbeTesting`. As you can see, the changes are minimal and don’t require any architectural shift.
 
 ### Observing State Transitions
 
