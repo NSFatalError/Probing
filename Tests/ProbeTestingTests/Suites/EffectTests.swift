@@ -8,7 +8,6 @@
 
 @testable import ProbeTesting
 @testable import Probing
-import Algorithms
 import Testing
 
 internal class EffectTests {

@@ -8,7 +8,6 @@
 
 @testable import ProbeTesting
 @testable import Probing
-import Algorithms
 import Testing
 
 internal final class NestedEffectsTests: EffectTests {
@@ -94,7 +93,7 @@ internal final class NestedEffectsTests: EffectTests {
     }
 
     @Test(
-        arguments: Array(product(1 ..< 3, 1 ..< 3)),
+        arguments: product(1 ..< 3, 1 ..< 3),
         1 ..< 3
     )
     func testRunningToProbe(

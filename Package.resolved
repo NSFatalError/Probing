@@ -1,5 +1,5 @@
 {
-  "originHash" : "3c4f50eb2486121f00c308626fcdd9c864894f1af2662c1319872a67f76ae93c",
+  "originHash" : "2d6c8f9a49998eeeee25872d971d637bcc871153998138008826624e814a9650",
   "pins" : [
     {
       "identity" : "principle",
@@ -15,26 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NSFatalError/PrincipleMacros",
       "state" : {
-        "revision" : "6381001399379bcbe787f20f13ff5a3b9ff3ef7c",
-        "version" : "1.0.4"
-      }
-    },
-    {
-      "identity" : "swift-algorithms",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-algorithms",
-      "state" : {
-        "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
-        "version" : "1.2.1"
-      }
-    },
-    {
-      "identity" : "swift-numerics",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics.git",
-      "state" : {
-        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
-        "version" : "1.0.3"
+        "revision" : "b2671db08bc28ee2336bd33517a524de4abeb92a",
+        "version" : "1.0.6"
       }
     },
     {
