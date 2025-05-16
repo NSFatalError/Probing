@@ -82,10 +82,6 @@ let package = Package(
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
             "600.0.0" ..< "602.0.0"
-        ),
-        .package(
-            url: "https://github.com/apple/swift-algorithms",
-            from: "1.2.0"
         )
     ],
     targets: [
@@ -105,10 +101,6 @@ let package = Package(
                 .product(
                     name: "PrincipleConcurrency",
                     package: "Principle"
-                ),
-                .product(
-                    name: "Algorithms",
-                    package: "swift-algorithms"
                 )
             ]
         )
@@ -122,10 +114,6 @@ let package = Package(
             .product(
                 name: "PrincipleCollections",
                 package: "Principle"
-            ),
-            .product(
-                name: "Algorithms",
-                package: "swift-algorithms"
             )
         ]
     ) + macroTargets(

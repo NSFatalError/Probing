@@ -6,7 +6,6 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import Algorithms
 import PrincipleCollections
 
 internal enum ProbingErrors {}
@@ -216,7 +215,7 @@ extension ProbingErrors {
             apiMisuseDescription(
                 subsystem: "probe",
                 attempt: "install probe",
-                backtraces: [backtrace, preexisting].compacted()
+                backtraces: [backtrace, preexisting].lazy.compactMap(\.self)
             )
         }
     }
