@@ -21,7 +21,7 @@ internal class EffectTests {
     }
 
     @Test
-    func testNameAmbiguity() async throws {
+    func nameAmbiguity() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithAmbiguousEffects()
@@ -34,7 +34,7 @@ internal class EffectTests {
     }
 
     @Test
-    func testNameAmbiguityWhenChildNotCompleted() async throws {
+    func nameAmbiguityWhenChildNotCompleted() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithAmbiguousEffects()
@@ -48,7 +48,7 @@ internal class EffectTests {
     }
 
     @Test
-    func testNameReplacement() async throws {
+    func nameReplacement() async throws {
         try await withProbing {
             await interactor.callWithAmbiguousEffects()
         } dispatchedBy: { dispatcher in
@@ -67,7 +67,7 @@ internal class EffectTests {
 extension EffectTests {
 
     @Test
-    func testGettingValue() async throws {
+    func gettingValue() async throws {
         try await withProbing {
             await interactor.callWithEffect()
         } dispatchedBy: { dispatcher in
@@ -78,7 +78,7 @@ extension EffectTests {
     }
 
     @Test
-    func testGettingValueWhenCancelled() async throws {
+    func gettingValueWhenCancelled() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithCancelledEffect()
@@ -92,7 +92,7 @@ extension EffectTests {
     }
 
     @Test
-    func testGettingValueWhenCastingFails() async throws {
+    func gettingValueWhenCastingFails() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithEffect()
@@ -106,7 +106,7 @@ extension EffectTests {
     }
 
     @Test
-    func testGettingValueWhenNotCompleted() async throws {
+    func gettingValueWhenNotCompleted() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithEffect()
@@ -123,7 +123,7 @@ extension EffectTests {
 extension EffectTests {
 
     @Test
-    func testGettingCancelledValue() async throws {
+    func gettingCancelledValue() async throws {
         try await withProbing {
             await interactor.callWithCancelledEffect()
         } dispatchedBy: { dispatcher in
@@ -134,7 +134,7 @@ extension EffectTests {
     }
 
     @Test
-    func testGettingCancelledValueWhenFinished() async throws {
+    func gettingCancelledValueWhenFinished() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithEffect()
@@ -148,7 +148,7 @@ extension EffectTests {
     }
 
     @Test
-    func testGettingCancelledValueWhenCastingFails() async throws {
+    func gettingCancelledValueWhenCastingFails() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithCancelledEffect()
@@ -162,7 +162,7 @@ extension EffectTests {
     }
 
     @Test
-    func testGettingCancelledValueWhenNotCompleted() async throws {
+    func gettingCancelledValueWhenNotCompleted() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithCancelledEffect()

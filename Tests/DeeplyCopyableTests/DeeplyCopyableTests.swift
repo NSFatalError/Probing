@@ -14,7 +14,7 @@ import Testing
 internal struct DeeplyCopyableTests {
 
     @Test
-    func testData() {
+    func data() {
         var data = Data([0, 1, 2, 3])
         let copy = data.deepCopy()
         #expect(data == copy)
@@ -24,7 +24,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testString() throws {
+    func string() throws {
         var string = "string"
         let copy = string.deepCopy()
         #expect(string == copy)
@@ -35,7 +35,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testSubstring() throws {
+    func substring() throws {
         let string = "string"
         var substring = string[...]
         let copy = substring.deepCopy()
@@ -47,7 +47,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testArray() {
+    func array() {
         let person = Person(id: 1)
         let array = [person, Person(id: 2)]
         let copy = array.deepCopy()
@@ -58,7 +58,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testArraySlice() {
+    func arraySlice() {
         let person = Person(id: 1)
         let array = [person, Person(id: 2)]
         let slice = array[...]
@@ -70,7 +70,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testSet() {
+    func set() {
         let person = Person(id: 1)
         let set: Set = [person, Person(id: 2)]
         let copy = set.deepCopy()
@@ -81,7 +81,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testDictionary() {
+    func dictionary() {
         let person = Person(id: 1)
         let dictionary = ["a": person, "b": Person(id: 2)]
         let copy = dictionary.deepCopy()
@@ -92,7 +92,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testRange() {
+    func range() {
         let person = Person(id: 0)
         let range = person ..< Person(id: 1)
         let copy = range.deepCopy()
@@ -103,7 +103,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testClosedRange() {
+    func closedRange() {
         let person = Person(id: 0)
         let range = person ... Person(id: 1)
         let copy = range.deepCopy()
@@ -114,7 +114,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testPartialRangeFrom() {
+    func partialRangeFrom() {
         let person = Person(id: 0)
         let range = person...
         let copy = range.deepCopy()
@@ -125,7 +125,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testPartialRangeThrough() {
+    func partialRangeThrough() {
         let person = Person(id: 0)
         let range = ...person
         let copy = range.deepCopy()
@@ -136,7 +136,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testPartialRangeUpTo() {
+    func partialRangeUpTo() {
         let person = Person(id: 0)
         let range = ..<person
         let copy = range.deepCopy()
@@ -147,7 +147,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testRangeSet() {
+    func rangeSet() {
         let person = Person(id: 0)
         let range = person ..< Person(id: 1)
         let rangeSet = RangeSet(range)
@@ -159,7 +159,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testOptional() {
+    func optional() {
         let person: Person? = Person(id: 0)
         let copy = person.deepCopy()
         #expect(person == copy)
@@ -169,7 +169,7 @@ internal struct DeeplyCopyableTests {
     }
 
     @Test
-    func testRawRepresentable() {
+    func rawRepresentable() {
         let person = Person(id: 0)
         let source = PersonRepresentable(rawValue: person)
         let copy = source.deepCopy()
@@ -183,7 +183,7 @@ internal struct DeeplyCopyableTests {
 extension DeeplyCopyableTests {
 
     @Test
-    func testEnum() {
+    func enumDecl() {
         let person = Person()
         let source = Choice.fourth(arg2: .zero, person)
         let copy = source.deepCopy()
@@ -194,7 +194,7 @@ extension DeeplyCopyableTests {
     }
 
     @Test
-    func testStruct() {
+    func structDecl() {
         let recipient = Person()
         let source = Order(id: .zero, address: "Kraków", recipient: recipient)
         let copy = source.deepCopy()
@@ -205,7 +205,7 @@ extension DeeplyCopyableTests {
     }
 
     @Test
-    func testClass() {
+    func classDecl() {
         let source = Person()
         let copy = source.deepCopy()
         #expect(source == copy)

@@ -15,7 +15,7 @@ internal struct TaskGroupTests {
     private let childrenCount = 100
 
     @Test
-    func testCollectingChildResults() async throws {
+    func collectingChildResults() async throws {
         try await withProbing {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0 ..< childrenCount {

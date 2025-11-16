@@ -14,7 +14,7 @@ internal enum EffectTests {
     struct WithIsolatedOperation {
 
         @Test
-        func ableEffectInit() async {
+        func effectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test") {
                     try? await Task.sleep(for: .microseconds(1))
@@ -47,7 +47,7 @@ internal enum EffectTests {
 
         @CustomActor
         @Test
-        func testIsolation() async {
+        func isolation() async {
             let effect = #Effect("Test") {
                 let isolation = #isolation
                 #expect(isolation === CustomActor.shared)
@@ -60,7 +60,7 @@ internal enum EffectTests {
     struct WithExecutorPreference {
 
         @Test
-        func testableEffectInit() async {
+        func effectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test", executorPreference: globalConcurrentExecutor) {
                     try? await Task.sleep(for: .microseconds(1))
@@ -74,7 +74,7 @@ internal enum EffectTests {
         }
 
         @Test
-        func testTaskInit() async {
+        func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
                     "Test",
@@ -94,7 +94,7 @@ internal enum EffectTests {
 
         @CustomActor
         @Test
-        func testIsolation() async {
+        func isolation() async {
             let effect = #Effect("Test", executorPreference: globalConcurrentExecutor) {
                 let isolation = #isolation
                 #expect(isolation == nil)
@@ -106,7 +106,7 @@ internal enum EffectTests {
     struct Concurrent {
 
         @Test
-        func testTestableEffectInit() async {
+        func effectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test") { @concurrent in
                     try? await Task.sleep(for: .microseconds(1))
@@ -120,7 +120,7 @@ internal enum EffectTests {
         }
 
         @Test
-        func testTaskInit() async {
+        func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
                     "Test",
@@ -139,7 +139,7 @@ internal enum EffectTests {
 
         @CustomActor
         @Test
-        func testIsolation() async {
+        func isolation() async {
             let effect = #Effect("Test") { @concurrent in
                 let isolation = #isolation
                 #expect(isolation == nil)
@@ -151,7 +151,7 @@ internal enum EffectTests {
     struct Recursive {
 
         @Test
-        func ableEffectNestedChildrenInit() async {
+        func effectNestedChildrenInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("1") {
                     #Effect("2", executorPreference: globalConcurrentExecutor) {
