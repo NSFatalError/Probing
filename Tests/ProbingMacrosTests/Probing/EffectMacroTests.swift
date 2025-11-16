@@ -18,7 +18,7 @@
             "Effect": EffectMacro.self
         ]
 
-        func testExpansionWithIsolatedOperation() {
+        func testExpansion() {
             assertMacroExpansion(
                 #"""
                 #Effect("test") {
@@ -38,6 +38,7 @@
                     )
                     #else
                     return Task(
+                        name: "test",
                         priority: nil,
                         operation: {
                             print("Hello")
@@ -50,7 +51,73 @@
             )
         }
 
-        func testExpansionWithIsolatedOperationAndParameters() {
+        func testExpansionWithGlobalActor() {
+            assertMacroExpansion(
+                #"""
+                #Effect("test") { @MainActor in
+                    print("Hello")
+                }
+                """#,
+                expandedSource:
+                #"""
+                {
+                    #if DEBUG
+                    return TestableEffect._make(
+                        "test",
+                        priority: nil,
+                        operation: { @MainActor in
+                            print("Hello")
+                        }
+                    )
+                    #else
+                    return Task(
+                        name: "test",
+                        priority: nil,
+                        operation: { @MainActor in
+                            print("Hello")
+                        }
+                    )
+                    #endif
+                }()
+                """#,
+                macros: macros
+            )
+        }
+
+        func testExpansionWithConcurrentAttribute() {
+            assertMacroExpansion(
+                #"""
+                #Effect("test") { @concurrent in
+                    print("Hello")
+                }
+                """#,
+                expandedSource:
+                #"""
+                {
+                    #if DEBUG
+                    return TestableEffect._make(
+                        "test",
+                        priority: nil,
+                        operation: { @concurrent in
+                            print("Hello")
+                        }
+                    )
+                    #else
+                    return Task(
+                        name: "test",
+                        priority: nil,
+                        operation: { @concurrent in
+                            print("Hello")
+                        }
+                    )
+                    #endif
+                }()
+                """#,
+                macros: macros
+            )
+        }
+
+        func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
                 #Effect(
@@ -71,6 +138,7 @@
                     )
                     #else
                     return Task(
+                        name: "test",
                         priority: .high,
                         operation: operation
                     )
@@ -102,6 +170,7 @@
                     )
                     #else
                     return Task(
+                        name: "test",
                         executorPreference: globalConcurrentExecutor,
                         priority: nil,
                         operation: {
@@ -138,6 +207,7 @@
                     )
                     #else
                     return Task(
+                        name: "test",
                         executorPreference: globalConcurrentExecutor,
                         priority: .high,
                         operation: operation
@@ -153,7 +223,7 @@
             assertMacroExpansion(
                 #"""
                 #Effect("1") {
-                    #ConcurrentEffect("2", priority: .high) {
+                    #Effect("2", priority: .high) { @concurrent in
                         print("Hello")
                         if true {
                             #Effect("3", operation: operation)
@@ -175,9 +245,8 @@
                         operation: {
                             TestableEffect._make(
                                 "2",
-                                executorPreference: globalConcurrentExecutor,
                                 priority: .high,
-                                operation: {
+                                operation: { @concurrent in
                                     print("Hello")
                                     if true {
                                         TestableEffect._make(
@@ -195,15 +264,17 @@
                     )
                     #else
                     return Task(
+                        name: "1",
                         priority: nil,
                         operation: {
                             Task(
-                                executorPreference: globalConcurrentExecutor,
+                                name: "2",
                                 priority: .high,
-                                operation: {
+                                operation: { @concurrent in
                                     print("Hello")
                                     if true {
                                         Task(
+                                            name: "3",
                                             priority: nil,
                                             operation: operation
                                         )

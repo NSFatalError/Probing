@@ -22,7 +22,7 @@
     names: named(init(deeplyCopying:))
 )
 public macro DeeplyCopyable() = #externalMacro(
-    module: "DeeplyCopyableMacros",
+    module: "ProbingMacros",
     type: "DeeplyCopyableMacro"
 )
 

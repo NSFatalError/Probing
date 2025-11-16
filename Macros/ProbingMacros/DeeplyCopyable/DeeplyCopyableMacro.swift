@@ -6,11 +6,11 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 
 public enum DeeplyCopyableMacro {
 
-    private enum ValidationResult {
+    private enum Input {
 
         case enumDecl(EnumDeclSyntax, cases: EnumCasesList)
         case statefulDecl(any StatefulDeclSyntax, filteredProperties: PropertiesList)
@@ -19,7 +19,7 @@ public enum DeeplyCopyableMacro {
     private static func validate(
         _ declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
-    ) -> ValidationResult? {
+    ) -> Input? {
         if let declaration = declaration as? EnumDeclSyntax {
             let cases = EnumCasesParser.parse(
                 memberBlock: declaration.memberBlock,
@@ -33,10 +33,10 @@ public enum DeeplyCopyableMacro {
                 .parse(memberBlock: declaration.memberBlock, in: context)
                 .stored.instance
 
-            for property in filteredProperties {
+            for property in filteredProperties.all {
                 guard property.mutability == .mutable || property.binding.initializer == nil else {
                     context.diagnose(
-                        node: property.declaration,
+                        node: property.underlying,
                         errorMessage: "DeeplyCopyable properties must be settable from initializer"
                     )
                     return nil
@@ -66,11 +66,11 @@ extension DeeplyCopyableMacro: MemberMacro {
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        guard let result = validate(declaration, in: context) else {
+        guard let input = validate(declaration, in: context) else {
             return []
         }
 
-        let builder: (any TypeDeclBuilder)? = switch result {
+        let builder: (any TypeDeclBuilder)? = switch input {
         case let .enumDecl(declaration, cases):
             DeeplyCopyableEnumInitDeclBuilder(
                 declaration: declaration,
@@ -98,11 +98,11 @@ extension DeeplyCopyableMacro: ExtensionMacro {
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        guard let result = validate(declaration, in: context) else {
+        guard let input = validate(declaration, in: context) else {
             return []
         }
 
-        let builder: DeeplyCopyableStatefulInitDeclBuilder? = switch result {
+        let builder: DeeplyCopyableStatefulInitDeclBuilder? = switch input {
         case let .statefulDecl(declaration as StructDeclSyntax, filteredProperties):
             DeeplyCopyableStatefulInitDeclBuilder(
                 declaration: declaration,

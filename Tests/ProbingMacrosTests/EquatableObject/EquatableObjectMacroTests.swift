@@ -6,8 +6,8 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-#if canImport(EquatableObjectMacros)
-    import EquatableObjectMacros
+#if canImport(ProbingMacros)
+    import ProbingMacros
     import SwiftSyntaxMacros
     import SwiftSyntaxMacrosTestSupport
     import XCTest

@@ -356,7 +356,7 @@ extension EffectTests.IsolatedInteractor {
 
         await #probe("1")
         model.tick()
-        #ConcurrentEffect("2") {
+        #Effect("2") { @concurrent in
             await self.callWithIndependentEffects()
         }
 
@@ -368,7 +368,7 @@ extension EffectTests.IsolatedInteractor {
         #Effect(.enumerated("name")) {
             self.callWithIndependentEnumeratedEffects()
         }
-        #ConcurrentEffect(.enumerated("name")) {
+        #Effect(.enumerated("name")) { @concurrent in
             await self.callWithIndependentEnumeratedEffects()
         }
     }

@@ -19,6 +19,6 @@
     conformances: Equatable
 )
 public macro EquatableObject() = #externalMacro(
-    module: "EquatableObjectMacros",
+    module: "ProbingMacros",
     type: "EquatableObjectMacro"
 )

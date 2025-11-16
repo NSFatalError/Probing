@@ -6,14 +6,11 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
-import SwiftSyntax
+import SwiftSyntaxMacros
 
 public enum EffectMacro {
 
     static let name = "Effect"
-    static let concurrentName = "ConcurrentEffect"
-    static let allNames = [name, concurrentName]
 
     private static func isNested(lexicalContext: [Syntax]) -> Bool {
         lexicalContext.contains { syntax in
@@ -57,6 +54,7 @@ extension EffectMacro: ExpressionMacro {
                 )
                 #else
                 return Task(
+                    name: \(parameters.name),
                     executorPreference: \(parameters.executorPreference),
                     priority: \(parameters.priority),
                     operation: \(rewriter.rewrite(parameters.operation, as: .task))
@@ -76,6 +74,7 @@ extension EffectMacro: ExpressionMacro {
                 )
                 #else
                 return Task(
+                    name: \(parameters.name),
                     priority: \(parameters.priority),
                     operation: \(rewriter.rewrite(parameters.operation, as: .task))
                 )
@@ -104,14 +103,11 @@ extension EffectMacro {
 
         init(from node: some FreestandingMacroExpansionSyntax) throws {
             let extractor = ParameterExtractor(from: node)
-            let name = try extractor.expression(withLabel: nil)
-            let operation = try extractor.trailingClosure(withLabel: "operation")
-            let preprocessorFlag = (try? extractor.rawString(withLabel: "preprocessorFlag")) ?? "DEBUG"
-            let priority = (try? extractor.expression(withLabel: "priority")) ?? "nil"
-
-            let executorPreference: ExprSyntax? = node.isConcurrentEffectMacro
-                ? "globalConcurrentExecutor"
-                : (try? extractor.expression(withLabel: "executorPreference"))
+            let name = try extractor.requiredExpression(withLabel: nil)
+            let operation = try extractor.requiredTrailingClosure(withLabel: "operation")
+            let preprocessorFlag = try extractor.rawString(withLabel: "preprocessorFlag") ?? "DEBUG"
+            let priority = extractor.expression(withLabel: "priority") ?? "nil"
+            let executorPreference = extractor.expression(withLabel: "executorPreference")
 
             self = if let executorPreference {
                 .withExecutorPreference(
@@ -196,6 +192,7 @@ extension EffectMacro {
             case let (.task, .withIsolatedOperation(parameters)):
                 """
                 Task(
+                name: \(parameters.name),
                 priority: \(parameters.priority),
                 operation: \(rewrittenOperation)
                 )
@@ -214,6 +211,7 @@ extension EffectMacro {
             case let (.task, .withExecutorPreference(parameters)):
                 """
                 Task(
+                name: \(parameters.name),
                 executorPreference: \(parameters.executorPreference),
                 priority: \(parameters.priority),
                 operation: \(rewrittenOperation)
@@ -240,10 +238,6 @@ extension EffectMacro {
 extension FreestandingMacroExpansionSyntax {
 
     fileprivate var isEffectMacro: Bool {
-        EffectMacro.allNames.contains(macroName.trimmedDescription)
-    }
-
-    fileprivate var isConcurrentEffectMacro: Bool {
-        EffectMacro.concurrentName == macroName.trimmedDescription
+        EffectMacro.name == macroName.trimmedDescription
     }
 }

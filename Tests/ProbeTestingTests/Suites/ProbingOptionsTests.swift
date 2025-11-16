@@ -258,7 +258,7 @@ extension ProbingOptionsTests {
 
             await #probe()
             model.tick()
-            #ConcurrentEffect("\(id)-2") {
+            #Effect("\(id)-2") { @concurrent in
                 await #probe()
                 await self.model.completeEffect(declaredID: "\(id)-2")
                 return EffectIdentifier.current

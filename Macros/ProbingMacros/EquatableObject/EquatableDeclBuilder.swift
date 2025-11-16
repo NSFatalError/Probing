@@ -6,21 +6,17 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 
-internal struct EquatableDeclBuilder: ClassDeclBuilder {
+internal struct EquatableDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
 
-    var settings: DeclBuilderSettings {
-        .init(accessControlLevel: .init(inheritingDeclaration: .member))
-    }
-
     func build() -> [DeclSyntax] {
         [
             """
-            \(inheritedAccessControlLevel)static func == (lhs: \(trimmedTypeName), rhs: \(trimmedTypeName)) -> Bool {
+            \(inheritedAccessControlLevel)static func == (lhs: \(trimmedType), rhs: \(trimmedType)) -> Bool {
                 \(equalityChecks().formatted())
                 return true
             }
@@ -30,7 +26,7 @@ internal struct EquatableDeclBuilder: ClassDeclBuilder {
 
     @CodeBlockItemListBuilder
     private func equalityChecks() -> CodeBlockItemListSyntax {
-        for property in properties.stored.instance {
+        for property in properties.stored.instance.all {
             let name = property.trimmedName
             "guard lhs.\(name) == rhs.\(name) else { return false }"
         }

@@ -35,7 +35,7 @@
 @discardableResult
 @freestanding(expression)
 public macro Effect<Success: Sendable>(
-    _ name: @autoclosure () -> EffectName,
+    _ name: EffectName,
     preprocessorFlag: StaticString = "DEBUG",
     priority: TaskPriority? = nil,
     @_inheritActorContext @_implicitSelfCapture operation: sending @escaping @isolated(any) () async -> Success
@@ -74,50 +74,9 @@ public macro Effect<Success: Sendable>(
 @discardableResult
 @freestanding(expression)
 public macro Effect<Success: Sendable>(
-    _ name: @autoclosure () -> EffectName,
+    _ name: EffectName,
     preprocessorFlag: StaticString = "DEBUG", // swiftformat:disable:next all
-    executorPreference taskExecutor: consuming (any TaskExecutor)?,
-    priority: TaskPriority? = nil,
-    operation: sending @escaping () async -> Success
-) -> any Effect<Success> = #externalMacro(
-    module: "ProbingMacros",
-    type: "EffectMacro"
-)
-
-/// Creates a `Task`-like effect that runs on the `globalConcurrentExecutor` and can be controlled from your tests.
-///
-/// - Parameters:
-///   - name: The name of the effect. It must be unique within the scope of its parent while the effect is still running.
-///   - preprocessorFlag: A preprocessor flag that determines whether the generated code is included in the compiled binary.
-///   Defaults to `DEBUG`.
-///   - priority: The priority of the underlying task.
-///   - operation: The asynchronous operation to perform.
-///
-/// - Returns: An instance of type conforming to the ``Effect`` protocol.
-///
-/// - Note: This macro is equivalent to calling ``Effect(_:preprocessorFlag:executorPreference:priority:operation:)`` with `globalConcurrentExecutor`.
-/// If you were using `Task.detached`, this may be a viable alternative.
-///
-/// When run in the `body` of `ProbeTesting.withProbing` function, the effect is suspended immediately after initialization,
-/// instead of starting execution as `Task` would. Later, it can be resumed and suspended at suspension points declared
-/// using the ``probe(_:preprocessorFlag:)`` macro within the `operation`.
-///
-/// Each effect must be uniquely identified within the scope of its parent by its `name` at every point in its execution.
-/// Failure to do so will result in an error during testing. Once an effect completes, its identifier can be reused.
-///
-/// If your code is compiled with the given `preprocessorFlag`, the effect becomes accessible and controllable from your tests
-/// only when created within the `body` of `ProbeTesting.withProbing` function. Outside of that scope, this call initializes
-/// a regular Swift `Task` that is not subject to any additional scheduling.
-///
-/// - Attention: Unlike `Task`, the ``Effect`` protocol does not support throwing errors.
-/// Any error handling should be performed inside the operation executed by the effect itself.
-/// This design choice helps prevent errors from being unintentionally left unhandled.
-///
-@discardableResult
-@freestanding(expression)
-public macro ConcurrentEffect<Success: Sendable>(
-    _ name: @autoclosure () -> EffectName,
-    preprocessorFlag: StaticString = "DEBUG",
+    executorPreference taskExecutor: (any TaskExecutor)?,
     priority: TaskPriority? = nil,
     operation: sending @escaping () async -> Success
 ) -> any Effect<Success> = #externalMacro(

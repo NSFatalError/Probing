@@ -88,7 +88,6 @@ func callWithProbing() await {
 
 - ``Effect(_:preprocessorFlag:priority:operation:)``
 - ``Effect(_:preprocessorFlag:executorPreference:priority:operation:)``
-- ``ConcurrentEffect(_:preprocessorFlag:priority:operation:)``
 - ``EffectName``
 - ``EffectIdentifier``
 

@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 import SwiftCompilerPlugin
 
 @main
@@ -14,6 +14,8 @@ internal struct ProbingPlugin: CompilerPlugin {
 
     let providingMacros: [any Macro.Type] = [
         ProbeMacro.self,
-        EffectMacro.self
+        EffectMacro.self,
+        EquatableObjectMacro.self,
+        DeeplyCopyableMacro.self
     ]
 }
