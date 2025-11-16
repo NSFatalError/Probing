@@ -31,7 +31,7 @@ internal enum EffectTests {
         func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
-                    "Test",
+                    EffectName(rawValue: "Test"),
                     preprocessorFlag: "NULL",
                     operation: {
                         try? await Task.sleep(for: .microseconds(1))
@@ -77,7 +77,7 @@ internal enum EffectTests {
         func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
-                    "Test",
+                    EffectName(rawValue: "Test"),
                     preprocessorFlag: "NULL",
                     executorPreference: globalConcurrentExecutor,
                     operation: {
@@ -123,7 +123,7 @@ internal enum EffectTests {
         func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
-                    "Test",
+                    EffectName(rawValue: "Test"),
                     preprocessorFlag: "NULL",
                     operation: { @concurrent in
                         try? await Task.sleep(for: .microseconds(1))
