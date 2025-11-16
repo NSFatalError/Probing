@@ -9,12 +9,12 @@
 @testable import Probing
 import Testing
 
-internal struct EffectTests {
+internal enum EffectTests {
 
     struct WithIsolatedOperation {
 
         @Test
-        func testTestableEffectInit() async {
+        func effectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test") {
                     try? await Task.sleep(for: .microseconds(1))
@@ -28,10 +28,10 @@ internal struct EffectTests {
         }
 
         @Test
-        func testTaskInit() async {
+        func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
-                    "Test",
+                    EffectName(rawValue: "Test"),
                     preprocessorFlag: "NULL",
                     operation: {
                         try? await Task.sleep(for: .microseconds(1))
@@ -47,9 +47,10 @@ internal struct EffectTests {
 
         @CustomActor
         @Test
-        func testIsolation() async {
+        func isolation() async {
             let effect = #Effect("Test") {
-                #expect(#isolation === CustomActor.shared)
+                let isolation = #isolation
+                #expect(isolation === CustomActor.shared)
                 CustomActor.shared.assertIsolated()
             }
             await effect.value
@@ -59,7 +60,7 @@ internal struct EffectTests {
     struct WithExecutorPreference {
 
         @Test
-        func testTestableEffectInit() async {
+        func effectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test", executorPreference: globalConcurrentExecutor) {
                     try? await Task.sleep(for: .microseconds(1))
@@ -73,10 +74,10 @@ internal struct EffectTests {
         }
 
         @Test
-        func testTaskInit() async {
+        func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
-                    "Test",
+                    EffectName(rawValue: "Test"),
                     preprocessorFlag: "NULL",
                     executorPreference: globalConcurrentExecutor,
                     operation: {
@@ -93,9 +94,10 @@ internal struct EffectTests {
 
         @CustomActor
         @Test
-        func testIsolation() async {
+        func isolation() async {
             let effect = #Effect("Test", executorPreference: globalConcurrentExecutor) {
-                #expect(#isolation == nil)
+                let isolation = #isolation
+                #expect(isolation == nil)
             }
             await effect.value
         }
@@ -104,9 +106,9 @@ internal struct EffectTests {
     struct Concurrent {
 
         @Test
-        func testTestableEffectInit() async {
+        func effectInit() async {
             await confirmation { confirmation in
-                let effect = #ConcurrentEffect("Test") {
+                let effect = #Effect("Test") { @concurrent in
                     try? await Task.sleep(for: .microseconds(1))
                     confirmation()
                 }
@@ -118,12 +120,12 @@ internal struct EffectTests {
         }
 
         @Test
-        func testTaskInit() async {
+        func taskInit() async {
             await confirmation { confirmation in
-                let effect = #ConcurrentEffect(
-                    "Test",
+                let effect = #Effect(
+                    EffectName(rawValue: "Test"),
                     preprocessorFlag: "NULL",
-                    operation: {
+                    operation: { @concurrent in
                         try? await Task.sleep(for: .microseconds(1))
                         confirmation()
                     }
@@ -137,9 +139,10 @@ internal struct EffectTests {
 
         @CustomActor
         @Test
-        func testIsolation() async {
-            let effect = #ConcurrentEffect("Test") {
-                #expect(#isolation == nil)
+        func isolation() async {
+            let effect = #Effect("Test") { @concurrent in
+                let isolation = #isolation
+                #expect(isolation == nil)
             }
             await effect.value
         }
@@ -148,11 +151,11 @@ internal struct EffectTests {
     struct Recursive {
 
         @Test
-        func testTestableEffectNestedChildrenInit() async {
+        func effectNestedChildrenInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("1") {
                     #Effect("2", executorPreference: globalConcurrentExecutor) {
-                        #ConcurrentEffect("3", priority: .high) {
+                        #Effect("3", priority: .high) { @concurrent in
                             confirmation()
                         }
                     }
@@ -165,11 +168,11 @@ internal struct EffectTests {
         }
 
         @Test
-        func testTaskNestedChildrenInit() async {
+        func taskNestedChildrenInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("1", preprocessorFlag: "NULL") {
                     #Effect("2", executorPreference: globalConcurrentExecutor) {
-                        #ConcurrentEffect("3", priority: .high) {
+                        #Effect("3", priority: .high) { @concurrent in
                             confirmation()
                         }
                     }

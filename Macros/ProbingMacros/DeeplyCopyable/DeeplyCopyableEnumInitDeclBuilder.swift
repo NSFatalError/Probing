@@ -6,21 +6,17 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 
-internal struct DeeplyCopyableEnumInitDeclBuilder: EnumDeclBuilder {
+internal struct DeeplyCopyableEnumInitDeclBuilder: EnumDeclBuilder, MemberBuilding {
 
     let declaration: EnumDeclSyntax
     let cases: EnumCasesList
 
-    var settings: DeclBuilderSettings {
-        .init(accessControlLevel: .init(inheritingDeclaration: .member))
-    }
-
     func build() -> [DeclSyntax] {
         [
             """
-            \(inheritedAccessControlLevel)init(deeplyCopying other: \(trimmedTypeName)) {
+            \(inheritedAccessControlLevel)init(deeplyCopying other: \(trimmedType)) {
                 \(switchExprBuilder().build())
             }
             """

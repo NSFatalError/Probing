@@ -21,7 +21,7 @@ internal struct AsyncSequenceTests {
     }
 
     @Test
-    func testRunningThroughAsyncStream() async throws {
+    func runningThroughAsyncStream() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
@@ -46,7 +46,7 @@ internal struct AsyncSequenceTests {
     }
 
     @Test
-    func testRunningThroughAsyncStreamInEffect() async throws {
+    func runningThroughAsyncStreamInEffect() async throws {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
@@ -80,7 +80,7 @@ internal struct AsyncSequenceTests {
 extension AsyncSequenceTests {
 
     @Test
-    func testRunningUpToProbe() async throws {
+    func runningUpToProbe() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
@@ -92,7 +92,7 @@ extension AsyncSequenceTests {
     }
 
     @Test
-    func testRunningUpToNamedProbe() async throws {
+    func runningUpToNamedProbe() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
@@ -104,7 +104,7 @@ extension AsyncSequenceTests {
     }
 
     @Test
-    func testRunningUpToProbeInEffect() async throws {
+    func runningUpToProbeInEffect() async throws {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
@@ -119,7 +119,7 @@ extension AsyncSequenceTests {
 extension AsyncSequenceTests {
 
     @Test
-    func testRunningUntilExitOfBody() async throws {
+    func runningUntilExitOfBody() async throws {
         try await withProbing {
             await interactor.callWithAsyncStream()
         } dispatchedBy: { dispatcher in
@@ -131,7 +131,7 @@ extension AsyncSequenceTests {
     }
 
     @Test
-    func testRunningUntilEverythingCompleted() async throws {
+    func runningUntilEverythingCompleted() async throws {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in
@@ -143,7 +143,7 @@ extension AsyncSequenceTests {
     }
 
     @Test
-    func testRunningUntilEffectCompleted() async throws {
+    func runningUntilEffectCompleted() async throws {
         try await withProbing {
             await interactor.callWithAsyncStreamInEffect()
         } dispatchedBy: { dispatcher in

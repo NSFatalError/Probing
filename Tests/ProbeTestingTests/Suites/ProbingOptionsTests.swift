@@ -22,7 +22,7 @@ internal struct ProbingOptionsTests {
     }
 
     @Test
-    func testAttemptingProbingInInTask() async throws {
+    func attemptingProbingInInTask() async throws {
         try await withProbing(options: .attemptProbingInTasks) {
             await interactor.callWithTask()
         } dispatchedBy: { dispatcher in
@@ -64,7 +64,7 @@ extension ProbingOptionsTests {
         + ignoringEffectsInTasksArguments.map { ($0, ProbingErrors.ChildEffectNotCreated.self) }
 
     @Test(arguments: ignoringProbesInTasksArguments)
-    func testIgnoringProbesInTask(argument: Argument) async throws {
+    func ignoringProbesInTask(argument: Argument) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await interactor.callWithTask()
@@ -84,7 +84,7 @@ extension ProbingOptionsTests {
     }
 
     @Test(arguments: ignoringProbesInTasksArguments)
-    func testIgnoringProbesInTaskGroup(argument: Argument) async throws {
+    func ignoringProbesInTaskGroup(argument: Argument) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await interactor.callWithTaskGroup()
@@ -104,7 +104,7 @@ extension ProbingOptionsTests {
     }
 
     @Test(arguments: ignoringProbesInTasksArguments)
-    func testIgnoringProbesInAsyncLet(argument: Argument) async throws {
+    func ignoringProbesInAsyncLet(argument: Argument) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await interactor.callWithAsyncLet()
@@ -130,7 +130,7 @@ extension ProbingOptionsTests {
         product(1 ..< 4, 1 ..< 3).map { "\($0)-\($1)" }
 
     @Test(arguments: ignoringEffectsInTasksArguments)
-    func testIgnoringEffectsInTask(withID id: EffectIdentifier) async throws {
+    func ignoringEffectsInTask(withID id: EffectIdentifier) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await interactor.callWithTask()
@@ -150,7 +150,7 @@ extension ProbingOptionsTests {
     }
 
     @Test(arguments: ignoringEffectsInTasksArguments)
-    func testIgnoringEffectsInTaskGroup(withID id: EffectIdentifier) async throws {
+    func ignoringEffectsInTaskGroup(withID id: EffectIdentifier) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await interactor.callWithTaskGroup()
@@ -170,7 +170,7 @@ extension ProbingOptionsTests {
     }
 
     @Test(arguments: ignoringEffectsInTasksArguments)
-    func testIgnoringEffectsInAsyncLet(withID id: EffectIdentifier) async throws {
+    func ignoringEffectsInAsyncLet(withID id: EffectIdentifier) async throws {
         try await withKnownIssue {
             try await withProbing(options: .ignoreProbingInTasks) {
                 await interactor.callWithAsyncLet()
@@ -258,7 +258,7 @@ extension ProbingOptionsTests {
 
             await #probe()
             model.tick()
-            #ConcurrentEffect("\(id)-2") {
+            #Effect("\(id)-2") { @concurrent in
                 await #probe()
                 await self.model.completeEffect(declaredID: "\(id)-2")
                 return EffectIdentifier.current

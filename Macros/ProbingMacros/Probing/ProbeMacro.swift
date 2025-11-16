@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 
 public enum ProbeMacro: ExpressionMacro {
 
@@ -14,7 +14,7 @@ public enum ProbeMacro: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in _: some MacroExpansionContext
     ) throws -> ExprSyntax {
-        let parameters = Parameters(from: node)
+        let parameters = try Parameters(from: node)
         return """
         { () async -> Void in
             #if \(raw: parameters.preprocessorFlag)
@@ -35,10 +35,10 @@ extension ProbeMacro {
         let name: ExprSyntax
         let preprocessorFlag: String
 
-        init(from node: some FreestandingMacroExpansionSyntax) {
+        init(from node: some FreestandingMacroExpansionSyntax) throws {
             let extractor = ParameterExtractor(from: node)
-            self.name = (try? extractor.expression(withLabel: nil)) ?? ".default"
-            self.preprocessorFlag = (try? extractor.rawString(withLabel: "preprocessorFlag")) ?? "DEBUG"
+            self.name = extractor.expression(withLabel: nil) ?? ".default"
+            self.preprocessorFlag = try extractor.rawString(withLabel: "preprocessorFlag") ?? "DEBUG"
         }
     }
 }

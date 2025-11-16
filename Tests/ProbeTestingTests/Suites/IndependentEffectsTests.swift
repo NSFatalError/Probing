@@ -13,7 +13,7 @@ import Testing
 internal final class IndependentEffectsTests: EffectTests {
 
     @Test
-    func testRunningThroughProbes() async throws {
+    func runningThroughProbes() async throws {
         try await withProbing {
             await interactor.callWithIndependentEffects()
         } dispatchedBy: { dispatcher in
@@ -96,7 +96,7 @@ internal final class IndependentEffectsTests: EffectTests {
         arguments: 1 ..< 3,
         1 ..< 3
     )
-    func testRunningToProbe(
+    func runningToProbe(
         inEffect effect: Int,
         withNumber number: Int
     ) async throws {
@@ -124,7 +124,7 @@ internal final class IndependentEffectsTests: EffectTests {
     }
 
     @Test
-    func testNameEnumeration() async throws {
+    func nameEnumeration() async throws {
         try await withProbing {
             await interactor.callWithIndependentEnumeratedEffects()
         } dispatchedBy: { dispatcher in
@@ -141,7 +141,7 @@ internal final class IndependentEffectsTests: EffectTests {
 extension IndependentEffectsTests {
 
     @Test
-    func testRunningWithoutDispatches() async throws {
+    func runningWithoutDispatches() async throws {
         try await withProbing {
             await interactor.callWithIndependentEffects()
         } dispatchedBy: { _ in
@@ -151,7 +151,7 @@ extension IndependentEffectsTests {
     }
 
     @Test
-    func testRunningUntilExitOfBody() async throws {
+    func runningUntilExitOfBody() async throws {
         try await withProbing {
             await interactor.callWithIndependentEffects()
         } dispatchedBy: { dispatcher in
@@ -162,7 +162,7 @@ extension IndependentEffectsTests {
     }
 
     @Test
-    func testRunningUntilEverythingCompleted() async throws {
+    func runningUntilEverythingCompleted() async throws {
         try await withProbing {
             await interactor.callWithIndependentEffects()
         } dispatchedBy: { dispatcher in
@@ -179,7 +179,7 @@ extension IndependentEffectsTests {
     }
 
     @Test
-    func testGettingMissingEffectValue() async throws {
+    func gettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithIndependentEffects()
@@ -199,7 +199,7 @@ extension IndependentEffectsTests {
     }
 
     @Test
-    func testGettingMissingEffectCancelledValue() async throws {
+    func gettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithIndependentEffects()
@@ -219,7 +219,7 @@ extension IndependentEffectsTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
+    func runningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 await interactor.callWithIndependentEffects()
@@ -238,7 +238,7 @@ extension IndependentEffectsTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
+    func runningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 await interactor.callWithIndependentEffects()
@@ -260,7 +260,7 @@ extension IndependentEffectsTests {
         arguments: [true, false],
         ProbingOptions.all
     )
-    func testRunningUntilMissingEffectCompleted(
+    func runningUntilMissingEffectCompleted(
         includingDescendants: Bool,
         options: ProbingOptions
     ) async throws {

@@ -21,7 +21,7 @@ internal struct ProbeTests {
     }
 
     @Test
-    func testRunningThroughDefaultProbes() async throws {
+    func runningThroughDefaultProbes() async throws {
         try await withProbing {
             await interactor.callWithDefaultProbes()
         } dispatchedBy: { dispatcher in
@@ -36,7 +36,7 @@ internal struct ProbeTests {
     }
 
     @Test
-    func testRunningThroughNamedProbes() async throws {
+    func runningThroughNamedProbes() async throws {
         try await withProbing {
             await interactor.callWithNamedProbes()
         } dispatchedBy: { dispatcher in
@@ -51,7 +51,7 @@ internal struct ProbeTests {
     }
 
     @Test(arguments: 1 ..< 3)
-    func testRunningToNamedProbe(withNumber number: Int) async throws {
+    func runningToNamedProbe(withNumber number: Int) async throws {
         try await withProbing {
             await interactor.callWithNamedProbes()
         } dispatchedBy: { dispatcher in
@@ -67,7 +67,7 @@ internal struct ProbeTests {
 extension ProbeTests {
 
     @Test
-    func testRunningWithoutDispatches() async throws {
+    func runningWithoutDispatches() async throws {
         try await withProbing {
             await interactor.callWithDefaultProbes()
         } dispatchedBy: { _ in
@@ -77,7 +77,7 @@ extension ProbeTests {
     }
 
     @Test
-    func testRunningUntilExitOfBody() async throws {
+    func runningUntilExitOfBody() async throws {
         try await withProbing {
             await interactor.callWithDefaultProbes()
         } dispatchedBy: { dispatcher in
@@ -88,7 +88,7 @@ extension ProbeTests {
     }
 
     @Test
-    func testRunningUntilEverythingCompleted() async throws {
+    func runningUntilEverythingCompleted() async throws {
         try await withProbing {
             await interactor.callWithDefaultProbes()
         } dispatchedBy: { dispatcher in
@@ -99,7 +99,7 @@ extension ProbeTests {
     }
 
     @Test
-    func testGettingMissingEffectValue() async throws {
+    func gettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithDefaultProbes()
@@ -119,7 +119,7 @@ extension ProbeTests {
     }
 
     @Test
-    func testGettingMissingEffectCancelledValue() async throws {
+    func gettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithDefaultProbes()
@@ -139,7 +139,7 @@ extension ProbeTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
+    func runningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 await interactor.callWithNamedProbes()
@@ -158,7 +158,7 @@ extension ProbeTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
+    func runningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 await interactor.callWithNamedProbes()
@@ -180,7 +180,7 @@ extension ProbeTests {
         arguments: [true, false],
         ProbingOptions.all
     )
-    func testRunningUntilMissingEffectCompleted(
+    func runningUntilMissingEffectCompleted(
         includingDescendants: Bool,
         options: ProbingOptions
     ) async throws {
@@ -208,7 +208,7 @@ extension ProbeTests {
 extension ProbeTests {
 
     @Test
-    func testThrowingLateInBody() async {
+    func throwingLateInBody() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
                 await interactor.callWithDefaultProbes()
@@ -221,7 +221,7 @@ extension ProbeTests {
     }
 
     @Test
-    func testThrowingLateInTest() async {
+    func throwingLateInTest() async {
         await #expect(throws: ErrorMock.self) {
             try await confirmation { confirmation in
                 try await withProbing {

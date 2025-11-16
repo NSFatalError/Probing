@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 
 public enum EquatableObjectMacro {
 
@@ -34,7 +34,7 @@ extension EquatableObjectMacro: MemberMacro {
         providingMembersOf declaration: some DeclGroupSyntax,
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
-    ) throws -> [DeclSyntax] {
+    ) -> [DeclSyntax] {
         guard let declaration = validate(declaration, in: context) else {
             return []
         }
@@ -61,7 +61,7 @@ extension EquatableObjectMacro: ExtensionMacro {
         providingExtensionsOf type: some TypeSyntaxProtocol,
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
-    ) throws -> [ExtensionDeclSyntax] {
+    ) -> [ExtensionDeclSyntax] {
         guard validate(declaration, in: context) != nil else {
             return []
         }

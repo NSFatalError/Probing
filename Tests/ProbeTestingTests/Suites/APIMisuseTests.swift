@@ -15,7 +15,7 @@ internal struct APIMisuseTests {
     private let interactor = NonSendableInteractor()
 
     @Test
-    func testInstallingProbeInTask() async throws {
+    func installingProbeInTask() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
                 interactor.callWithProbeInTask()
@@ -29,7 +29,7 @@ internal struct APIMisuseTests {
     }
 
     @Test
-    func testInstallingProbesInTaskGroup() async throws {
+    func installingProbesInTaskGroup() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
                 await interactor.callWithProbesInTaskGroup()
@@ -44,7 +44,7 @@ internal struct APIMisuseTests {
     }
 
     @Test
-    func testInstallingProbesInAsyncLet() async throws {
+    func installingProbesInAsyncLet() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
                 await interactor.callWithProbesInAsyncLet()
@@ -62,7 +62,7 @@ internal struct APIMisuseTests {
 extension APIMisuseTests {
 
     @Test
-    func testCreatingEffectInTask() async throws {
+    func creatingEffectInTask() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
                 interactor.callWithEffectInTask()
@@ -76,7 +76,7 @@ extension APIMisuseTests {
     }
 
     @Test
-    func testCreatingEffectAfterInstallingProbeInTaskGroup() async throws {
+    func creatingEffectAfterInstallingProbeInTaskGroup() async throws {
         try await withKnownIssue(isIntermittent: true) {
             try await withProbing(options: .attemptProbingInTasks) {
                 await interactor.callWithProbeAndEffectInTaskGroup()

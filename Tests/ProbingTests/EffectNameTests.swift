@@ -12,7 +12,7 @@ import Testing
 internal struct EffectNameTests {
 
     @Test
-    func testEquality() {
+    func equality() {
         let name: EffectName = "effect"
         let enumeratedName = EffectName.enumerated(name)
 
@@ -21,7 +21,7 @@ internal struct EffectNameTests {
     }
 
     @Test
-    func testIndexing() {
+    func indexing() {
         let name: EffectName = "effect"
         let enumeratedName = EffectName.enumerated(name)
 

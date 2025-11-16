@@ -12,14 +12,14 @@ import Testing
 internal struct EquatableObjectTests {
 
     @Test
-    func testEquality() {
+    func equality() {
         let lhs = Person()
         let rhs = Person()
         #expect(lhs == rhs)
     }
 
     @Test
-    func testNonEquality() {
+    func nonEquality() {
         let lhs = Person(id: 0)
         let rhs = Person(id: 1)
         #expect(lhs != rhs)

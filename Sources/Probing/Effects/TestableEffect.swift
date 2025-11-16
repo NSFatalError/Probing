@@ -19,7 +19,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
 
     @discardableResult
     public static func _make( // swiftlint:disable:this identifier_name
-        _ name: @autoclosure () -> EffectName,
+        _ name: EffectName,
         priority: TaskPriority?,
         fileID: String = #fileID,
         line: Int = #line,
@@ -29,15 +29,15 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         guard let coordinator = ProbingCoordinator.current else {
             return .init(
                 task: Task(
+                    name: name.rawValue,
                     priority: priority,
                     operation: operation
                 )
             )
         }
 
-        let name = name()
-        let id = EffectIdentifier.current(appending: name)
         let isolation = extractIsolation(operation)
+        let id = EffectIdentifier.current(appending: name)
         var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
             fileID: fileID,
@@ -48,6 +48,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         guard coordinator.willCreateEffect(withID: id, at: location) else {
             return .init(
                 task: Task(
+                    name: name.rawValue,
                     priority: priority,
                     operation: transfer.finalize()
                 )
@@ -57,7 +58,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         let task = EffectIdentifier.withChild(id) {
             var transfer = transfer.take()
 
-            return Task(priority: priority) {
+            return Task(name: name.rawValue, priority: priority) {
                 // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0461-async-function-isolation.md
                 // https://github.com/swiftlang/swift-evolution/blob/main/proposals/0472-task-start-synchronously-on-caller-context.md
                 // https://forums.swift.org/t/closure-isolation-control/70378
@@ -83,8 +84,8 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
 
     @discardableResult
     public static func _make( // swiftlint:disable:this identifier_name
-        _ name: @autoclosure () -> EffectName,
-        executorPreference taskExecutor: consuming (any TaskExecutor)?,
+        _ name: EffectName,
+        executorPreference taskExecutor: (any TaskExecutor)?,
         priority: TaskPriority?,
         fileID: String = #fileID,
         line: Int = #line,
@@ -94,6 +95,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         guard let coordinator = ProbingCoordinator.current else {
             return .init(
                 task: Task(
+                    name: name.rawValue,
                     executorPreference: taskExecutor,
                     priority: priority,
                     operation: operation
@@ -101,7 +103,6 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
             )
         }
 
-        let name = name()
         let id = EffectIdentifier.current(appending: name)
         var transfer = SingleUseTransfer(operation)
         let location = ProbingLocation(
@@ -113,6 +114,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         guard coordinator.willCreateEffect(withID: id, at: location) else {
             return .init(
                 task: Task(
+                    name: name.rawValue,
                     executorPreference: taskExecutor,
                     priority: priority,
                     operation: transfer.finalize()
@@ -123,7 +125,7 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         let task = EffectIdentifier.withChild(id) { [taskExecutor] in
             var transfer = transfer.take()
 
-            return Task(executorPreference: taskExecutor, priority: priority) {
+            return Task(name: name.rawValue, executorPreference: taskExecutor, priority: priority) {
                 await coordinator.willStartEffect(withID: id, isolation: nil)
                 let value = await transfer.finalize()()
 
@@ -140,5 +142,46 @@ public struct TestableEffect<Success: Sendable>: Effect, Hashable {
         }
 
         return .init(task: task)
+    }
+}
+
+extension TestableEffect {
+
+    private static func extractIsolation(
+        _ operation: @escaping @isolated(any) () async throws -> Success
+    ) -> (any Actor)? {
+        operation.isolation
+    }
+}
+
+extension Task
+where Failure == Never {
+
+    @discardableResult
+    public init(
+        name: EffectName,
+        priority: TaskPriority? = nil,
+        @_inheritActorContext @_implicitSelfCapture operation: sending @escaping @isolated(any) () async -> Success
+    ) {
+        self.init(
+            name: name.rawValue,
+            priority: priority,
+            operation: operation
+        )
+    }
+
+    @discardableResult
+    public init(
+        name: EffectName,
+        executorPreference taskExecutor: (any TaskExecutor)?,
+        priority: TaskPriority? = nil,
+        operation: sending @escaping () async -> Success
+    ) {
+        self.init(
+            name: name.rawValue,
+            executorPreference: taskExecutor,
+            priority: priority,
+            operation: operation
+        )
     }
 }

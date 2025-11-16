@@ -6,21 +6,17 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
 
-internal struct DeeplyCopyableStatefulInitDeclBuilder: StatefulDeclBuilder {
+internal struct DeeplyCopyableStatefulInitDeclBuilder: StatefulDeclBuilder, MemberBuilding {
 
     let declaration: any StatefulDeclSyntax
     let filteredProperties: PropertiesList
 
-    var settings: DeclBuilderSettings {
-        .init(accessControlLevel: .init(inheritingDeclaration: .member))
-    }
-
     func build() -> [DeclSyntax] {
         [
             """
-            \(inheritedAccessControlLevel)init(deeplyCopying other: \(trimmedTypeName)) {
+            \(inheritedAccessControlLevel)init(deeplyCopying other: \(trimmedType)) {
                 \(assignments().formatted())
             }
             """
@@ -29,7 +25,7 @@ internal struct DeeplyCopyableStatefulInitDeclBuilder: StatefulDeclBuilder {
 
     @CodeBlockItemListBuilder
     private func assignments() -> CodeBlockItemListSyntax {
-        for property in filteredProperties {
+        for property in filteredProperties.all {
             "self.\(property.trimmedName) = other.\(property.trimmedName).deepCopy()"
         }
     }

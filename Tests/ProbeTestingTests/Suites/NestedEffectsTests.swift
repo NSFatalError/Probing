@@ -13,7 +13,7 @@ import Testing
 internal final class NestedEffectsTests: EffectTests {
 
     @Test
-    func testRunningThroughProbes() async throws {
+    func runningThroughProbes() async throws {
         try await withProbing {
             await interactor.callWithNestedEffects()
         } dispatchedBy: { dispatcher in
@@ -96,7 +96,7 @@ internal final class NestedEffectsTests: EffectTests {
         arguments: product(1 ..< 3, 1 ..< 3),
         1 ..< 3
     )
-    func testRunningToProbe(
+    func runningToProbe(
         inEffect effect: (parent: Int, child: Int),
         withNumber number: Int
     ) async throws {
@@ -148,7 +148,7 @@ internal final class NestedEffectsTests: EffectTests {
     }
 
     @Test
-    func testNameEnumeration() async throws {
+    func nameEnumeration() async throws {
         try await withProbing {
             await interactor.callWithNestedEnumeratedEffects()
         } dispatchedBy: { dispatcher in
@@ -189,7 +189,7 @@ internal final class NestedEffectsTests: EffectTests {
 extension NestedEffectsTests {
 
     @Test
-    func testRunningWithoutDispatches() async throws {
+    func runningWithoutDispatches() async throws {
         try await withProbing {
             await interactor.callWithNestedEffects()
         } dispatchedBy: { _ in
@@ -199,7 +199,7 @@ extension NestedEffectsTests {
     }
 
     @Test
-    func testRunningUntilExitOfBody() async throws {
+    func runningUntilExitOfBody() async throws {
         try await withProbing {
             await interactor.callWithNestedEffects()
         } dispatchedBy: { dispatcher in
@@ -210,7 +210,7 @@ extension NestedEffectsTests {
     }
 
     @Test
-    func testRunningUntilEverythingCompleted() async throws {
+    func runningUntilEverythingCompleted() async throws {
         try await withProbing {
             await interactor.callWithNestedEffects()
         } dispatchedBy: { dispatcher in
@@ -231,7 +231,7 @@ extension NestedEffectsTests {
     }
 
     @Test
-    func testGettingMissingEffectValue() async throws {
+    func gettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithNestedEffects()
@@ -251,7 +251,7 @@ extension NestedEffectsTests {
     }
 
     @Test
-    func testGettingMissingEffectCancelledValue() async throws {
+    func gettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 await interactor.callWithNestedEffects()
@@ -271,7 +271,7 @@ extension NestedEffectsTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
+    func runningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 await interactor.callWithNestedEffects()
@@ -293,7 +293,7 @@ extension NestedEffectsTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
+    func runningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 await interactor.callWithNestedEffects()
@@ -318,7 +318,7 @@ extension NestedEffectsTests {
         arguments: [true, false],
         ProbingOptions.all
     )
-    func testRunningUntilMissingEffectCompleted(
+    func runningUntilMissingEffectCompleted(
         includingDescendants: Bool,
         options: ProbingOptions
     ) async throws {
@@ -356,7 +356,7 @@ extension EffectTests.IsolatedInteractor {
 
         await #probe("1")
         model.tick()
-        #ConcurrentEffect("2") {
+        #Effect("2") { @concurrent in
             await self.callWithIndependentEffects()
         }
 
@@ -368,7 +368,7 @@ extension EffectTests.IsolatedInteractor {
         #Effect(.enumerated("name")) {
             self.callWithIndependentEnumeratedEffects()
         }
-        #ConcurrentEffect(.enumerated("name")) {
+        #Effect(.enumerated("name")) { @concurrent in
             await self.callWithIndependentEnumeratedEffects()
         }
     }
