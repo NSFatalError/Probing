@@ -9,12 +9,12 @@
 @testable import Probing
 import Testing
 
-internal struct EffectTests {
+internal enum EffectTests {
 
     struct WithIsolatedOperation {
 
         @Test
-        func testTestableEffectInit() async {
+        func ableEffectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test") {
                     try? await Task.sleep(for: .microseconds(1))
@@ -28,7 +28,7 @@ internal struct EffectTests {
         }
 
         @Test
-        func testTaskInit() async {
+        func taskInit() async {
             await confirmation { confirmation in
                 let effect = #Effect(
                     "Test",
@@ -60,7 +60,7 @@ internal struct EffectTests {
     struct WithExecutorPreference {
 
         @Test
-        func testTestableEffectInit() async {
+        func testableEffectInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("Test", executorPreference: globalConcurrentExecutor) {
                     try? await Task.sleep(for: .microseconds(1))
@@ -151,7 +151,7 @@ internal struct EffectTests {
     struct Recursive {
 
         @Test
-        func testTestableEffectNestedChildrenInit() async {
+        func ableEffectNestedChildrenInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("1") {
                     #Effect("2", executorPreference: globalConcurrentExecutor) {
@@ -168,7 +168,7 @@ internal struct EffectTests {
         }
 
         @Test
-        func testTaskNestedChildrenInit() async {
+        func taskNestedChildrenInit() async {
             await confirmation { confirmation in
                 let effect = #Effect("1", preprocessorFlag: "NULL") {
                     #Effect("2", executorPreference: globalConcurrentExecutor) {

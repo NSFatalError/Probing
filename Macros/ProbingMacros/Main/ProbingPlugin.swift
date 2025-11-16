@@ -6,8 +6,8 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import SwiftSyntaxMacros
 import SwiftCompilerPlugin
+import SwiftSyntaxMacros
 
 @main
 internal struct ProbingPlugin: CompilerPlugin {

@@ -31,7 +31,8 @@ public enum DeeplyCopyableMacro {
         if let declaration = declaration as? (any StatefulDeclSyntax), declaration.isFinal {
             let filteredProperties = PropertiesParser
                 .parse(memberBlock: declaration.memberBlock, in: context)
-                .stored.instance
+                .stored
+                .instance
 
             for property in filteredProperties.all {
                 guard property.mutability == .mutable || property.binding.initializer == nil else {
