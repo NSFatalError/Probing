@@ -22,7 +22,7 @@ internal struct WithProbingTests {
     }
 
     @Test
-    func testRunningWithoutDispatches() async throws {
+    func runningWithoutDispatches() async throws {
         try await withProbing {
             interactor.call()
         } dispatchedBy: { _ in
@@ -32,7 +32,7 @@ internal struct WithProbingTests {
     }
 
     @Test
-    func testRunningUntilExitOfBody() async throws {
+    func runningUntilExitOfBody() async throws {
         try await withProbing {
             interactor.call()
         } dispatchedBy: { dispatcher in
@@ -43,7 +43,7 @@ internal struct WithProbingTests {
     }
 
     @Test
-    func testRunningUntilEverythingCompleted() async throws {
+    func runningUntilEverythingCompleted() async throws {
         try await withProbing {
             interactor.call()
         } dispatchedBy: { dispatcher in
@@ -54,7 +54,7 @@ internal struct WithProbingTests {
     }
 
     @Test
-    func testGettingMissingEffectValue() async throws {
+    func gettingMissingEffectValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 interactor.call()
@@ -74,7 +74,7 @@ internal struct WithProbingTests {
     }
 
     @Test
-    func testGettingMissingEffectCancelledValue() async throws {
+    func gettingMissingEffectCancelledValue() async throws {
         try await withKnownIssue {
             try await withProbing {
                 interactor.call()
@@ -94,7 +94,7 @@ internal struct WithProbingTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbe(options: ProbingOptions) async throws {
+    func runningUpToMissingProbe(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 interactor.call()
@@ -113,7 +113,7 @@ internal struct WithProbingTests {
     }
 
     @Test(arguments: ProbingOptions.all)
-    func testRunningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
+    func runningUpToMissingProbeInEffect(options: ProbingOptions) async throws {
         try await withKnownIssue {
             try await withProbing(options: options) {
                 interactor.call()
@@ -135,7 +135,7 @@ internal struct WithProbingTests {
         arguments: [true, false],
         ProbingOptions.all
     )
-    func testRunningUntilMissingEffectCompleted(
+    func runningUntilMissingEffectCompleted(
         includingDescendants: Bool,
         options: ProbingOptions
     ) async throws {
@@ -163,7 +163,7 @@ internal struct WithProbingTests {
 extension WithProbingTests {
 
     @Test
-    func testReturningValue() async throws {
+    func returningValue() async throws {
         let id = UUID()
         let value = try await withProbing {
             id
@@ -174,7 +174,7 @@ extension WithProbingTests {
     }
 
     @Test
-    func testThrowingEarlyInBody() async {
+    func throwingEarlyInBody() async {
         await #expect(throws: ErrorMock.self) {
             try await withProbing {
                 throw ErrorMock()
@@ -186,7 +186,7 @@ extension WithProbingTests {
     }
 
     @Test
-    func testThrowingEarlyInTest() async {
+    func throwingEarlyInTest() async {
         await #expect(throws: ErrorMock.self) {
             try await confirmation { confirmation in
                 try await withProbing {
@@ -199,7 +199,7 @@ extension WithProbingTests {
     }
 
     @Test
-    func testProbingInTest() async throws {
+    func probingInTest() async throws {
         try await withProbing {
             // Void
         } dispatchedBy: { _ in
@@ -209,7 +209,7 @@ extension WithProbingTests {
 
     @CustomActor
     @Test
-    func testIsolationInBody() async throws {
+    func isolationInBody() async throws {
         try await withProbing {
             #expect(#isolation === CustomActor.shared)
             CustomActor.shared.assertIsolated()
@@ -220,7 +220,7 @@ extension WithProbingTests {
 
     @CustomActor
     @Test
-    func testIsolationInTest() async throws {
+    func isolationInTest() async throws {
         try await withProbing {
             // Void
         } dispatchedBy: { _ in
