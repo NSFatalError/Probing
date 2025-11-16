@@ -12,12 +12,12 @@ import Testing
 internal struct ProbeTests {
 
     @Test
-    func inAsyncFunction() async {
+    func asyncFunction() async {
         await #probe()
     }
 
     @Test
-    func inTask() async {
+    func task() async {
         let task = Task {
             await #probe()
         }
@@ -25,7 +25,7 @@ internal struct ProbeTests {
     }
 
     @Test
-    func inExplicitlyIsolatedTask() async {
+    func explicitlyIsolatedTask() async {
         let task = Task { @CustomActor in
             await #probe()
         }
@@ -33,7 +33,7 @@ internal struct ProbeTests {
     }
 
     @Test
-    func inEffect() async {
+    func effect() async {
         let effect = #Effect("test") {
             await #probe()
         }
@@ -41,7 +41,7 @@ internal struct ProbeTests {
     }
 
     @Test
-    func inExplicitlyIsolatedEffect() async {
+    func explicitlyIsolatedEffect() async {
         let effect = #Effect("test") { @CustomActor in
             await #probe()
         }
