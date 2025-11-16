@@ -254,15 +254,15 @@ extension DeeplyCopyableTests {
             self.id = id
         }
 
+        static func < (lhs: Person, rhs: Person) -> Bool {
+            lhs.id < rhs.id
+        }
+
         func hash(into hasher: inout Hasher) {
             hasher.combine(id)
             hasher.combine(age)
             hasher.combine(name)
             hasher.combine(surname)
-        }
-
-        static func < (lhs: Person, rhs: Person) -> Bool {
-            lhs.id < rhs.id
         }
     }
 }

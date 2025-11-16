@@ -148,6 +148,9 @@
                 macros: macros
             )
         }
+    }
+
+    extension EffectMacroTests {
 
         func testExpansionWithExecutorPreference() {
             assertMacroExpansion(
@@ -218,6 +221,9 @@
                 macros: macros
             )
         }
+    }
+
+    extension EffectMacroTests {
 
         func testExpansionWithNestedChildren() {
             assertMacroExpansion(
